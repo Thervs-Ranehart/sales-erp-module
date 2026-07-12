@@ -25,7 +25,23 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 
 Route::get('/sales-order-management', [SalesOrderController::class, 'index'])->name('sales.index');
 
-Route::get('/crm', [CustomerController::class, 'index'])->name('crm.index');
+// CRM Dashboard
+Route::view('/crm', 'crm.index')->name('crm.index');
+
+// CRM Modules
+Route::view('/customer-directory', 'crm.customer-directory')->name('crm.directory');
+ 
+Route::view('/customer-profiles', 'crm.customer-profiles')->name('crm.profiles');
+ 
+Route::view('/purchase-history', 'crm.purchase-history')->name('crm.purchase');
+ 
+Route::view('/customer-logs', 'crm.customer-logs')->name('crm.logs');
+
+Route::view('/customer-follow-ups', 'crm.customer-followups')->name('crm.followups');
+
+Route::view('/customer-loyalty', 'crm.customer-loyalty')->name('crm.loyalty');
+
+Route::view('/customer-segmentation', 'crm.customer-segmentation')->name('crm.segmentation');
 
 Route::get('/after-sales-support', [SupportTicketController::class, 'index'])->name('support.index');
 
