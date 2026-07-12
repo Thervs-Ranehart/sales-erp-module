@@ -1,33 +1,41 @@
-TODO
+# TODO - Support Tickets module (sales)
 
-High Priority
+## Step 1
+Inspect existing Support module files (controller + models) and ensure they align with migrations.
 
-  Connect modules to real database-backed models
-  Implement full CRUD for Sales Orders
-  Implement full CRUD for Customers
-  Implement full CRUD for Support Tickets
-  Connect Forecasting pages to real reporting data
-  Add validation and form handling for module pages
+## Step 2
+Update `app/Http/Controllers/SupportTicketController.php` to implement working endpoints:
+- list tickets (filters)
+- show ticket detail (relations)
+- create ticket (optionally link warranty/service context)
+- assign ticket to employee
+- record resolution tracking
+- record satisfaction feedback
 
-Medium Priority
+## Step 3
+Update `app/Models/SupportTicket.php`:
+- match `support_tickets` schema
+- add Eloquent relationships to:
+  - ticket assignments
+  - warranty claims
+  - service requests
+  - resolution tracking
+  - satisfaction monitoring
 
-  Improve reusable UI components
-  Add more polished dashboard widgets
-  Implement real notifications workflow
-  Add user roles and permissions
-  Improve responsive design for mobile/tablet
+## Step 4
+Update existing `app/Models/WarrantyClaim.php` to match `warranty_claims` schema.
 
-Low Priority
+## Step 5
+Add new model classes to keep code clean and working:
+- `WarrantyRecord`
+- `ServiceContract`
+- `ServiceRequest`
+- `ResolutionTracking`
+- `SatisfactionMonitoring`
 
-  Add charts and visual analytics
-  Add export/report generation features
-  Add audit logs and activity tracking
-  Improve accessibility across the app
-  Add more automated tests for each module
+## Step 6
+(After PHP-only work) Update routes/UI wiring if needed (may touch `routes/web.php` later).
 
-Refactoring Tasks
+## Step 7
+Run quick sanity checks (php artisan route:list / phpunit if applicable).
 
-  Reduce duplicated Blade markup further
-  Improve separation of business logic from views
-  Standardize naming conventions across controllers and views
-  Refine module-based structure for long-term maintainability
