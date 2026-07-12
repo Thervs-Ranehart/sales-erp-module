@@ -1,4 +1,3 @@
-```blade
 @extends('layouts.app')
 
 @section('title', 'Purchase History')
@@ -65,10 +64,6 @@
 
 </style>
 
-
-
-
-
 {{-- Header --}}
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -97,15 +92,9 @@ Export Report
 </div>
 
 
-
-
-
-
-
 {{-- Summary Cards --}}
 
 <div class="row g-3 mb-4">
-
 
 <div class="col-md-3">
 
@@ -122,8 +111,6 @@ Total Transactions
 </div>
 
 </div>
-
-
 
 
 <div class="col-md-3">
@@ -143,8 +130,6 @@ Total Sales
 </div>
 
 
-
-
 <div class="col-md-3">
 
 <div class="summary-box">
@@ -160,8 +145,6 @@ Monthly Orders
 </div>
 
 </div>
-
-
 
 
 <div class="col-md-3">
@@ -180,13 +163,7 @@ Average Purchase
 
 </div>
 
-
 </div>
-
-
-
-
-
 
 
 
@@ -195,9 +172,7 @@ Average Purchase
 <div class="row g-4 mb-4">
 
 
-
 <div class="col-md-4">
-
 
 <div class="card purchase-card p-4">
 
@@ -205,7 +180,6 @@ Average Purchase
 <h6 class="fw-semibold mb-3">
 Customer Insights
 </h6>
-
 
 
 <div class="category-item">
@@ -221,7 +195,6 @@ Juan Dela Cruz
 </div>
 
 
-
 <div class="category-item">
 
 <span>
@@ -233,7 +206,6 @@ Highest Purchase
 </strong>
 
 </div>
-
 
 
 <div class="category-item">
@@ -249,7 +221,6 @@ Electronics
 </div>
 
 
-
 <div class="category-item">
 
 <span>
@@ -263,13 +234,9 @@ Weekly
 </div>
 
 
-
 </div>
 
-
 </div>
-
-
 
 
 
@@ -283,7 +250,6 @@ Weekly
 <h6 class="fw-semibold mb-3">
 Search Transactions
 </h6>
-
 
 
 <div class="row g-3">
@@ -314,8 +280,6 @@ placeholder="Search customer, product, or transaction ID">
 
 
 
-
-
 <div class="col-md-3">
 
 <select class="form-select">
@@ -339,8 +303,6 @@ Accessories
 </select>
 
 </div>
-
-
 
 
 
@@ -373,7 +335,6 @@ Cancelled
 
 
 
-
 <div class="col-md-2">
 
 <button class="btn btn-outline-secondary w-100">
@@ -395,14 +356,7 @@ Filter
 </div>
 
 
-
 </div>
-
-
-
-
-
-
 
 
 
@@ -414,7 +368,6 @@ Filter
 <h6 class="fw-semibold mb-3">
 Top Purchase Categories
 </h6>
-
 
 
 <div class="row">
@@ -481,15 +434,9 @@ Accessories
 
 
 
-
-
-
-
-
 {{-- Transaction Records --}}
 
 <div class="card purchase-card p-4">
-
 
 
 <div class="mb-3">
@@ -509,9 +456,6 @@ Customer purchase history and sales information
 
 
 
-
-
-
 <div class="table-responsive">
 
 
@@ -523,57 +467,46 @@ Customer purchase history and sales information
 
 <tr>
 
-
 <th>
 Transaction ID
 </th>
-
 
 <th>
 Customer
 </th>
 
-
 <th>
 Product
 </th>
-
 
 <th>
 Category
 </th>
 
-
 <th class="text-center">
 Qty
 </th>
-
 
 <th>
 Amount
 </th>
 
-
 <th class="text-center">
 Payment Status
 </th>
-
 
 <th>
 Purchase Date
 </th>
 
-
 <th class="text-center">
 Action
 </th>
-
 
 </tr>
 
 
 </thead>
-
 
 
 
@@ -616,11 +549,9 @@ Electronics
 
 <td class="text-center">
 
-
 <span class="badge bg-success">
 Paid
 </span>
-
 
 </td>
 
@@ -647,8 +578,6 @@ Receipt
 
 
 </tr>
-
-
 
 
 
@@ -795,7 +724,6 @@ Receipt
 
 
 
-
 </tbody>
 
 
@@ -810,6 +738,4 @@ Receipt
 
 
 
-
 @endsection
-```

@@ -1,7 +1,9 @@
 @extends('layouts.app')
 
-@section('title', 'Communication Logs')
-@section('page-title', 'Communication Logs')
+@php
+    $title = 'Customer Directory';
+    $subtitle = 'Manage customer information and relationship data.';
+@endphp
 
 @section('content')
 

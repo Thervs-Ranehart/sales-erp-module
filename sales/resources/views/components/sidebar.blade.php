@@ -153,7 +153,13 @@ $utilityItems = [
     #app-sidebar[data-sidebar-state="collapsed"] .mt-auto a {
         justify-content: center;
     }
+
+    /* Keep active submenu visible even while collapsed */
+    #app-sidebar[data-sidebar-state="collapsed"] .sub-nav.open {
+        display: flex !important;
+    }
 </style>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
