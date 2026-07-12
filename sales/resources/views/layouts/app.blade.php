@@ -30,12 +30,15 @@
 
         .sidebar {
             width: 78px;
-            min-height: 100vh;
+            height: 100vh;
+            max-height: 100vh;
             background: linear-gradient(180deg, var(--primary), #4338CA);
             color: #fff;
             position: sticky;
             top: 0;
-            overflow: hidden;
+            align-self: flex-start;
+            overflow-y: auto;
+            overflow-x: hidden;
             transition: width .25s ease;
         }
 
