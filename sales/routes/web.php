@@ -55,24 +55,18 @@ Route::get('/notifications', [NotificationController::class, 'index'])->name('no
 
 Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
 
-// Sales Order Management
+// Sales Order Management 
 Route::view('/sales-orders', 'sales.index')
     ->name('sales.index');
 
 Route::view('/quotations', 'sales.quotations')
     ->name('quotations.index');
 
-Route::view('/quotations/create', 'sales.create-quotation')
-    ->name('quotations.create');
-
 Route::view('/order-tracking', 'sales.tracking')
     ->name('tracking.index');
 
-Route::view('/pricing-rules', 'sales.pricing-rules')
+Route::view('/pricing-rules', 'sales.pricing')
     ->name('pricing.index');
-
-Route::view('/pricing-rules/create', 'sales.create-pricing')
-    ->name('pricing.create');
 
 Route::view('/discounts', 'sales.discounts')
     ->name('discounts.index');
@@ -83,13 +77,24 @@ Route::view('/taxes', 'sales.taxes')
 Route::view('/invoice-generation', 'sales.invoice')
     ->name('invoice.index');
 
+Route::get('/sales-order-management/profile/{id}', function ($id) {
+    return view('sales.profile', compact('id'));
+    })->name('sales.profile');
+    
+Route::view('/quotations', 'sales.quotations')
+    ->name('quotations.index');
+
+Route::view('/quotations/create', 'sales.create-quotation')
+    ->name('quotations.create');
+    
 Route::view('/invoices', 'sales.invoices')
     ->name('invoices.index');
 
 Route::view('/invoices/create', 'sales.create-invoice')
     ->name('invoices.create');
 
-Route::get('/sales-order-management/profile/{id}', function ($id) {
-    return view('sales.profile', compact('id'));
-})->name('sales.profile');
+Route::view('/pricing-rules', 'sales.pricing-rules')
+    ->name('pricing.index');
 
+Route::view('/pricing-rules/create', 'sales.create-pricing')
+    ->name('pricing.create');
