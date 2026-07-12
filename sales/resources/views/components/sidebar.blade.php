@@ -2,7 +2,7 @@
 
 @php
 $mainItems = [
-    ['label' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'speedometer2', 'hasDropdown' => true],
+    ['label' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'speedometer2', 'hasDropdown' => false],
     ['label' => 'Sales Order Management', 'route' => 'sales.index', 'icon' => 'cart-check', 'hasDropdown' => true],
     ['label' => 'Customer Relationship Management', 'route' => 'crm.index', 'icon' => 'people-fill', 'hasDropdown' => true],
     ['label' => 'After-Sales Support and Case Management', 'route' => 'support.index', 'icon' => 'headset', 'hasDropdown' => true],

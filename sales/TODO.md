@@ -1,18 +1,33 @@
-# TODO
+TODO
 
-## Forecasting submenu refactor
-- [ ] Create 4 independent Blade pages under `resources/views/forecasting/`:
-  - [x] `reports.blade.php`
-  - [x] `performance.blade.php`
-  - [x] `forecast.blade.php`
-  - [x] `recommendations.blade.php`
-- [x] Each page must include its own hero/intro and unique content section.
-- [ ] Update `app/Http/Controllers/ForecastingController.php` methods:
-  - [x] `reports()` -> `forecasting.reports`
-  - [x] `performance()` -> `forecasting.performance`
-  - [x] `forecast()` -> `forecasting.forecast`
-  - [x] `recommendations()` -> `forecasting.recommendations`
-- [ ] Verify `routes/web.php` named routes exist (no changes unless needed).
-- [ ] Confirm sidebar links remain unchanged.
+High Priority
 
+  Connect modules to real database-backed models
+  Implement full CRUD for Sales Orders
+  Implement full CRUD for Customers
+  Implement full CRUD for Support Tickets
+  Connect Forecasting pages to real reporting data
+  Add validation and form handling for module pages
 
+Medium Priority
+
+  Improve reusable UI components
+  Add more polished dashboard widgets
+  Implement real notifications workflow
+  Add user roles and permissions
+  Improve responsive design for mobile/tablet
+
+Low Priority
+
+  Add charts and visual analytics
+  Add export/report generation features
+  Add audit logs and activity tracking
+  Improve accessibility across the app
+  Add more automated tests for each module
+
+Refactoring Tasks
+
+  Reduce duplicated Blade markup further
+  Improve separation of business logic from views
+  Standardize naming conventions across controllers and views
+  Refine module-based structure for long-term maintainability

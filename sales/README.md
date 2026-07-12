@@ -1,58 +1,81 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+//Sales ERP System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel-based Sales ERP system designed to manage core sales operations such as dashboard views, sales orders, customer relationships, after-sales support, forecasting, notifications, and user profile management.
 
-## About Laravel
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+//Overview
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+This system provides a modular ERP-style interface for managing business workflows in a single web application. It currently includes:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Dashboard
+Sales Order Management
+Customer Relationship Management
+After-Sales Support and Case Management
+Sales Performance Reporting and Forecasting
+Notifications
+Profile
 
-## Learning Laravel
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+//Tech Stack
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+PHP 8.3
+Laravel 13
+Blade Templates
+Tailwind CSS
+Vite
+Bootstrap Icons
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
 
-## Agentic Development
+//Project Structure
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+app/Http/Controllers – route handlers for each module
+app/Models – domain models for sales, customers, forecasting, tickets, and notifications
+resources/views – Blade templates and UI components
+routes/web.php – application routes
+database/migrations – database schema definitions
+tests – feature and unit tests
 
-```bash
-composer require laravel/boost --dev
 
-php artisan boost:install
-```
+//Current Status
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+The project is currently in an early-to-mid development stage. The UI has been structured into reusable layout and component patterns, and core ERP modules have been scaffolded. Some areas are still being expanded with real data integration and deeper business logic.
 
-## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+//Installation
 
-## Code of Conduct
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+npm run dev
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
-## Security Vulnerabilities
+//Running the Application
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+php artisan serve
+npm run dev
 
-## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+//Development Notes
+
+The application uses Laravel MVC architecture.
+UI components are organized using Blade layouts and reusable components.
+Sidebar navigation and module pages are structured to support future growth into a more complete ERP system.
+
+
+//Roadmap
+
+Planned improvements include:
+
+Full CRUD for sales orders and customers
+Database-backed reporting and forecasting data
+Support ticket workflow enhancements
+Notification system integration
+Authentication and role-based access
+Expanded testing and validation
+
+
+//License
+
+This project is currently maintained for internal development and extension purposes.
