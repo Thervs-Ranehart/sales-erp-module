@@ -186,6 +186,29 @@
             color: var(--muted);
             font-weight: 600;
         }
+
+        .hero-action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.9rem 2rem;
+            border-radius: 14px;
+            border: 4px solid rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 800;
+            text-decoration: none !important;
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
+            transition: all 0.25s ease;
+        }
+
+        .hero-action-btn:hover,
+        .hero-action-btn:focus {
+            background: #ffffff;
+            color: #128B99;
+            text-decoration: none !important;
+        }
     </style>
 </head>
 <body>

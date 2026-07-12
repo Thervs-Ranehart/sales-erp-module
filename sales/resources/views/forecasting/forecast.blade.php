@@ -26,14 +26,14 @@
                 <h1 class="text-white font-semibold text-[56px] leading-tight">Forecasting</h1>
             </div>
             <div class="flex-grow-1 d-flex align-items-center">
-                <p class="text-white/95 text-[21px] font-semibold leading-[1.5]" style="max-width: 720px; margin: 0;">
+                <p class="text-white" style="width: 100%; margin: 0; font-family: 'Poppins', sans-serif; font-size: 22px; font-weight: 600; line-height: 1.6; opacity: 0.95;">
                     Forecast future performance using pipeline signals and historical trends.
                 </p>
             </div>
             <div>
                 <a
                     href="{{ route('forecasting.forecast') }}"
-                    class="inline-flex items-center justify-center px-8 py-3 rounded-[26px] border border-[3px] border-white/90 bg-white/10 text-white text-[15px] font-bold shadow-[0_14px_30px_rgba(0,0,0,0.18)] hover:bg-white hover:text-[#128B99] transition-all duration-300 w-fit"
+                    class="hero-action-btn"
                 >
                     View Forecast
                 </a>
