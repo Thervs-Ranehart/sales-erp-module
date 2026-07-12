@@ -23,7 +23,7 @@ Route::get('/logout', function () {
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-Route::get('/sales-order-management', [SalesOrderController::class, 'index'])->name('sales.index');
+Route::get('/sales-order-management', [SalesOrderController::class, 'index'])->name('sales.order-management');
 
 // CRM Dashboard
 Route::view('/crm', 'crm.index')->name('crm.index');
@@ -82,9 +82,6 @@ Route::get('/sales-order-management/profile/{id}', function ($id) {
     return view('sales.profile', compact('id'));
     })->name('sales.profile');
     
-Route::view('/quotations', 'sales.quotations')
-    ->name('quotations.index');
-
 Route::view('/quotations/create', 'sales.create-quotation')
     ->name('quotations.create');
     
