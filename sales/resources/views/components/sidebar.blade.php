@@ -4,7 +4,21 @@
 $mainItems = [  
     ['label' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'speedometer2', 'hasDropdown' => false],
     ['label' => 'Sales Order Management', 'route' => 'sales.index', 'icon' => 'cart-check', 'hasDropdown' => true],
-    ['label' => 'Customer Relationship Management', 'route' => 'crm.index', 'icon' => 'people-fill', 'hasDropdown' => true],
+    [
+        'label' => 'Customer Relationship Management',
+        'route' => 'crm.index',
+        'icon' => 'people-fill',
+        'hasDropdown' => true,
+        'children' => [
+            ['label' => 'Customer Directory', 'route' => 'crm.directory', 'icon' => 'people-fill'],
+            ['label' => 'Customer Profiles', 'route' => 'crm.profiles', 'icon' => 'person-badge'],
+            ['label' => 'Purchase History', 'route' => 'crm.purchase', 'icon' => 'bag-check'],
+            ['label' => 'Communication Logs', 'route' => 'crm.logs', 'icon' => 'chat-left-text'],
+            ['label' => 'Follow-Ups', 'route' => 'crm.followups', 'icon' => 'calendar-check'],
+            ['label' => 'Loyalty Program', 'route' => 'crm.loyalty', 'icon' => 'award'],
+            ['label' => 'Customer Segmentation', 'route' => 'crm.segmentation', 'icon' => 'diagram-3'],
+        ],
+    ],
     ['label' => 'After-Sales Support and Case Management', 'route' => 'support.index', 'icon' => 'headset', 'hasDropdown' => true],
     [
         'label' => 'Sales Performance Reporting and Forecasting',
@@ -159,13 +173,14 @@ $utilityItems = [
                 syncSubmenuActiveState();
             });
 
+            // Do NOT clear submenu active/open state on mouseleave.
+            // This prevents the parent submenu (e.g., CRM) from collapsing/losing its state
+            // when user navigates to other items inside that parent.
             sidebar.addEventListener('mouseleave', function () {
                 sidebar.setAttribute('data-sidebar-state', 'collapsed');
-                document.querySelectorAll('.sub-nav-link.active').forEach(function (link) {
-                    link.classList.remove('active');
-                });
             });
         }
+
 
         document.querySelectorAll('.sidebar-drop-icon[data-dropdown-toggle]').forEach(function (icon) {
             icon.addEventListener('click', function (event) {
