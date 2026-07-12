@@ -67,7 +67,7 @@ $utilityItems = [
                                 $childActive = $currentRoute === $child['route'] || str_contains($currentRoute ?? '', $child['route']);
                             @endphp
 
-                            <a href="{{ route($child['route']) }}" class="sub-nav-link {{ $childActive ? 'active' : '' }}" title="{{ $child['label'] }}" data-submenu-icon>
+                            <a href="{{ route($child['route']) }}" class="sub-nav-link" title="{{ $child['label'] }}" data-submenu-icon data-active-route="{{ $childActive ? '1' : '0' }}">
                                 <i class="bi bi-{{ $child['icon'] }}" data-submenu-icon-inner></i>
                                 <span class="nav-label">{{ $child['label'] }}</span>
                             </a>
@@ -106,6 +106,9 @@ $utilityItems = [
     #app-sidebar[data-sidebar-state="collapsed"] .sub-nav.open i[data-submenu-icon-inner] {
         display: none;
     }
+    #app-sidebar[data-sidebar-state="collapsed"] .sub-nav-link.active {
+        background: transparent;
+    }
     #app-sidebar[data-sidebar-state="collapsed"]:hover .sub-nav-link[data-submenu-icon] i[data-submenu-icon-inner] {
         display: inline-block;
     }
@@ -140,6 +143,30 @@ $utilityItems = [
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const sidebar = document.getElementById('app-sidebar');
+
+        const syncSubmenuActiveState = function () {
+            const expanded = sidebar.getAttribute('data-sidebar-state') === 'expanded';
+
+            document.querySelectorAll('.sub-nav-link[data-active-route="1"]').forEach(function (link) {
+                link.classList.toggle('active', expanded);
+            });
+        };
+
+        if (sidebar) {
+            sidebar.addEventListener('mouseenter', function () {
+                sidebar.setAttribute('data-sidebar-state', 'expanded');
+                syncSubmenuActiveState();
+            });
+
+            sidebar.addEventListener('mouseleave', function () {
+                sidebar.setAttribute('data-sidebar-state', 'collapsed');
+                document.querySelectorAll('.sub-nav-link.active').forEach(function (link) {
+                    link.classList.remove('active');
+                });
+            });
+        }
+
         document.querySelectorAll('.sidebar-drop-icon[data-dropdown-toggle]').forEach(function (icon) {
             icon.addEventListener('click', function (event) {
                 event.preventDefault();
@@ -156,5 +183,7 @@ $utilityItems = [
                 this.classList.toggle('rotated');
             });
         });
+
+        syncSubmenuActiveState();
     });
 </script>

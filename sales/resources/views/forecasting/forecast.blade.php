@@ -20,12 +20,24 @@
         ['label' => 'Confidence Score', 'value' => '91%', 'icon' => 'lightning-charge', 'tone' => 'text-success', 'accent' => 'rgba(16, 185, 129, 0.14)'],
     ])
 
-    <main class="h-[230px] w-full flex items-center" style="margin-left: -1rem; margin-right: -1rem; padding-left: 48px; padding-right: 48px; background: linear-gradient(90deg, #128B99 0%, #1CE5BD 100%);">
-        <div class="flex flex-col justify-center gap-3">
-            <h1 class="text-white font-bold text-[48px] leading-none">Forecasting</h1>
-            <p class="text-white/95 text-[18px] leading-[1.6]" style="max-width: 650px;">
-                Forecast future performance using pipeline signals and historical trends.
-            </p>
+    <main class="w-full flex items-center" style="margin: -1rem -1rem 0; width: calc(100% + 2rem); padding: 40px 48px; height: 322px; max-height: 322px; background: linear-gradient(90deg, #128B99 0%, #1CE5BD 100%); border-radius: 0;">
+        <div class="d-flex flex-column h-100 w-100">
+            <div>
+                <h1 class="text-white font-semibold text-[56px] leading-tight">Forecasting</h1>
+            </div>
+            <div class="flex-grow-1 d-flex align-items-center">
+                <p class="text-white/95 text-[21px] font-semibold leading-[1.5]" style="max-width: 720px; margin: 0;">
+                    Forecast future performance using pipeline signals and historical trends.
+                </p>
+            </div>
+            <div>
+                <a
+                    href="{{ route('forecasting.forecast') }}"
+                    class="inline-flex items-center justify-center px-8 py-3 rounded-[26px] border border-[3px] border-white/90 bg-white/10 text-white text-[15px] font-bold shadow-[0_14px_30px_rgba(0,0,0,0.18)] hover:bg-white hover:text-[#128B99] transition-all duration-300 w-fit"
+                >
+                    View Forecast
+                </a>
+            </div>
         </div>
     </main>
 
