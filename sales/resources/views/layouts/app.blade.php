@@ -283,10 +283,13 @@
         <div class="content-area flex-grow-1">
             <x-topbar title="{{ $title ?? 'Sales Quotation Management System' }}" subtitle="{{ $subtitle ?? 'Enterprise dashboard' }}" />
 
-            <main class="p-4">
-                @yield('content')
-            </main>
-        </div>
-    </div>
+          <main class="p-4">
+    @yield('content')
+</main>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

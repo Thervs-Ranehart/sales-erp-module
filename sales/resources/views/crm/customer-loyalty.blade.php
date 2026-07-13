@@ -5,6 +5,24 @@
 
 @section('content')
 
+@if (session('success'))
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ session('success') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+
+@if ($errors->any())
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <ul class="mb-0">
+        @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+
 <style>
 
 .loyalty-card {
@@ -209,8 +227,9 @@ Manage customer rewards, membership levels, and loyalty engagement.
 
 
 
-<button class="btn text-white"
-style="background:#5347CE;border-radius:8px;">
+<button type="button" class="btn text-white"
+style="background:#5347CE;border-radius:8px;"
+data-bs-toggle="modal" data-bs-target="#createRewardModal">
 
 <i class="bi bi-plus-lg"></i>
 Create Reward
@@ -240,7 +259,7 @@ Active Members
 </div>
 
 <div class="stat-value">
-654
+{{ number_format($activeMembers ?? 0) }}
 </div>
 
 </div>
@@ -258,7 +277,7 @@ Available Points
 </div>
 
 <div class="stat-value">
-74,330
+{{ number_format($availablePoints ?? 0) }}
 </div>
 
 </div>
@@ -277,7 +296,7 @@ Rewards Claimed
 </div>
 
 <div class="stat-value">
-1,245
+{{ number_format($rewardsClaimed ?? 0) }}
 </div>
 
 </div>
@@ -296,7 +315,7 @@ Expiring Points
 </div>
 
 <div class="stat-value">
-8,420
+{{ number_format($expiringPoints ?? 0) }}
 </div>
 
 </div>
@@ -353,7 +372,7 @@ Gold Tier
 </h6>
 
 <small>
-245 Members
+{{ number_format(collect($loyalties ?? collect())->where('membership_level', 'Gold')->count()) }} Members
 </small>
 
 
@@ -381,7 +400,7 @@ Silver Tier
 </h6>
 
 <small>
-310 Members
+{{ number_format(collect($loyalties ?? collect())->where('membership_level', 'Silver')->count()) }} Members
 </small>
 
 
@@ -409,7 +428,7 @@ Bronze Tier
 </h6>
 
 <small>
-99 Members
+{{ number_format(collect($loyalties ?? collect())->where('membership_level', 'Bronze')->count()) }} Members
 </small>
 
 
@@ -463,7 +482,8 @@ Rewards customers can redeem using points.
 
 
 
-<button class="btn btn-outline-primary btn-sm">
+<button type="button" class="btn btn-outline-primary btn-sm"
+data-bs-toggle="modal" data-bs-target="#manageRewardsModal">
 Manage
 </button>
 
@@ -476,7 +496,7 @@ Manage
 
 <div class="row g-3">
 
-
+@forelse(($rewards ?? collect()) as $reward)
 
 <div class="col-md-4">
 
@@ -484,25 +504,26 @@ Manage
 
 
 <div class="reward-icon">
-<i class="bi bi-ticket-perforated"></i>
+<i class="bi {{ $reward->icon ?? 'bi-gift' }}"></i>
 </div>
 
 
 <h6>
-₱500 Voucher
+{{ $reward->name }}
 </h6>
 
 <p>
-500 points required
+{{ number_format($reward->points_required ?? 0) }} points required
 </p>
 
 
-<span class="badge bg-success">
-Available
+<span class="badge {{ $reward->statusBadgeClass() }}">
+{{ $reward->statusLabel() }}
 </span>
 
 
-<button class="btn btn-sm btn-outline-primary w-100 mt-3">
+<button type="button" class="btn btn-sm btn-outline-primary w-100 mt-3"
+data-bs-toggle="modal" data-bs-target="#viewRewardModal{{ $reward->reward_id }}">
 View
 </button>
 
@@ -511,87 +532,15 @@ View
 
 </div>
 
+@empty
 
-
-
-
-
-
-<div class="col-md-4">
-
-<div class="reward-card">
-
-
-<div class="reward-icon">
-<i class="bi bi-truck"></i>
-</div>
-
-
-<h6>
-Free Shipping
-</h6>
-
-
-<p>
-300 points required
+<div class="col-12">
+<p class="text-muted text-center mb-0 py-4">
+No rewards have been created yet. Click "Create Reward" to add one.
 </p>
-
-
-<span class="badge bg-success">
-Available
-</span>
-
-
-<button class="btn btn-sm btn-outline-primary w-100 mt-3">
-View
-</button>
-
-
 </div>
 
-</div>
-
-
-
-
-
-
-
-<div class="col-md-4">
-
-<div class="reward-card">
-
-
-<div class="reward-icon">
-<i class="bi bi-gift"></i>
-</div>
-
-
-<h6>
-Gift Voucher
-</h6>
-
-
-<p>
-1000 points required
-</p>
-
-
-<span class="badge bg-warning text-dark">
-Limited
-</span>
-
-
-<button class="btn btn-sm btn-outline-primary w-100 mt-3">
-View
-</button>
-
-
-</div>
-
-</div>
-
-
+@endforelse
 
 
 </div>
@@ -631,62 +580,48 @@ Latest loyalty point transactions.
 
 
 
-<div class="activity-item">
+@php
+    $activityItems = $loyalties->getCollection()->take(3);
+@endphp
 
-<span>
-Juan Dela Cruz earned points from purchase
-</span>
-
-<strong class="text-success">
-+500 pts
-</strong>
-
-
-</div>
-
-
-
+@forelse($activityItems as $loyalty)
 
 <div class="activity-item">
 
-<span>
-Maria Santos redeemed discount voucher
-</span>
+    <span>
+        {{ optional($loyalty->customer)->display_name ?? ('Customer #'.($loyalty->customer_id ?? 'N/A')) }}
 
-<strong class="text-danger">
--300 pts
-</strong>
+        @if(($loyalty->points_earned ?? 0) > 0)
+            earned points
+        @elseif(($loyalty->points_redeemed ?? 0) > 0)
+            redeemed points
+        @else
+            updated loyalty points
+        @endif
+    </span>
 
+    @php
+        $delta = ($loyalty->points_earned ?? 0) - ($loyalty->points_redeemed ?? 0);
+    @endphp
+
+    <strong class="{{ $delta >= 0 ? 'text-success' : 'text-danger' }}">
+        {{ $delta >= 0 ? '+' : '-' }}{{ number_format(abs($delta)) }} pts
+    </strong>
 
 </div>
 
+@empty
 
-
-
+@for($i = 0; $i < 3; $i++)
 
 <div class="activity-item">
-
-<span>
-Pedro Reyes received membership bonus
-</span>
-
-<strong class="text-success">
-+200 pts
-</strong>
-
-
+    <span>—</span>
+    <strong class="text-success">+0 pts</strong>
 </div>
 
+@endfor
 
-
-</div>
-
-
-
-
-
-
-
+@endforelse
 
 
 {{-- Member Records --}}
@@ -712,10 +647,14 @@ Customer reward accounts and membership information.
 
 
 
+<form action="{{ route('crm.loyalty') }}" method="GET" class="mb-0">
 <input type="text"
+name="search"
+value="{{ $search ?? '' }}"
 class="form-control"
 style="width:250px;"
 placeholder="Search member...">
+</form>
 
 
 </div>
@@ -776,43 +715,48 @@ Action
 
 <tbody>
 
+@foreach($loyalties as $loyalty)
 
 <tr>
 
+
 <td>
-Juan Dela Cruz
+{{ optional($loyalty->customer)->display_name ?? (isset($loyalty->customer_id) ? 'Customer #'.$loyalty->customer_id : 'Unknown') }}
 </td>
 
 
 <td>
 
-<span class="badge"
-style="background:#5347CE;">
-Gold
+<span class="badge"@php $level = $loyalty->membership_level ?? ''; @endphp style="background:{{ $level === 'Gold' ? '#5347CE' : ($level === 'Silver' ? '#16C8C7' : ($level === 'Bronze' ? '#6c757d' : '#adb5bd')) }};">
+{{ $loyalty->membership_level ?? 'Unknown' }}
 </span>
 
 </td>
 
 
 <td>
-2,200
+{{ number_format($loyalty->available_points ?? 0) }}
 </td>
 
 
 <td>
-3,200
+{{ number_format($loyalty->points_earned ?? ($loyalty->available_points ?? 0)) }}
 </td>
 
 
 <td>
-July 5, 2026
+@if($loyalty->enrollment_date)
+    {{ \Carbon\Carbon::parse($loyalty->enrollment_date)->format('M d, Y') }}
+@else
+    —
+@endif
 </td>
 
 
 <td>
 
 <span class="badge bg-success">
-Active
+{{ isset($loyalty->enrollment_date) ? 'Active' : 'Inactive' }}
 </span>
 
 </td>
@@ -820,8 +764,12 @@ Active
 
 <td>
 
-<button class="btn btn-sm btn-outline-primary">
+<a class="btn btn-sm btn-outline-primary" href="{{ route('crm.loyalty.show', $loyalty) }}">
 View
+</a>
+
+<button class="btn btn-sm btn-outline-warning" type="button" data-bs-toggle="modal" data-bs-target="#editLoyaltyModal{{ $loyalty->loyalty_id }}">
+Edit
 </button>
 
 </td>
@@ -829,64 +777,7 @@ View
 
 </tr>
 
-
-
-
-
-
-<tr>
-
-<td>
-Maria Santos
-</td>
-
-
-<td>
-
-<span class="badge"
-style="background:#16C8C7;">
-Silver
-</span>
-
-</td>
-
-
-<td>
-1,150
-</td>
-
-
-<td>
-1,450
-</td>
-
-
-<td>
-June 28, 2026
-</td>
-
-
-<td>
-
-<span class="badge bg-success">
-Active
-</span>
-
-</td>
-
-
-<td>
-
-<button class="btn btn-sm btn-outline-primary">
-View
-</button>
-
-</td>
-
-
-</tr>
-
-
+@endforeach
 
 </tbody>
 
@@ -899,8 +790,313 @@ View
 
 </div>
 
+<div class="mt-3">
+    {{ $loyalties->links() }}
+</div>
 
 
+</div>
 
+@foreach(($loyalties ?? collect())->items() as $loyalty)
+<div class="modal fade" id="editLoyaltyModal{{ $loyalty->loyalty_id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ route('crm.loyalty.update', $loyalty) }}">
+                @csrf
+                @method('PUT')
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Loyalty — {{ optional($loyalty->customer)->display_name }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Membership Level</label>
+                        <select name="membership_level" class="form-select" required>
+                            <option value="Gold" {{ $loyalty->membership_level === 'Gold' ? 'selected' : '' }}>Gold</option>
+                            <option value="Silver" {{ $loyalty->membership_level === 'Silver' ? 'selected' : '' }}>Silver</option>
+                            <option value="Bronze" {{ $loyalty->membership_level === 'Bronze' ? 'selected' : '' }}>Bronze</option>
+                            <option value="VIP" {{ $loyalty->membership_level === 'VIP' ? 'selected' : '' }}>VIP</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Available Points</label>
+                        <input type="number" name="available_points" class="form-control" min="0" value="{{ $loyalty->available_points ?? 0 }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Lifetime Points Earned</label>
+                        <input type="number" name="points_earned" class="form-control" min="0" value="{{ $loyalty->points_earned ?? 0 }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Points Redeemed</label>
+                        <input type="number" name="points_redeemed" class="form-control" min="0" value="{{ $loyalty->points_redeemed ?? 0 }}">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn text-white" style="background:#5347CE;">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endforeach
+
+@if(isset($selectedLoyalty))
+<div class="modal fade show" id="loyaltyDetailModal" tabindex="-1" style="display:block;background:rgba(0,0,0,.5);">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Loyalty Details — {{ optional($selectedLoyalty->customer)->display_name }}</h5>
+                <a href="{{ route('crm.loyalty') }}" class="btn-close"></a>
+            </div>
+            <div class="modal-body">
+                <p><strong>Membership Level:</strong> {{ $selectedLoyalty->membership_level }}</p>
+                <p><strong>Available Points:</strong> {{ number_format($selectedLoyalty->available_points ?? 0) }}</p>
+                <p><strong>Lifetime Points:</strong> {{ number_format($selectedLoyalty->points_earned ?? 0) }}</p>
+                <p><strong>Points Redeemed:</strong> {{ number_format($selectedLoyalty->points_redeemed ?? 0) }}</p>
+                <p><strong>Enrollment Date:</strong> {{ $selectedLoyalty->enrollment_date
+    ? \Carbon\Carbon::parse($selectedLoyalty->enrollment_date)->format('M d, Y')
+    : '—'
+}}</p>
+                <a href="{{ route('crm.profiles', ['customer_id' => $selectedLoyalty->customer_id]) }}" class="btn btn-outline-primary btn-sm">View Customer Profile</a>
+            </div>
+            <div class="modal-footer">
+                <a href="{{ route('crm.loyalty') }}" class="btn btn-primary">Close</a>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
+
+{{-- =========================================================
+     REWARD MANAGEMENT (new)
+     ========================================================= --}}
+
+{{-- Create Reward Modal --}}
+<div class="modal fade" id="createRewardModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ route('crm.rewards.store') }}">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Reward</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Reward Name</label>
+                        <input type="text" name="name" class="form-control" value="{{ old('name') }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="2">{{ old('description') }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Points Required</label>
+                        <input type="number" name="points_required" class="form-control" min="0" value="{{ old('points_required', 0) }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Icon</label>
+                        <select name="icon" class="form-select">
+                            <option value="bi-gift">Gift</option>
+                            <option value="bi-ticket-perforated">Voucher</option>
+                            <option value="bi-truck">Shipping</option>
+                            <option value="bi-star">Star</option>
+                            <option value="bi-cup-hot">Food &amp; Drink</option>
+                            <option value="bi-bag-check">Bag</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-select" required>
+                            <option value="available">Available</option>
+                            <option value="limited">Limited</option>
+                            <option value="unavailable">Unavailable</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn text-white" style="background:#5347CE;">Create Reward</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- Manage Rewards Modal --}}
+<div class="modal fade" id="manageRewardsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Manage Rewards</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Reward</th>
+                                <th>Points</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse(($rewards ?? collect()) as $reward)
+                            <tr>
+                                <td>
+                                    <i class="bi {{ $reward->icon ?? 'bi-gift' }} me-1"></i>
+                                    {{ $reward->name }}
+                                </td>
+                                <td>{{ number_format($reward->points_required ?? 0) }}</td>
+                                <td>
+                                    <span class="badge {{ $reward->statusBadgeClass() }}">
+                                        {{ $reward->statusLabel() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-outline-warning"
+                                        onclick="openEditReward({{ $reward->reward_id }})">
+                                        Edit
+                                    </button>
+
+                                    <form method="POST" action="{{ route('crm.rewards.destroy', $reward) }}"
+                                        class="d-inline"
+                                        onsubmit="return confirm('Delete this reward? This cannot be undone.');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-3">No rewards yet.</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Per-reward View & Edit Modals --}}
+@foreach(($rewards ?? collect()) as $reward)
+
+<div class="modal fade" id="viewRewardModal{{ $reward->reward_id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ $reward->name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="reward-icon mb-3">
+                    <i class="bi {{ $reward->icon ?? 'bi-gift' }}"></i>
+                </div>
+                <p><strong>Description:</strong> {{ $reward->description ?: '—' }}</p>
+                <p><strong>Points Required:</strong> {{ number_format($reward->points_required ?? 0) }}</p>
+                <p>
+                    <strong>Status:</strong>
+                    <span class="badge {{ $reward->statusBadgeClass() }}">{{ $reward->statusLabel() }}</span>
+                </p>
+                <p class="text-muted mb-0"><small>Created {{ $reward->created_at?->format('M d, Y') }}</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editRewardModal{{ $reward->reward_id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ route('crm.rewards.update', $reward) }}">
+                @csrf
+                @method('PUT')
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Reward — {{ $reward->name }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Reward Name</label>
+                        <input type="text" name="name" class="form-control" value="{{ $reward->name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="2">{{ $reward->description }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Points Required</label>
+                        <input type="number" name="points_required" class="form-control" min="0" value="{{ $reward->points_required ?? 0 }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Icon</label>
+                        <select name="icon" class="form-select">
+                            @foreach(['bi-gift' => 'Gift', 'bi-ticket-perforated' => 'Voucher', 'bi-truck' => 'Shipping', 'bi-star' => 'Star', 'bi-cup-hot' => 'Food & Drink', 'bi-bag-check' => 'Bag'] as $value => $label)
+                                <option value="{{ $value }}" {{ $reward->icon === $value ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-select" required>
+                            @foreach(['available' => 'Available', 'limited' => 'Limited', 'unavailable' => 'Unavailable'] as $value => $label)
+                                <option value="{{ $value }}" {{ $reward->status === $value ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn text-white" style="background:#5347CE;">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@endforeach
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// Allows "Edit" inside the Manage Rewards modal to open the reward's
+// edit modal without both modals fighting over the backdrop.
+function openEditReward(rewardId) {
+    var manageModalEl = document.getElementById('manageRewardsModal');
+    var manageModal = bootstrap.Modal.getInstance(manageModalEl);
+    if (manageModal) {
+        manageModal.hide();
+    }
+
+    var editModalEl = document.getElementById('editRewardModal' + rewardId);
+    if (editModalEl) {
+        var editModal = bootstrap.Modal.getOrCreateInstance(editModalEl);
+        editModal.show();
+    }
+}
+
+// If validation fails on the Create Reward form, reopen that modal
+// automatically so the user sees the error messages.
+document.addEventListener('DOMContentLoaded', function () {
+    @if ($errors->any() && old('name') !== null)
+        var createModalEl = document.getElementById('createRewardModal');
+        if (createModalEl) {
+            bootstrap.Modal.getOrCreateInstance(createModalEl).show();
+        }
+    @endif
+});
+</script>
 
 @endsection

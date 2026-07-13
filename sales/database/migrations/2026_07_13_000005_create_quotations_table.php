@@ -25,7 +25,10 @@ return new class extends Migration
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();
 
-            $table->foreign('customer_id')->references('customer_id')->on('customers');
+            $table->foreign('customer_id')
+      ->references('customer_id')
+      ->on('customers')
+      ->cascadeOnDelete();
             $table->foreign('employee_id')->references('employee_id')->on('employees');
             $table->foreign('pricing_rule_id')->references('pricing_rule_id')->on('pricing_rules');
         });

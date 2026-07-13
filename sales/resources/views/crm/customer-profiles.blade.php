@@ -5,6 +5,23 @@
 
 @section('content')
 
+@if (session('success'))
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ session('success') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+
+@if ($errors->any())
+<div class="alert alert-danger">
+    <ul class="mb-0">
+        @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
+
 <style>
 
 .profile-card {
@@ -179,11 +196,69 @@ padding:14px;
 
 }
 
+.customer-card{
+    position:relative;
+    cursor:pointer;
+    transition:.2s ease;
+    border:1px solid #dee2e6;
+}
+
+.customer-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 20px rgba(83,71,206,.15);
+}
+
+.customer-card.selected{
+    border:2px solid #5347CE !important;
+    background:#f5f3ff;
+    box-shadow:0 12px 24px rgba(83,71,206,.20);
+}
+
+.customer-card.selected::after{
+    content:"✓";
+    position:absolute;
+    top:12px;
+    right:12px;
+    width:24px;
+    height:24px;
+    border-radius:50%;
+    background:#5347CE;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:13px;
+    font-weight:bold;
+}
+
+.search-input{
+    height:45px;
+    border:2px solid #5347CE;
+    border-radius:10px;
+    padding-left:40px;
+}
+
+.search-input:focus{
+    border-color:#5347CE;
+    box-shadow:0 0 0 .2rem rgba(83,71,206,.15);
+}
+
+.btn-search{
+    height:45px;
+    background:#5347CE;
+    color:#fff;
+    border:none;
+    border-radius:10px;
+    font-weight:600;
+    transition:.2s;
+}
+
+.btn-search:hover{
+    background:#463bb5;
+    color:#fff;
+}
 
 </style>
-
-
-
 
 
 
@@ -209,21 +284,22 @@ View complete customer information and relationship history.
 
 
 
-<button class="btn btn-outline-primary">
-
-<i class="bi bi-pencil"></i>
-Edit Profile
-
-</button>
+@if(!empty($customer))
+    @if(!empty($editMode))
+        <a href="{{ route('crm.profiles', ['customer_id' => $customer['id']]) }}" class="btn btn-outline-secondary">
+            Cancel Edit
+        </a>
+    @else
+        <a href="{{ route('crm.profiles.edit', ['customer' => $customer['id']]) }}" class="btn btn-outline-primary">
+            <i class="bi bi-pencil"></i>
+            Edit Profile
+        </a>
+    @endif
+@endif
 
 
 
 </div>
-
-
-
-
-
 
 
 
@@ -239,103 +315,73 @@ Select Customer
 
 
 
-<div class="search-box mb-3">
+<form method="GET" action="{{ route('crm.profiles') }}" class="row g-2 mb-3">
 
+    <div class="col-md-10">
+        <div class="search-box">
+            <i class="bi bi-search search-icon"></i>
 
-<i class="bi bi-search search-icon"></i>
+            <input
+                type="text"
+                name="search"
+                value="{{ $search ?? '' }}"
+                class="form-control search-input"
+                placeholder="Search customer name, ID, or email...">
+        </div>
+    </div>
 
+    <div class="col-md-2 d-grid">
+        <button type="submit" class="btn btn-search">
+            <i class="bi bi-search"></i>
+            Search
+        </button>
+    </div>
 
-<input type="text"
-class="form-control"
-placeholder="Search customer name, ID, or email...">
-
-
-</div>
+</form>
 
 
 
 
 <div class="row g-3">
 
+@foreach($customers as $item)
 
 <div class="col-md-4">
 
 
-<div class="p-3 border rounded">
+<a href="{{ route('crm.profiles', [
+    'customer_id' => $item->customer_id,
+    'search' => request('search')
+]) }}" style="text-decoration:none; color:inherit;">
+
+<div class="customer-card p-3 border rounded {{ !empty($customer['id']) && $customer['id'] == $item->customer_id ? 'selected' : '' }}">
 
 
 <div class="d-flex gap-3 align-items-center">
 
 
 <div class="avatar">
-JD
+{{ strtoupper(substr($item->first_name ?? '', 0, 1) . substr($item->last_name ?? '', 0, 1)) }}
 </div>
 
 
 <div>
 
 <h6 class="mb-1">
-Juan Dela Cruz
+{{ $item->display_name }}
 </h6>
 
 
 <small class="text-muted">
-ID:1001
-</small>
-
-<br>
-
-<small class="text-muted">
-juan@email.com
-</small>
-
-
-</div>
-
-
-</div>
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-<div class="col-md-4">
-
-
-<div class="p-3 border rounded">
-
-
-<div class="d-flex gap-3 align-items-center">
-
-
-<div class="avatar">
-MS
-</div>
-
-
-<div>
-
-<h6 class="mb-1">
-Maria Santos
-</h6>
-
-
-<small class="text-muted">
-ID:1002
+ID: {{ $item->customer_id }}
 </small>
 
 
 <br>
 
+
 <small class="text-muted">
-maria@email.com
+{{ $item->email }}
 </small>
 
 
@@ -344,26 +390,23 @@ maria@email.com
 
 </div>
 
+</div>
+
+</a>
 
 </div>
 
 
-</div>
-
-
-
-</div>
-
+@endforeach
 
 
 </div>
 
+<div class="mt-3">
+    {{ $customers->links() }}
+</div>
 
-
-
-
-
-
+</div>
 
 
 {{-- Customer Overview --}}
@@ -371,11 +414,12 @@ maria@email.com
 <div class="card profile-card p-4 mb-4">
 
 
+@if(empty($customer))
+
 <div class="d-flex align-items-center gap-3">
 
-
 <div class="avatar">
-JD
+?
 </div>
 
 
@@ -383,17 +427,49 @@ JD
 <div>
 
 <h4 class="mb-1">
-Juan Dela Cruz
+No customer selected
 </h4>
 
-
-<span class="badge bg-success">
-Active Customer
+<span class="badge bg-secondary">
+—
 </span>
 
 
 <p class="text-muted mb-0 mt-2">
-Customer ID:1001
+Customer ID: —
+</p>
+
+
+</div>
+
+
+
+</div>
+
+@else
+
+<div class="d-flex align-items-center gap-3">
+
+
+<div class="avatar">
+{{ $customer['initials'] ?? '' }}
+</div>
+
+
+
+<div>
+
+<h4 class="mb-1">
+{{ $customer['name'] ?? '' }}
+</h4>
+
+<span class="badge bg-success">
+{{ $customer['status'] ?? '' }}
+</span>
+
+
+<p class="text-muted mb-0 mt-2">
+Customer ID: {{ $customer['id'] ?? '' }}
 </p>
 
 
@@ -421,12 +497,13 @@ Total Orders
 </small>
 
 <h5>
-24
+{{ $customer['orders'] ?? 0 }}
 </h5>
 
 </div>
 
 </div>
+
 
 
 
@@ -440,12 +517,13 @@ Total Spending
 </small>
 
 <h5>
-₱45,800
+₱{{ $customer['spending'] ?? 0 }}
 </h5>
 
 </div>
 
 </div>
+
 
 
 
@@ -459,12 +537,13 @@ Loyalty Points
 </small>
 
 <h5>
-2,200
+{{ number_format($customer['loyalty'] ?? 0) }}
 </h5>
 
 </div>
 
 </div>
+
 
 
 
@@ -478,7 +557,7 @@ Customer Since
 </small>
 
 <h5>
-2025
+{{ $customer['since'] ?? '' }}
 </h5>
 
 </div>
@@ -489,16 +568,90 @@ Customer Since
 
 </div>
 
+@endif
+
 
 </div>
 
 
 
 
+@if(!empty($customer) && !empty($editMode))
 
+<div class="card profile-card p-4 mb-4">
+    <div class="section-title">Edit Customer Profile</div>
 
+    <form method="POST" action="{{ route('crm.profiles.update', ['customer' => $customer['id']]) }}">
+        @csrf
+        @method('PUT')
 
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">First Name</label>
+                <input type="text" name="first_name" class="form-control" value="{{ old('first_name', $customer['first_name'] ?? '') }}" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Last Name</label>
+                <input type="text" name="last_name" class="form-control" value="{{ old('last_name', $customer['last_name'] ?? '') }}" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-control" value="{{ old('email', $customer['email'] ?? '') }}">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Phone</label>
+                <input type="text" name="contact_no" class="form-control" value="{{ old('contact_no', $customer['phone'] ?? '') }}">
+            </div>
+            <div class="col-12">
+                <label class="form-label">Address</label>
+                <textarea name="address" class="form-control" rows="2">{{ old('address', $customer['address'] ?? '') }}</textarea>
+            </div>
+            <div class="col-12">
+                <label class="form-label">Preferences</label>
+                <textarea name="preferences" class="form-control" rows="2">{{ old('preferences', $customer['preferences'] ?? '') }}</textarea>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Gender</label>
+                <select name="gender" class="form-select">
+                    <option value="">Select gender</option>
+                    <option value="Male" {{ old('gender', $customer['gender'] ?? '') === 'Male' ? 'selected' : '' }}>Male</option>
+                    <option value="Female" {{ old('gender', $customer['gender'] ?? '') === 'Female' ? 'selected' : '' }}>Female</option>
+                    <option value="Other" {{ old('gender', $customer['gender'] ?? '') === 'Other' ? 'selected' : '' }}>Other</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Birth Date</label>
+                <input type="date" name="birth_date" class="form-control" value="{{ old('birth_date', $customer['birthdate'] ?? '') }}">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Preferred Contact</label>
+                <select name="preferred_contact" class="form-select">
+                    <option value="">Select method</option>
+                    <option value="Email" {{ old('preferred_contact', $customer['preferred_contact'] ?? '') === 'Email' ? 'selected' : '' }}>Email</option>
+                    <option value="Phone" {{ old('preferred_contact', $customer['preferred_contact'] ?? '') === 'Phone' ? 'selected' : '' }}>Phone</option>
+                    <option value="SMS" {{ old('preferred_contact', $customer['preferred_contact'] ?? '') === 'SMS' ? 'selected' : '' }}>SMS</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Preferred Product Category</label>
+                <input type="text" name="preferred_product_category" class="form-control" value="{{ old('preferred_product_category', $customer['preferred_product'] ?? '') }}">
+            </div>
+            <div class="col-md-6">
+                <div class="form-check mt-4">
+                    <input class="form-check-input" type="checkbox" name="marketing_consent" value="1" id="marketing_consent" {{ old('marketing_consent', $customer['marketing_consent'] ?? false) ? 'checked' : '' }}>
+                    <label class="form-check-label" for="marketing_consent">Marketing consent approved</label>
+                </div>
+            </div>
+        </div>
 
+        <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">Save Profile</button>
+            <a href="{{ route('crm.profiles', ['customer_id' => $customer['id']]) }}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@elseif(!empty($customer))
 
 <div class="row g-4">
 
@@ -532,7 +685,7 @@ Email
 </div>
 
 <div class="value">
-juan@email.com
+{{ $customer['email'] ?? '—' }}
 </div>
 
 </div>
@@ -550,7 +703,7 @@ Phone
 </div>
 
 <div class="value">
-0917-123-4567
+{{ $customer['phone'] ?? '—' }}
 </div>
 
 </div>
@@ -569,7 +722,7 @@ Gender
 </div>
 
 <div class="value">
-Male
+{{ $customer['gender'] ?? '—' }}
 </div>
 
 </div>
@@ -588,7 +741,7 @@ Birth Date
 </div>
 
 <div class="value">
-March 14, 1994
+{{ $customer['birthdate'] ? \Carbon\Carbon::parse($customer['birthdate'])->toFormattedDateString() : '—' }}
 </div>
 
 </div>
@@ -640,7 +793,7 @@ Preferred Contact
 </div>
 
 <div class="value">
-Email
+{{ $customer['preferred_contact'] ?? '—' }}
 </div>
 
 </div>
@@ -660,7 +813,7 @@ Preferred Product
 </div>
 
 <div class="value">
-Office Supplies
+{{ $customer['preferred_product'] ?? '—' }}
 </div>
 
 </div>
@@ -680,7 +833,7 @@ Customer Type
 </div>
 
 <div class="value">
-VIP
+{{ $customer['type'] ?? '—' }}
 </div>
 
 </div>
@@ -700,7 +853,7 @@ Marketing Consent
 </div>
 
 <div class="value text-success">
-Approved
+{{ $customer['marketing'] ?? 'Not Approved' }}
 </div>
 
 </div>
@@ -752,38 +905,35 @@ Recent Purchases
 
 <table class="table">
 
-<tr>
-
-<td>
-Wireless Mouse
-</td>
-
-<td>
-₱900
-</td>
-
-<td>
-July 7, 2026
-</td>
-
-</tr>
-
+@forelse(($purchases ?? []) as $purchase)
 
 <tr>
 
 <td>
-Keyboard
+{{ $purchase['product'] ?? '' }}
 </td>
 
-<td>
-₱1,500
-</td>
 
 <td>
-June 30, 2026
+₱{{ number_format($purchase['price'] ?? 0, 2) }}
+</td>
+
+
+<td>
+{{ $purchase['date'] ?? '' }}
 </td>
 
 </tr>
+
+@empty
+
+<tr>
+
+<td colspan="3" class="text-muted">No purchases found.</td>
+
+</tr>
+
+@endforelse
 
 
 </table>
@@ -800,66 +950,9 @@ June 30, 2026
 
 
 
-
 <div class="col-md-6">
 
 
-{{-- Customer Tags --}}
-
-<div class="card profile-card p-4">
-
-
-<div class="section-title">
-Customer Tags
-</div>
-
-
-<div class="d-flex flex-wrap gap-2">
-
-
-<div class="d-flex flex-wrap gap-2">
-
-
-<span class="tag active">
-<i class="bi bi-check-circle"></i>
-VIP Customer
-</span>
-
-
-<span class="tag">
-<i class="bi bi-check-circle"></i>
-Frequent Buyer
-</span>
-
-
-<span class="tag">
-<i class="bi bi-check-circle"></i>
-Office Supplies
-</span>
-
-
-<span class="tag">
-<i class="bi bi-check-circle"></i>
-High Value Customer
-</span>
-
-
-<span class="tag">
-<i class="bi bi-check-circle"></i>
-Loyalty Member
-</span>
-
-
-<span class="tag">
-<i class="bi bi-check-circle"></i>
-Email Preferred
-</span>
-
-
-<span class="tag">
-<i class="bi bi-check-circle"></i>
-Returning Customer
-</span>
 
 
 </div>
@@ -868,9 +961,9 @@ Returning Customer
 
 </div>
 
+@endif
 
-</div>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
 

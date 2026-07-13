@@ -1,15 +1,26 @@
 <?php
 
-use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\Crm\CustomerDirectoryController;
+use App\Http\Controllers\Crm\CustomerProfilesController;
+use App\Http\Controllers\Crm\PurchaseHistoryController;
+use App\Http\Controllers\Crm\CustomerLogsController;
+use App\Http\Controllers\Crm\CustomerFollowUpsController;
+use App\Http\Controllers\Crm\CustomerSegmentationController;
+use App\Http\Controllers\Crm\CustomerLoyaltyController;
+use App\Http\Controllers\Crm\RewardController;
+
 use App\Http\Controllers\DashboardController;
+
 use App\Http\Controllers\ForecastingController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SalesOrderController;
+
 use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\AfterSalesSupportController;
-use App\Http\Controllers\SalesController;
+
 use Illuminate\Support\Facades\Route;
+
 
 
 Route::get('/', function () {
@@ -29,22 +40,48 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 Route::get('/sales-order-management', [SalesOrderController::class, 'index'])->name('sales.order-management');
 
 // CRM Dashboard
-Route::view('/crm', 'crm.index')->name('crm.index');
+Route::redirect('/crm', '/customer-directory')->name('crm.index');
 
 // CRM Modules
-Route::view('/customer-directory', 'crm.customer-directory')->name('crm.directory');
- 
-Route::view('/customer-profiles', 'crm.customer-profiles')->name('crm.profiles');
- 
-Route::view('/purchase-history', 'crm.purchase-history')->name('crm.purchase');
- 
-Route::view('/customer-logs', 'crm.customer-logs')->name('crm.logs');
+Route::get('/customer-directory', [CustomerDirectoryController::class, 'index'])->name('crm.directory');
+Route::get('/customer-directory/create', [CustomerDirectoryController::class, 'create'])->name('crm.directory.create');
+Route::post('/customer-directory', [CustomerDirectoryController::class, 'store'])->name('crm.directory.store');
+Route::get('/customer-directory/{customer}/edit', [CustomerDirectoryController::class, 'edit'])->name('crm.directory.edit');
+Route::put('/customer-directory/{customer}', [CustomerDirectoryController::class, 'update'])->name('crm.directory.update');
+Route::delete('/customer-directory/{customer}', [CustomerDirectoryController::class, 'destroy'])->name('crm.directory.destroy');
 
-Route::view('/customer-follow-ups', 'crm.customer-followups')->name('crm.followups');
+Route::get('/customer-profiles', [CustomerProfilesController::class, 'index'])->name('crm.profiles');
+Route::get('/customer-profiles/{customer}', [CustomerDirectoryController::class, 'show'])->name('crm.directory.show');
+Route::get('/customer-profiles/{customer}/edit', [CustomerProfilesController::class, 'edit'])->name('crm.profiles.edit');
+Route::post('/customer-profiles', [CustomerProfilesController::class, 'store'])->name('crm.profiles.store');
+Route::put('/customer-profiles/{customer}', [CustomerProfilesController::class, 'update'])->name('crm.profiles.update');
 
-Route::view('/customer-loyalty', 'crm.customer-loyalty')->name('crm.loyalty');
+Route::get('/purchase-history', [PurchaseHistoryController::class, 'index'])->name('crm.purchase');
+Route::get('/purchase-history/export', [PurchaseHistoryController::class, 'export'])->name('crm.purchase.export');
+Route::get('/purchase-history/receipt/{invoice}', [PurchaseHistoryController::class, 'receipt'])->name('crm.purchase.receipt');
+Route::get('/purchase-history/{invoice}', [PurchaseHistoryController::class, 'show'])->name('crm.purchase.show');
 
-Route::view('/customer-segmentation', 'crm.customer-segmentation')->name('crm.segmentation');
+Route::get('/customer-logs', [CustomerLogsController::class, 'index'])->name('crm.logs');
+Route::post('/customer-logs', [CustomerLogsController::class, 'store'])->name('crm.logs.store');
+Route::post('/customer-logs/{log}/status', [CustomerLogsController::class, 'updateStatus'])->name('crm.logs.status.update');
+Route::delete('/customer-logs/{log}', [CustomerLogsController::class, 'destroy'])->name('crm.logs.destroy');
+
+Route::get('/customer-follow-ups', [CustomerFollowUpsController::class, 'index'])->name('crm.followups');
+Route::post('/customer-follow-ups', [CustomerFollowUpsController::class, 'store'])->name('crm.followups.store');
+Route::post('/customer-follow-ups/{log}/status', [CustomerFollowUpsController::class, 'updateStatus'])->name('crm.followups.status.update');
+Route::delete('/customer-follow-ups/{log}', [CustomerFollowUpsController::class, 'destroy'])->name('crm.followups.destroy');
+
+Route::get('/customer-segmentation', [CustomerSegmentationController::class, 'index'])->name('crm.segmentation');
+
+Route::get('/customer-loyalty', [CustomerLoyaltyController::class, 'index'])->name('crm.loyalty');
+Route::get('/customer-loyalty/{loyalty}', [CustomerLoyaltyController::class, 'show'])->name('crm.loyalty.show');
+Route::put('/customer-loyalty/{loyalty}', [CustomerLoyaltyController::class, 'update'])->name('crm.loyalty.update');
+
+// Loyalty Program Rewards
+Route::post('/crm/rewards', [RewardController::class, 'store'])->name('crm.rewards.store');
+Route::put('/crm/rewards/{reward}', [RewardController::class, 'update'])->name('crm.rewards.update');
+Route::delete('/crm/rewards/{reward}', [RewardController::class, 'destroy'])->name('crm.rewards.destroy');
+
 
 // After-Sales Support (case management)
 Route::get('/after-sales-support', [SupportTicketController::class, 'index'])->name('support.index');
@@ -95,10 +132,11 @@ Route::view('/invoices/create', 'sales.create-invoice')
 Route::view('/invoices/generate', 'sales.generate-invoice')
     ->name('invoices.generate');
 
- Route::post('/sales-orders', [SalesController::class, 'store'])
-    ->name('sales.store');
+// Route removed: SalesController does not exist in this codebase.
+
 
 Route::get('/sales-order-management/profile/{id}', function ($id) {
+
     return view('sales.profile', compact('id'));
 })->name('sales.profile');
 

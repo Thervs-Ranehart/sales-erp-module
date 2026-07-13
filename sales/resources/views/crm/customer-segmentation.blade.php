@@ -5,6 +5,13 @@
 
 @section('content')
 
+@if (session('success'))
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ session('success') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+
 <style>
 
 .crm-card {
@@ -131,6 +138,30 @@ border-radius:8px;
 
 }
 
+.search-box{
+    position:relative;
+}
+
+.search-box .search-icon{
+    position:absolute;
+    left:14px;
+    top:50%;
+    transform:translateY(-50%);
+    color:#5347CE;
+    font-size:15px;
+}
+
+.search-box .form-control{
+    height:45px;
+    padding-left:42px;
+    border:2px solid #5347CE;
+    border-radius:10px;
+}
+
+.search-box .form-control:focus{
+    border-color:#5347CE;
+    box-shadow:0 0 0 .2rem rgba(83,71,206,.15);
+}
 
 </style>
 
@@ -157,13 +188,13 @@ Analyze customer groups based on purchasing behavior and value.
 
 
 
-<button class="btn text-white"
+<a href="{{ route('crm.segmentation', request()->query()) }}" class="btn text-white"
 style="background:#5347CE;border-radius:8px;">
 
 <i class="bi bi-bar-chart"></i>
-Generate Report
+Refresh Report
 
-</button>
+</a>
 
 
 </div>
@@ -192,7 +223,7 @@ High-Value Customers
 
 
 <div class="segment-number">
-212
+{{ number_format($highValueCount ?? 0) }}
 </div>
 
 
@@ -223,7 +254,7 @@ Regular Customers
 
 
 <div class="segment-number">
-698
+{{ number_format($regularCount ?? 0) }}
 </div>
 
 
@@ -254,7 +285,7 @@ At-Risk Customers
 
 
 <div class="segment-number">
-95
+{{ number_format($atRiskCount ?? 0) }}
 </div>
 
 
@@ -374,19 +405,28 @@ At-risk customers may need promotions or follow-ups.
 
 <div class="card crm-card p-3 mb-4">
 
+<form method="GET" action="{{ route('crm.segmentation') }}">
+
+
 
 <div class="row g-3">
 
 
 <div class="col-md-5">
 
+    <div class="search-box">
+        <i class="bi bi-search search-icon"></i>
 
-<input type="text"
-class="form-control"
-placeholder="Search customer or segment">
-
+        <input
+            type="text"
+            class="form-control"
+            name="search"
+            value="{{ $search ?? '' }}"
+            placeholder="Search customer or segment">
+    </div>
 
 </div>
+
 
 
 
@@ -394,21 +434,21 @@ placeholder="Search customer or segment">
 <div class="col-md-3">
 
 
-<select class="form-select">
+<select class="form-select" name="segment">
 
-<option>
+<option value="All Segments" {{ ($segment ?? null) === 'All Segments' ? 'selected' : '' }}>
 All Segments
 </option>
 
-<option>
+<option value="High-Value" {{ ($segment ?? null) === 'High-Value' ? 'selected' : '' }}>
 High-Value
 </option>
 
-<option>
+<option value="Regular" {{ ($segment ?? null) === 'Regular' ? 'selected' : '' }}>
 Regular
 </option>
 
-<option>
+<option value="At-Risk" {{ ($segment ?? null) === 'At-Risk' ? 'selected' : '' }}>
 At-Risk
 </option>
 
@@ -424,18 +464,18 @@ At-Risk
 <div class="col-md-2">
 
 
-<select class="form-select">
+<select class="form-select" name="frequency">
 
 
-<option>
+<option value="" {{ empty($frequency) ? 'selected' : '' }}>
 Purchase Frequency
 </option>
 
-<option>
+<option value="Weekly" {{ ($frequency ?? null) === 'Weekly' ? 'selected' : '' }}>
 Weekly
 </option>
 
-<option>
+<option value="Monthly" {{ ($frequency ?? null) === 'Monthly' ? 'selected' : '' }}>
 Monthly
 </option>
 
@@ -451,10 +491,9 @@ Monthly
 <div class="col-md-2">
 
 
-<button class="btn btn-outline-secondary w-100">
-
-Filter
-
+<button class="btn btn-outline-secondary w-100" type="submit">
+    <i class="bi bi-funnel"></i>
+    Filter
 </button>
 
 
@@ -464,23 +503,23 @@ Filter
 
 </div>
 
+</form>
+
 
 </div>
 
 
 
 
+<div>
 
 
+{{-- end filters --}}
 
-
-
-{{-- Records --}}
 
 <div class="card crm-card p-4">
 
 
-<div class="mb-3">
 
 <h5 class="fw-semibold mb-1">
 Segmentation Records
@@ -547,164 +586,60 @@ Action
 
 <tbody>
 
-
-
-<tr>
-
-<td>
-6001
-</td>
-
-
-<td>
-Juan Dela Cruz
-</td>
-
-
-<td>
-
-<span class="badge"
-style="background:#5347CE">
-
-High-Value
-
-</span>
-
-</td>
-
-
-<td>
-Premium
-</td>
-
-
-<td>
-Weekly
-</td>
-
-
-<td>
-July 1, 2026
-</td>
-
-
-<td>
-
-<button class="btn btn-sm btn-outline-primary action-btn">
-View
-</button>
-
-</td>
-
-
-</tr>
-
-
-
-
-
-
+@forelse(($segments ?? []) as $segmentRow)
 
 <tr>
 
-<td>
-6002
-</td>
+<td>{{ $segmentRow->segment_id ?? '' }}</td>
 
-
-<td>
-Maria Santos
-</td>
-
+<td>{{ optional($segmentRow->customer)->display_name ?? '' }}</td>
 
 <td>
 
-<span class="badge bg-info">
-Regular
-</span>
+@php
+    $segName = $segmentRow->segment_name ?? '';
+@endphp
+
+@if ($segName === 'High-Value')
+    <span class="badge" style="background:#5347CE">{{ $segName }}</span>
+@elseif ($segName === 'Regular')
+    <span class="badge bg-info">{{ $segName }}</span>
+@elseif ($segName === 'At-Risk')
+    <span class="badge bg-danger">{{ $segName }}</span>
+@else
+    <span class="badge bg-secondary">{{ $segName }}</span>
+@endif
 
 </td>
 
+<td>{{ $segmentRow->spending_category ?? '' }}</td>
+
+<td>{{ $segmentRow->purchase_frequency ?? '' }}</td>
 
 <td>
-Standard
+@if($segmentRow->last_updated)
+    {{ \Carbon\Carbon::parse($segmentRow->last_updated)->format('F j, Y') }}
+@endif
 </td>
-
 
 <td>
-Monthly
+    <a class="btn btn-sm btn-outline-primary action-btn"
+       href="{{ route('crm.profiles', ['customer_id' => $segmentRow->customer_id]) }}">
+        View
+    </a>
 </td>
-
-
-<td>
-June 20, 2026
-</td>
-
-
-<td>
-
-<button class="btn btn-sm btn-outline-primary action-btn">
-View
-</button>
-
-</td>
-
 
 </tr>
 
-
-
-
-
+@empty
 
 <tr>
-
-<td>
-6003
-</td>
-
-
-<td>
-Pedro Reyes
-</td>
-
-
-<td>
-
-<span class="badge bg-danger">
-At-Risk
-</span>
-
-</td>
-
-
-<td>
-Low Activity
-</td>
-
-
-<td>
-Rarely
-</td>
-
-
-<td>
-June 15, 2026
-</td>
-
-
-<td>
-
-<button class="btn btn-sm btn-outline-primary action-btn">
-View
-</button>
-
-</td>
-
-
+    <td colspan="7" class="text-center text-muted py-4">
+        No segmentation records found.
+    </td>
 </tr>
 
-
+@endforelse
 
 </tbody>
 
@@ -715,6 +650,9 @@ View
 
 </div>
 
+<div class="mt-3">
+    {{ $segments->links() }}
+</div>
 
 
 </div>

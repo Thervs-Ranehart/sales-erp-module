@@ -5,6 +5,13 @@
 
 @section('content')
 
+@if (session('success'))
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ session('success') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+
 <style>
 
 .crm-card {
@@ -119,7 +126,49 @@ border-radius:8px;
 
 }
 
+.search-box{
+    position:relative;
+}
 
+.search-icon{
+    position:absolute;
+    left:15px;
+    top:50%;
+    transform:translateY(-50%);
+    color:#5347CE;
+    font-size:15px;
+}
+
+.search-box .form-control{
+    height:45px;
+    padding-left:42px;
+    border:2px solid #5347CE;
+    border-radius:10px;
+}
+
+.search-box .form-control:focus{
+    border-color:#5347CE;
+    box-shadow:0 0 0 .2rem rgba(83,71,206,.15);
+}
+
+.form-select{
+    height:45px;
+    border-radius:10px;
+}
+
+.btn-search{
+    height:45px;
+    background:#5347CE;
+    color:#fff;
+    border:none;
+    border-radius:10px;
+    font-weight:600;
+}
+
+.btn-search:hover{
+    background:#463bb5;
+    color:#fff;
+}
 </style>
 
 
@@ -144,12 +193,13 @@ Manage customer information and relationship data.
 </div>
 
 
-<button class="btn btn-main px-4">
+<a class="btn btn-main px-4 text-decoration-none" href="{{ route('crm.directory.create') }}">
 
 <i class="bi bi-person-plus"></i>
 Add Customer
 
-</button>
+</a>
+
 
 
 </div>
@@ -174,8 +224,10 @@ Total Customers
 </div>
 
 <div class="stat-value">
-1,245
+
+{{ number_format($totalCustomers ?? 0) }}
 </div>
+
 
 </div>
 
@@ -193,8 +245,10 @@ Active Customers
 </div>
 
 <div class="stat-value">
-987
+
+{{ number_format($activeCustomers ?? 0) }}
 </div>
+
 
 </div>
 
@@ -213,8 +267,10 @@ New Customers
 </div>
 
 <div class="stat-value">
-85
+
+{{ number_format($newCustomers ?? 0) }}
 </div>
+
 
 </div>
 
@@ -233,8 +289,10 @@ Inactive Accounts
 </div>
 
 <div class="stat-value">
-43
+
+{{ number_format($inactiveAccounts ?? 0) }}
 </div>
+
 
 </div>
 
@@ -268,12 +326,15 @@ Customer Classification
 <div class="type-card">
 
 <small class="text-muted">
+
 Regular Customers
 </small>
 
 <div class="type-number">
-850
+
+{{ number_format($regularCount ?? 0) }}
 </div>
+
 
 </div>
 
@@ -287,12 +348,15 @@ Regular Customers
 <div class="type-card">
 
 <small class="text-muted">
+
 VIP Customers
 </small>
 
 <div class="type-number">
-245
+
+{{ number_format($vipCount ?? 0) }}
 </div>
+
 
 </div>
 
@@ -306,12 +370,15 @@ VIP Customers
 <div class="type-card">
 
 <small class="text-muted">
+
 Corporate Accounts
 </small>
 
 <div class="type-number">
-150
+
+{{ number_format($corporateCount ?? 0) }}
 </div>
+
 
 </div>
 
@@ -337,18 +404,29 @@ Corporate Accounts
 <div class="card crm-card p-3 mb-4">
 
 
+<form method="GET" action="{{ route('crm.directory') }}">
+
 <div class="row g-3">
+
 
 
 <div class="col-md-5">
 
+    <div class="search-box">
 
-<input type="text"
-class="form-control"
-placeholder="Search customer name, email, or ID">
+        <i class="bi bi-search search-icon"></i>
 
+        <input
+            type="text"
+            name="search"
+            value="{{ request('search', $search ?? '') }}"
+            class="form-control"
+            placeholder="Search customer name, email, contact number, or ID">
+
+    </div>
 
 </div>
+
 
 
 
@@ -357,17 +435,17 @@ placeholder="Search customer name, email, or ID">
 <div class="col-md-2">
 
 
-<select class="form-select">
+<select class="form-select" name="status">
 
-<option>
+<option value="" {{ (request('status', $appliedStatus ?? '') == '') ? 'selected' : '' }}>
 Status
 </option>
 
-<option>
+<option value="Active" {{ (request('status', $appliedStatus ?? '') === 'Active') ? 'selected' : '' }}>
 Active
 </option>
 
-<option>
+<option value="Inactive" {{ (request('status', $appliedStatus ?? '') === 'Inactive') ? 'selected' : '' }}>
 Inactive
 </option>
 
@@ -381,24 +459,25 @@ Inactive
 
 
 
+
 <div class="col-md-2">
 
 
-<select class="form-select">
+<select class="form-select" name="type">
 
-<option>
+<option value="" {{ (request('type', $appliedType ?? '') == '') ? 'selected' : '' }}>
 Customer Type
 </option>
 
-<option>
+<option value="Regular" {{ (request('type', $appliedType ?? '') === 'Regular') ? 'selected' : '' }}>
 Regular
 </option>
 
-<option>
+<option value="VIP" {{ (request('type', $appliedType ?? '') === 'VIP') ? 'selected' : '' }}>
 VIP
 </option>
 
-<option>
+<option value="Corporate" {{ (request('type', $appliedType ?? '') === 'Corporate') ? 'selected' : '' }}>
 Corporate
 </option>
 
@@ -412,35 +491,35 @@ Corporate
 
 
 
+
 <div class="col-md-3">
 
 
-<button class="btn btn-outline-secondary w-100">
+<button class="btn btn-search w-100" type="submit">
 
-<i class="bi bi-search"></i>
+<i class="bi bi-search me-1"></i>
 Search
 
 </button>
 
 
-</div>
-
-
-
-
-</div>
-
 
 </div>
 
 
 
 
+</div>
 
+
+</div>
+
+</form>
 
 
 
 {{-- Customer List --}}
+
 
 <div class="card crm-card p-4">
 
@@ -518,6 +597,7 @@ Actions
 <tbody>
 
 
+@foreach ($customers as $customer)
 
 
 <tr>
@@ -530,24 +610,28 @@ Actions
 
 
 <div class="customer-avatar">
-JD
+{{ strtoupper(substr($customer->display_name ?? '', 0, 2)) }}
 </div>
 
 
 
+
 <div>
+
 
 <div class="fw-semibold">
-Juan Dela Cruz
+{{ $customer->display_name }}
 </div>
 
 
 <small class="text-muted">
-ID: 1001
+ID: {{ $customer->customer_id }}
 </small>
 
 
 </div>
+
+
 
 
 </div>
@@ -562,14 +646,17 @@ ID: 1001
 
 
 <td>
+
 
 <div>
-juan.delacruz@email.com
+{{ $customer->email }}
 </div>
 
+
 <small class="text-muted">
-0917-123-4567
+{{ $customer->contact_no }}
 </small>
+
 
 </td>
 
@@ -578,7 +665,10 @@ juan.delacruz@email.com
 
 
 
+
 <td>
+
+@if(optional($customer->loyaltyProgram)->membership_level === 'VIP')
 
 <span class="badge"
 style="background:#5347CE">
@@ -587,153 +677,21 @@ VIP
 
 </span>
 
+@elseif(optional($customer->loyaltyProgram)->membership_level === 'Corporate')
 
-</td>
-
-
-
-
-
-
-
-<td>
-24 Orders
-</td>
-
-
-
-
-
-
-
-<td>
-July 10, 2026
-</td>
-
-
-
-
-
-
-
-<td>
-
-<span class="badge bg-success">
-Active
+<span class="badge bg-primary">
+Corporate
 </span>
 
-
-</td>
-
-
-
-
-
-
-
-<td class="text-center">
-
-
-<button class="btn btn-sm btn-outline-primary action-btn">
-
-<i class="bi bi-eye"></i>
-
-</button>
-
-
-<button class="btn btn-sm btn-outline-warning action-btn">
-
-<i class="bi bi-pencil"></i>
-
-</button>
-
-
-<button class="btn btn-sm btn-outline-danger action-btn">
-
-<i class="bi bi-trash"></i>
-
-</button>
-
-
-</td>
-
-
-
-
-
-</tr>
-
-
-
-
-
-
-
-
-
-
-<tr>
-
-
-<td>
-
-
-<div class="d-flex align-items-center gap-3">
-
-
-<div class="customer-avatar">
-MS
-</div>
-
-
-<div>
-
-<div class="fw-semibold">
-Maria Santos
-</div>
-
-
-<small class="text-muted">
-ID: 1002
-</small>
-
-
-</div>
-
-
-</div>
-
-
-</td>
-
-
-
-
-
-
-<td>
-
-<div>
-maria.santos@email.com
-</div>
-
-<small class="text-muted">
-0917-987-6543
-</small>
-
-</td>
-
-
-
-
-
-
-<td>
+@else
 
 <span class="badge bg-secondary">
 Regular
 </span>
 
+@endif
+
+
 </td>
 
 
@@ -741,8 +699,10 @@ Regular
 
 
 
+
 <td>
-8 Orders
+
+{{ method_exists($customer,'salesOrders') ? $customer->salesOrders()->count() : 0 }} Orders
 </td>
 
 
@@ -750,8 +710,11 @@ Regular
 
 
 
+
 <td>
-July 5, 2026
+
+
+{{ optional($customer->communicationLogs()->orderByDesc('communication_date')->first())->communication_date ? optional($customer->communicationLogs()->orderByDesc('communication_date')->first())->communication_date->format('M d, Y') : '-' }}
 </td>
 
 
@@ -759,13 +722,31 @@ July 5, 2026
 
 
 
+
 <td>
+
+
+@php
+$latestStatus = optional($customer->communicationLogs()->orderByDesc('communication_date')->first())->communication_status;
+@endphp
+
+@if($latestStatus && $latestStatus !== 'Inactive')
 
 <span class="badge bg-success">
 Active
 </span>
 
+@else
+
+<span class="badge bg-secondary">
+Inactive
+</span>
+
+@endif
+
+
 </td>
+
 
 
 
@@ -775,36 +756,48 @@ Active
 <td class="text-center">
 
 
-<button class="btn btn-sm btn-outline-primary action-btn">
+<a class="btn btn-sm btn-outline-primary action-btn" href="{{ route('crm.directory.show', ['customer' => $customer->customer_id] + request()->query()) }}" aria-label="View">
 
 <i class="bi bi-eye"></i>
 
-</button>
+</a>
 
 
-<button class="btn btn-sm btn-outline-warning action-btn">
+<a class="btn btn-sm btn-outline-warning action-btn" href="{{ route('crm.profiles', ['customer_id' => $customer->customer_id] + request()->query()) }}" aria-label="Edit">
 
 <i class="bi bi-pencil"></i>
 
-</button>
+</a>
 
 
-<button class="btn btn-sm btn-outline-danger action-btn">
+<form method="POST" action="{{ route('crm.directory.destroy', ['customer' => $customer->customer_id]) }}" onsubmit="return confirm('Delete this customer?')">
+
+@csrf
+@method('DELETE')
+
+<button class="btn btn-sm btn-outline-danger action-btn" type="submit" aria-label="Delete">
 
 <i class="bi bi-trash"></i>
 
 </button>
+
+</form>
 
 
 </td>
 
 
 
+
+
 </tr>
 
 
+@endforeach
+
 
 </tbody>
+
 
 
 </table>
@@ -822,13 +815,13 @@ Active
 
 
 <small class="text-muted">
-Showing 1-10 of 1,245 customers
+{{ $customers->firstItem() }}-{{ $customers->lastItem() }} of {{ $customers->total() }} customers
 </small>
 
+<div>
+{{ $customers->links() }}
+</div>
 
-<button class="btn btn-sm btn-outline-secondary">
-Next
-</button>
 
 
 </div>
