@@ -82,7 +82,10 @@
     </section>
 
     {{-- Revenue trend chart section (reusable component) --}}
-    @include('components.revenue-trend', ['initialData' => $monthlyRevenue])
+    @isset($monthlyRevenue)
+        @include('components.revenue-trend', ['initialData' => $monthlyRevenue])
+    @endisset
+
 
     @include('components.report-filter')
 @endsection
