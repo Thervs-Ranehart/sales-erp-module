@@ -6,41 +6,28 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class SalesOrder extends Model
+class Quotation extends Model
 {
-<<<<<<< HEAD
-    protected $table = 'sales_orders';
+    protected $primaryKey = 'quotation_id';
 
-    protected $primaryKey = 'order_id';
-
-    protected $keyType = 'int';
-
-    public $incrementing = true;
-
-=======
-    protected $primaryKey = 'order_id';
-
->>>>>>> 99478f68ab3bb967d67ce05bf50f595c48e8f13b
     protected $fillable = [
-        'order_number',
-        'quotation_id',
+        'quotation_number',
         'customer_id',
         'employee_id',
         'pricing_rule_id',
-        'order_date',
-        'payment_method',
-        'payment_status',
-        'order_status',
-        'warehouse',
+        'quotation_date',
+        'valid_until',
         'subtotal',
         'discount',
         'tax',
         'shipping_fee',
         'total_amount',
+        'quotation_status',
     ];
 
     protected $casts = [
-        'order_date' => 'date',
+        'quotation_date' => 'date',
+        'valid_until' => 'date',
         'subtotal' => 'decimal:2',
         'discount' => 'decimal:2',
         'tax' => 'decimal:2',
@@ -48,30 +35,23 @@ class SalesOrder extends Model
         'total_amount' => 'decimal:2',
     ];
 
-<<<<<<< HEAD
-    public function customer()
-=======
     protected static function booted(): void
     {
-        static::deleting(function (SalesOrder $order): void {
-            $order->items()->delete();
+        static::deleting(function (Quotation $quotation): void {
+            $quotation->items()->delete();
         });
     }
 
     public function getRouteKeyName(): string
     {
-        return 'order_number';
+        return 'quotation_number';
     }
 
     public function customer(): BelongsTo
->>>>>>> 99478f68ab3bb967d67ce05bf50f595c48e8f13b
     {
         return $this->belongsTo(Customer::class, 'customer_id', 'customer_id');
     }
 
-<<<<<<< HEAD
-    public function items()
-=======
     public function employee(): BelongsTo
     {
         return $this->belongsTo(Employee::class, 'employee_id', 'employee_id');
@@ -83,31 +63,25 @@ class SalesOrder extends Model
     }
 
     public function items(): HasMany
->>>>>>> 99478f68ab3bb967d67ce05bf50f595c48e8f13b
     {
-        return $this->hasMany(SalesOrderItem::class, 'order_id', 'order_id');
+        return $this->hasMany(QuotationItem::class, 'quotation_id', 'quotation_id');
     }
 
-<<<<<<< HEAD
-    public function invoices()
-    {
-        return $this->hasMany(Invoice::class, 'order_id', 'order_id');
-=======
     public function statusCssClass(): string
     {
-        return match (strtolower((string) $this->order_status)) {
-            'pending' => 'status-pending',
-            'processed' => 'status-processed',
-            'shipped' => 'status-shipped',
-            'delivered' => 'status-delivered',
-            'cancelled' => 'status-draft',
+        return match (strtolower((string) $this->quotation_status)) {
+            'draft' => 'status-draft',
+            'sent' => 'status-pending',
+            'accepted' => 'status-delivered',
+            'rejected' => 'status-cancelled',
+            'expired' => 'status-processed',
             default => 'status-pending',
         };
     }
 
     public function formattedStatus(): string
     {
-        return ucfirst(strtolower((string) $this->order_status));
+        return ucfirst((string) $this->quotation_status);
     }
 
     public function discountPercent(): float
@@ -128,7 +102,5 @@ class SalesOrder extends Model
         }
 
         return round(((float) $this->tax / $taxable) * 100, 1);
->>>>>>> 99478f68ab3bb967d67ce05bf50f595c48e8f13b
     }
 }
-

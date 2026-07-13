@@ -1,702 +1,889 @@
 @extends('layouts.app')
 
 @section('title', 'Create Quotation')
-@section('page-title', 'Sales Order Management')
+@section('page-title', 'Quotation Management')
 
 @section('content')
 
-    <style>
-        
-        :root{
-            --primary:#5347CE;
-            --secondary:#887CFD;
-            --accent:#4896FE;
-            --success:#16C8C7;
-            --white:#FFFFFF;
-            --bg:#F8FAFC;
-            --text:#1F2937;
-            --text2:#6B7280;
-            --border:#E5E7EB;
-            --light-purple:#EEECFF;
-        }
+@php
+    $isEdit = isset($quotation);
 
-        *{
-            box-sizing:border-box;
-        }
+    $quotationItems = $isEdit
+        ? $quotation->items
+        : collect();
 
-        body{
-            margin:0;
-            background:var(--bg);
-            font-family:"Segoe UI",sans-serif;
-            color:var(--text);
-        }
+    $discountPercent = $isEdit
+        ? $quotation->discountPercent()
+        : old('discount', 0);
 
-      
-        /* PAGE */
+    $taxPercent = $isEdit
+        ? $quotation->taxPercent()
+        : old('tax', 12);
+@endphp
 
-        .page-content{
-            padding:30px;
-        }
+<style>
 
-        .page-header{
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            margin-bottom:25px;
-        }
+:root{
+    --primary:#5347CE;
+    --secondary:#887CFD;
+    --accent:#4896FE;
+    --success:#16C8C7;
+    --white:#FFFFFF;
+    --bg:#F8FAFC;
+    --text:#1F2937;
+    --text2:#6B7280;
+    --border:#E5E7EB;
+    --light-purple:#EEECFF;
+}
 
-        .page-title{
-            font-size:28px;
-            font-weight:700;
-            margin:0 0 5px;
-        }
+*{
+    box-sizing:border-box;
+}
 
-        .page-subtitle{
-            color:var(--text2);
-            margin:0;
-        }
+body{
+    margin:0;
+    background:var(--bg);
+    font-family:"Segoe UI",sans-serif;
+    color:var(--text);
+}
 
-        .back-btn{
-            display:inline-flex;
-            align-items:center;
-            gap:8px;
-            background:white;
-            color:var(--primary);
-            padding:11px 18px;
-            border:1px solid #DCD8FF;
-            border-radius:8px;
-            text-decoration:none;
-            font-weight:600;
-        }
+.page-content{
+    padding:30px;
+}
 
-        .back-btn:hover{
-            background:var(--light-purple);
-            color:var(--primary);
-        }
+.page-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
 
-        /* CARDS */
+.page-title{
+    font-size:28px;
+    font-weight:700;
+}
 
-        .form-card{
-            background:white;
-            padding:25px;
-            border-radius:16px;
-            box-shadow:0 5px 20px rgba(0,0,0,.06);
-            margin-bottom:24px;
-        }
+.page-subtitle{
+    color:var(--text2);
+}
 
-        .section-title{
-            color:var(--primary);
-            font-size:18px;
-            font-weight:700;
-            margin-bottom:22px;
-            display:flex;
-            align-items:center;
-            gap:9px;
-        }
+.back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:11px 18px;
+    border:1px solid #DCD8FF;
+    border-radius:8px;
+    text-decoration:none;
+    background:#fff;
+    color:var(--primary);
+    font-weight:600;
+}
 
-        /* FORM */
+.back-btn:hover{
+    background:var(--light-purple);
+}
 
-        .form-label{
-            color:var(--text);
-            font-size:14px;
-            font-weight:600;
-            margin-bottom:8px;
-        }
+.form-card{
+    background:#fff;
+    padding:25px;
+    border-radius:16px;
+    box-shadow:0 5px 20px rgba(0,0,0,.06);
+    margin-bottom:24px;
+}
 
-        .form-control,
-        .form-select{
-            border:1px solid var(--border);
-            border-radius:8px;
-            padding:11px 13px;
-        }
+.section-title{
+    color:var(--primary);
+    font-size:18px;
+    font-weight:700;
+    margin-bottom:22px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
 
-        .form-control:focus,
-        .form-select:focus{
-            border-color:var(--secondary);
-            box-shadow:0 0 0 3px rgba(136,124,253,.15);
-        }
+.form-label{
+    font-weight:600;
+}
 
-        textarea{
-            resize:none;
-        }
+.form-control,
+.form-select{
+    border-radius:8px;
+}
 
-        /* PRODUCTS */
+</style>
 
-        .add-product-btn{
-            background:var(--secondary);
-            color:white;
-            border:none;
-            padding:10px 17px;
-            border-radius:8px;
-            font-weight:600;
-        }
+<div class="page-content">
 
-        .add-product-btn:hover{
-            background:var(--primary);
-        }
+    <div class="page-header">
 
-        .product-table{
-            vertical-align:middle;
-            margin-bottom:0;
-        }
+        <div>
 
-        .product-table thead th{
-            background:var(--light-purple);
-            color:var(--primary);
-            padding:14px;
-            border-bottom:2px solid var(--primary);
-            font-size:13px;
-        }
+            <h2 class="page-title">
 
-        .product-table tbody td{
-            padding:12px;
-        }
+                {{ $isEdit ? 'Edit Quotation' : 'Create New Quotation' }}
 
-        .remove-btn{
-            width:38px;
-            height:38px;
-            border:none;
-            border-radius:8px;
-            background:var(--primary);
-            color:white;
-        }
+            </h2>
 
-        .remove-btn:hover{
-            background:var(--secondary);
-        }
+            <p class="page-subtitle">
 
-        /* SUMMARY */
+                Create a quotation for your customer
 
-        .summary-row{
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            padding:14px 0;
-            border-bottom:1px solid var(--border);
-        }
-
-        .summary-input{
-            padding:14px 0;
-            border-bottom:1px solid var(--border);
-        }
-
-        .summary-input label{
-            font-weight:600;
-            margin-bottom:8px;
-        }
-
-        .grand-total{
-            border-bottom:none;
-            color:var(--primary);
-            font-size:20px;
-            font-weight:700;
-        }
-
-        /* ACTIONS */
-
-        .form-actions{
-            display:flex;
-            justify-content:flex-end;
-            gap:12px;
-            margin-bottom:30px;
-        }
-
-        .cancel-btn,
-        .draft-btn,
-        .create-btn{
-            display:inline-flex;
-            align-items:center;
-            gap:7px;
-            padding:11px 20px;
-            border-radius:8px;
-            border:none;
-            text-decoration:none;
-            font-weight:600;
-        }
-
-        .cancel-btn{
-            background:white;
-            color:var(--text2);
-            border:1px solid var(--border);
-        }
-
-        .draft-btn{
-            background:var(--secondary);
-            color:white;
-        }
-
-        .create-btn{
-            background:var(--primary);
-            color:white;
-        }
-
-        .draft-btn:hover,
-        .create-btn:hover{
-            opacity:.9;
-        }
-
-        @media(max-width:900px){
-            .sidebar{
-                width:220px;
-            }
-
-            .main-content{
-                margin-left:220px;
-            }
-
-            .page-header{
-                align-items:flex-start;
-                gap:15px;
-                flex-direction:column;
-            }
-        }
-    </style>
-</head>
-
-<body>
-   
-    <!-- PAGE CONTENT -->
-
-    <div class="page-content">
-
-        <div class="page-header">
-
-            <div>
-                <h2 class="page-title">Create New Quotation</h2>
-                <p class="page-subtitle">
-                    Create a quotation for your customer
-                </p>
-            </div>
-
-            <a href="{{ route('quotations.index') }}" class="back-btn">
-                <i class="bi bi-arrow-left"></i>
-                Back to Quotations
-            </a>
+            </p>
 
         </div>
 
-        <form>
+        <a
+            href="{{ route('quotations.index') }}"
+            class="back-btn"
+        >
 
-            <!-- QUOTATION INFORMATION -->
+            <i class="bi bi-arrow-left"></i>
 
-            <div class="form-card">
+            Back to Quotations
 
-                <h5 class="section-title">
-                    <i class="bi bi-file-earmark-text"></i>
-                    Quotation Information
-                </h5>
+        </a>
 
-                <div class="row g-4">
+    </div>
 
-                    <div class="col-md-6">
+<form
+    action="{{ $isEdit ? route('quotations.update',$quotation) : route('quotations.store') }}"
+    method="POST"
+>
 
-                        <label class="form-label">
-                            Customer
-                        </label>
+    @csrf
 
-                        <select class="form-select">
-                            <option selected disabled>
-                                Select Customer
-                            </option>
-                            <option>Adelaide Ful</option>
-                            <option>Maria Santos</option>
-                            <option>Jose Reyes</option>
-                            <option>Juan Dela Cruz</option>
-                        </select>
+    @if($isEdit)
+        @method('PUT')
+    @endif
 
-                    </div>
+    <div class="form-card">
 
-                    <div class="col-md-3">
+        <h5 class="section-title">
 
-                        <label class="form-label">
-                            Quotation Date
-                        </label>
+            <i class="bi bi-file-earmark-text"></i>
 
-                        <input type="date" class="form-control">
+            Quotation Information
 
-                    </div>
+        </h5>
 
-                    <div class="col-md-3">
+        <div class="row g-4">
+                        <div class="col-md-6">
 
-                        <label class="form-label">
-                            Valid Until
-                        </label>
+                <label class="form-label">
+                    Customer
+                </label>
 
-                        <input type="date" class="form-control">
+                <select
+                    class="form-select"
+                    name="customer_id"
+                    required
+                >
 
-                    </div>
+                    <option value="">
+                        Select Customer
+                    </option>
 
-                    <div class="col-md-6">
+                    @foreach($customers as $customer)
 
-                        <label class="form-label">
-                            Reference Number
-                        </label>
-
-                        <input
-                            type="text"
-                            class="form-control"
-                            placeholder="e.g. REF-2026-001"
+                        <option
+                            value="{{ $customer->customer_id }}"
+                            @selected(old('customer_id', optional($quotation)->customer_id) == $customer->customer_id)
                         >
 
-                    </div>
+                            {{ $customer->full_name }}
 
-                    <div class="col-md-6">
+                        </option>
 
-                        <label class="form-label">
-                            Status
-                        </label>
+                    @endforeach
 
-                        <select class="form-select">
-                            <option>Draft</option>
-                            <option>Pending</option>
-                            <option>Approved</option>
-                        </select>
-
-                    </div>
-
-                </div>
+                </select>
 
             </div>
 
-            <!-- PRODUCTS -->
+            <div class="col-md-3">
 
-            <div class="form-card">
+                <label class="form-label">
+                    Quotation Date
+                </label>
 
-                <div class="d-flex justify-content-between align-items-center mb-4">
-
-                    <h5 class="section-title mb-0">
-                        <i class="bi bi-box-seam"></i>
-                        Products / Items
-                    </h5>
-
-                    <button
-                        type="button"
-                        class="add-product-btn"
-                        onclick="addProduct()"
-                    >
-                        <i class="bi bi-plus-circle me-1"></i>
-                        Add Product
-                    </button>
-
-                </div>
-
-                <div class="table-responsive">
-
-                    <table class="table product-table">
-
-                        <thead>
-                            <tr>
-                                <th>Product / Item</th>
-                                <th width="120">Quantity</th>
-                                <th width="170">Unit Price</th>
-                                <th width="170">Total</th>
-                                <th width="60"></th>
-                            </tr>
-                        </thead>
-
-                        <tbody id="productRows">
-
-                            <tr>
-
-                                <td>
-                                    <select class="form-select">
-                                        <option selected disabled>
-                                            Select Product
-                                        </option>
-                                        <option>Desktop Computer</option>
-                                        <option>Laptop</option>
-                                        <option>Monitor</option>
-                                        <option>Keyboard</option>
-                                        <option>Mouse</option>
-                                    </select>
-                                </td>
-
-                                <td>
-                                    <input
-                                        type="number"
-                                        class="form-control quantity"
-                                        value="1"
-                                        min="1"
-                                        oninput="calculateTotals()"
-                                    >
-                                </td>
-
-                                <td>
-                                    <input
-                                        type="number"
-                                        class="form-control price"
-                                        value="0"
-                                        min="0"
-                                        oninput="calculateTotals()"
-                                    >
-                                </td>
-
-                                <td>
-                                    <input
-                                        type="text"
-                                        class="form-control row-total"
-                                        value="₱0.00"
-                                        readonly
-                                    >
-                                </td>
-
-                                <td>
-                                    <button
-                                        type="button"
-                                        class="remove-btn"
-                                        onclick="removeProduct(this)"
-                                    >
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
+                <input
+                    type="date"
+                    class="form-control"
+                    name="quotation_date"
+                    value="{{ old('quotation_date', optional($quotation)->quotation_date?->format('Y-m-d') ?? now()->format('Y-m-d')) }}"
+                    required
+                >
 
             </div>
 
-            <!-- NOTES + SUMMARY -->
+            <div class="col-md-3">
 
-            <div class="row g-4">
+                <label class="form-label">
+                    Valid Until
+                </label>
 
-                <div class="col-lg-7">
+                <input
+                    type="date"
+                    class="form-control"
+                    name="valid_until"
+                    value="{{ old('valid_until', optional($quotation)->valid_until?->format('Y-m-d') ?? now()->addDays(30)->format('Y-m-d')) }}"
+                    required
+                >
 
-                    <div class="form-card h-100">
+            </div>
 
-                        <h5 class="section-title">
-                            <i class="bi bi-card-text"></i>
-                            Notes and Terms
-                        </h5>
+            <div class="col-md-6">
 
-                        <label class="form-label">
-                            Notes
-                        </label>
+                <label class="form-label">
+                    Pricing Rule
+                </label>
 
-                        <textarea
-                            class="form-control mb-4"
-                            rows="4"
-                            placeholder="Enter additional notes..."
-                        ></textarea>
+                <select
+                    class="form-select"
+                    name="pricing_rule_id"
+                >
 
-                        <label class="form-label">
-                            Terms and Conditions
-                        </label>
+                    <option value="">
+                        None
+                    </option>
 
-                        <textarea
+                    @foreach($pricingRules as $rule)
+
+                        <option
+                            value="{{ $rule->pricing_rule_id }}"
+                            @selected(old('pricing_rule_id', optional($quotation)->pricing_rule_id) == $rule->pricing_rule_id)
+                        >
+
+                            {{ $rule->rule_name }}
+
+                        </option>
+
+                    @endforeach
+
+                </select>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <label class="form-label">
+                    Status
+                </label>
+
+                <select
+                    class="form-select"
+                    name="status"
+                    required
+                >
+
+                    @php
+                        $status = old('status', optional($quotation)->quotation_status ?? 'draft');
+                    @endphp
+
+                    <option value="draft" @selected($status=='draft')>
+                        Draft
+                    </option>
+
+                    <option value="sent" @selected($status=='sent')>
+                        Sent
+                    </option>
+
+                    <option value="accepted" @selected($status=='accepted')>
+                        Accepted
+                    </option>
+
+                    <option value="rejected" @selected($status=='rejected')>
+                        Rejected
+                    </option>
+
+                    <option value="expired" @selected($status=='expired')>
+                        Expired
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- PRODUCTS -->
+
+    <div class="form-card">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <h5 class="section-title mb-0">
+
+                <i class="bi bi-box-seam"></i>
+
+                Products / Items
+
+            </h5>
+
+            <button
+                type="button"
+                class="add-product-btn"
+                onclick="addProduct()"
+            >
+
+                <i class="bi bi-plus-circle me-1"></i>
+
+                Add Product
+
+            </button>
+
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table product-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Product</th>
+
+                        <th width="120">
+                            Quantity
+                        </th>
+
+                        <th width="170">
+                            Unit Price
+                        </th>
+
+                        <th width="170">
+                            Total
+                        </th>
+
+                        <th width="60"></th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="productRows">
+                    @if($quotationItems->isEmpty())
+
+<tr>
+
+    <td>
+
+        <select
+            class="form-select product-select"
+            name="product_id[]"
+            onchange="updatePrice(this)"
+            required
+        >
+
+            <option value="">
+                Select Product
+            </option>
+
+            @foreach($products as $product)
+
+                <option
+                    value="{{ $product->product_id }}"
+                    data-price="{{ $product->unit_price }}"
+                >
+
+                    {{ $product->product_name }}
+
+                </option>
+
+            @endforeach
+
+        </select>
+
+    </td>
+
+    <td>
+
+        <input
+            type="number"
+            class="form-control quantity"
+            name="qty[]"
+            value="1"
+            min="1"
+            oninput="calculateTotals()"
+            required
+        >
+
+    </td>
+
+    <td>
+
+        <input
+            type="number"
+            class="form-control price"
+            name="price[]"
+            value="0"
+            min="0"
+            step="0.01"
+            oninput="calculateTotals()"
+            required
+        >
+
+    </td>
+
+    <td>
+
+        <input
+            type="text"
+            class="form-control row-total"
+            value="₱0.00"
+            readonly
+        >
+
+    </td>
+
+    <td>
+
+        <button
+            type="button"
+            class="remove-btn"
+            onclick="removeProduct(this)"
+        >
+
+            <i class="bi bi-trash"></i>
+
+        </button>
+
+    </td>
+
+</tr>
+
+@else
+
+@foreach($quotationItems as $item)
+
+<tr>
+
+    <td>
+
+        <select
+            class="form-select product-select"
+            name="product_id[]"
+            onchange="updatePrice(this)"
+            required
+        >
+
+            <option value="">
+                Select Product
+            </option>
+
+            @foreach($products as $product)
+
+                <option
+                    value="{{ $product->product_id }}"
+                    data-price="{{ $product->unit_price }}"
+                    @selected($item->product_id == $product->product_id)
+                >
+
+                    {{ $product->product_name }}
+
+                </option>
+
+            @endforeach
+
+        </select>
+
+    </td>
+
+    <td>
+
+        <input
+            type="number"
+            class="form-control quantity"
+            name="qty[]"
+            value="{{ $item->quantity }}"
+            min="1"
+            oninput="calculateTotals()"
+            required
+        >
+
+    </td>
+
+    <td>
+
+        <input
+            type="number"
+            class="form-control price"
+            name="price[]"
+            value="{{ $item->unit_price }}"
+            min="0"
+            step="0.01"
+            oninput="calculateTotals()"
+            required
+        >
+
+    </td>
+
+    <td>
+
+        <input
+            type="text"
+            class="form-control row-total"
+            value="₱{{ number_format($item->subtotal,2) }}"
+            readonly
+        >
+
+    </td>
+
+    <td>
+
+        <button
+            type="button"
+            class="remove-btn"
+            onclick="removeProduct(this)"
+        >
+
+            <i class="bi bi-trash"></i>
+
+        </button>
+
+    </td>
+
+</tr>
+
+@endforeach
+
+@endif
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+<div class="form-card">
+
+    <div class="row">
+
+        <div class="col-lg-6">
+
+            <label class="form-label">
+                Notes
+            </label>
+
+            <textarea
+                class="form-control"
+                rows="8"
+                name="remarks"
+                placeholder="Optional notes..."
+            >{{ old('remarks') }}</textarea>
+
+        </div>
+
+        <div class="col-lg-6">
+
+            <table class="table table-borderless">
+
+                <tr>
+
+                    <th width="50%">
+                        Subtotal
+                    </th>
+
+                    <td class="text-end">
+
+                        ₱<span id="subtotal">
+                            0.00
+                        </span>
+
+                    </td>
+
+                </tr>
+
+                <tr>
+
+                    <th>
+
+                        Discount %
+
+                    </th>
+
+                    <td>
+
+                        <input
+                            type="number"
                             class="form-control"
-                            rows="4"
-                            placeholder="Enter terms and conditions..."
-                        ></textarea>
+                            id="discount"
+                            name="discount"
+                            value="{{ old('discount',$discountPercent) }}"
+                            min="0"
+                            max="100"
+                            oninput="calculateTotals()"
+                        >
 
-                    </div>
+                    </td>
 
-                </div>
+                </tr>
 
-                <div class="col-lg-5">
+                <tr>
 
-                    <div class="form-card">
+                    <th>
 
-                        <h5 class="section-title">
-                            <i class="bi bi-calculator"></i>
-                            Quotation Summary
-                        </h5>
+                        Tax %
 
-                        <div class="summary-row">
-                            <span>Subtotal</span>
-                            <strong id="subtotal">₱0.00</strong>
-                        </div>
+                    </th>
 
-                        <div class="summary-input">
+                    <td>
 
-                            <label>
-                                Discount
-                            </label>
+                        <input
+                            type="number"
+                            class="form-control"
+                            id="tax"
+                            name="tax"
+                            value="{{ old('tax',$taxPercent) }}"
+                            min="0"
+                            max="100"
+                            oninput="calculateTotals()"
+                        >
 
-                            <div class="input-group">
+                    </td>
 
-                                <span class="input-group-text">
-                                    ₱
-                                </span>
+                </tr>
 
-                                <input
-                                    type="number"
-                                    id="discount"
-                                    class="form-control"
-                                    value="0"
-                                    min="0"
-                                    oninput="calculateTotals()"
-                                >
+                <tr>
 
-                            </div>
+                    <th class="fs-5">
 
-                        </div>
+                        Grand Total
 
-                        <div class="summary-row">
-                            <span>VAT (12%)</span>
-                            <strong id="tax">₱0.00</strong>
-                        </div>
+                    </th>
 
-                        <div class="summary-row grand-total">
-                            <span>Grand Total</span>
-                            <strong id="grandTotal">₱0.00</strong>
-                        </div>
+                    <td class="text-end fs-4 fw-bold text-primary">
 
-                    </div>
+                        ₱<span id="grandTotal">
+                            0.00
+                        </span>
 
-                </div>
+                    </td>
 
-            </div>
+                </tr>
 
-            <!-- ACTION BUTTONS -->
+            </table>
 
-            <div class="form-actions">
-
-                <a
-                    href="{{ route('quotations.index') }}"
-                    class="cancel-btn"
-                >
-                    Cancel
-                </a>
-
-                <button
-                    type="button"
-                    class="draft-btn"
-                >
-                    <i class="bi bi-file-earmark"></i>
-                    Save as Draft
-                </button>
-
-                <button
-                    type="button"
-                    class="create-btn"
-                >
-                    <i class="bi bi-check-circle"></i>
-                    Create Quotation
-                </button>
-
-            </div>
-
-        </form>
+        </div>
 
     </div>
 
 </div>
 
+<div class="d-flex justify-content-end gap-2">
+
+    <a
+        href="{{ route('quotations.index') }}"
+        class="btn btn-outline-secondary"
+    >
+
+        Cancel
+
+    </a>
+
+    <button
+        type="submit"
+        class="btn btn-primary"
+    >
+
+        <i class="bi bi-check-circle me-1"></i>
+
+        {{ $isEdit ? 'Update Quotation' : 'Save Quotation' }}
+
+    </button>
+
+</div>
+
+</form>
 <script>
 
-    function addProduct(){
+function addProduct()
+{
+    let row = `
+<tr>
 
-        const tbody =
-            document.getElementById('productRows');
+<td>
 
-        const firstRow =
-            tbody.querySelector('tr');
+<select
+class="form-select product-select"
+name="product_id[]"
+onchange="updatePrice(this)"
+required>
 
-        const newRow =
-            firstRow.cloneNode(true);
+<option value="">Select Product</option>
 
-        newRow.querySelector('select').selectedIndex = 0;
-        newRow.querySelector('.quantity').value = 1;
-        newRow.querySelector('.price').value = 0;
-        newRow.querySelector('.row-total').value = '₱0.00';
+@foreach($products as $product)
 
-        tbody.appendChild(newRow);
+<option
+value="{{ $product->product_id }}"
+data-price="{{ $product->unit_price }}">
 
+{{ $product->product_name }}
+
+</option>
+
+@endforeach
+
+</select>
+
+</td>
+
+<td>
+
+<input
+type="number"
+name="qty[]"
+class="form-control quantity"
+value="1"
+min="1"
+oninput="calculateTotals()"
+required>
+
+</td>
+
+<td>
+
+<input
+type="number"
+name="price[]"
+class="form-control price"
+value="0"
+step="0.01"
+min="0"
+oninput="calculateTotals()"
+required>
+
+</td>
+
+<td>
+
+<input
+type="text"
+class="form-control row-total"
+value="₱0.00"
+readonly>
+
+</td>
+
+<td>
+
+<button
+type="button"
+class="remove-btn"
+onclick="removeProduct(this)">
+
+<i class="bi bi-trash"></i>
+
+</button>
+
+</td>
+
+</tr>
+`;
+
+document
+.getElementById('productRows')
+.insertAdjacentHTML('beforeend',row);
+}
+
+function removeProduct(button)
+{
+    let tbody=document.getElementById('productRows');
+
+    if(tbody.rows.length>1)
+    {
+        button.closest('tr').remove();
         calculateTotals();
     }
+}
 
+function updatePrice(select)
+{
+    let option=select.options[select.selectedIndex];
 
-    function removeProduct(button){
+    let price=option.dataset.price ?? 0;
 
-        const tbody =
-            document.getElementById('productRows');
+    let row=select.closest('tr');
 
-        if(tbody.rows.length > 1){
+    row.querySelector('.price').value=price;
 
-            button.closest('tr').remove();
+    calculateTotals();
+}
 
-            calculateTotals();
-        }
-    }
+function calculateTotals()
+{
+    let subtotal=0;
 
+    document.querySelectorAll('#productRows tr').forEach(function(row){
 
-    function calculateTotals(){
+        let qty=parseFloat(
+            row.querySelector('.quantity').value
+        )||0;
 
-        let subtotal = 0;
+        let price=parseFloat(
+            row.querySelector('.price').value
+        )||0;
 
-        document
-            .querySelectorAll('#productRows tr')
-            .forEach(row => {
+        let total=qty*price;
 
-                const quantity =
-                    parseFloat(
-                        row.querySelector('.quantity').value
-                    ) || 0;
+        subtotal+=total;
 
-                const price =
-                    parseFloat(
-                        row.querySelector('.price').value
-                    ) || 0;
-
-                const total =
-                    quantity * price;
-
-                row.querySelector('.row-total').value =
-                    formatMoney(total);
-
-                subtotal += total;
-
+        row.querySelector('.row-total').value=
+            "₱"+total.toLocaleString(undefined,{
+                minimumFractionDigits:2,
+                maximumFractionDigits:2
             });
 
+    });
 
-        const discount =
-            parseFloat(
-                document.getElementById('discount').value
-            ) || 0;
+    document.getElementById('subtotal').innerHTML=
+        subtotal.toLocaleString(undefined,{
+            minimumFractionDigits:2,
+            maximumFractionDigits:2
+        });
 
+    let discount=parseFloat(
+        document.getElementById('discount').value
+    )||0;
 
-        const discountedAmount =
-            Math.max(subtotal - discount, 0);
+    let tax=parseFloat(
+        document.getElementById('tax').value
+    )||0;
 
+    let discountAmount=subtotal*(discount/100);
 
-        const tax =
-            discountedAmount * 0.12;
+    let taxable=subtotal-discountAmount;
 
+    let taxAmount=taxable*(tax/100);
 
-        const grandTotal =
-            discountedAmount + tax;
+    let grandTotal=taxable+taxAmount;
 
+    document.getElementById('grandTotal').innerHTML=
+        grandTotal.toLocaleString(undefined,{
+            minimumFractionDigits:2,
+            maximumFractionDigits:2
+        });
+}
 
-        document.getElementById('subtotal').textContent =
-            formatMoney(subtotal);
+document.addEventListener('DOMContentLoaded',function(){
 
-        document.getElementById('tax').textContent =
-            formatMoney(tax);
+    document.querySelectorAll('.product-select').forEach(function(select){
 
-        document.getElementById('grandTotal').textContent =
-            formatMoney(grandTotal);
-    }
+        if(select.value!="")
+        {
+            updatePrice(select);
+        }
 
+    });
 
-    function formatMoney(value){
+    calculateTotals();
 
-        return '₱' +
-            value.toLocaleString(
-                'en-PH',
-                {
-                    minimumFractionDigits:2,
-                    maximumFractionDigits:2
-                }
-            );
-    }
+});
 
 </script>
-
-</body>
-</html>
 @endsection

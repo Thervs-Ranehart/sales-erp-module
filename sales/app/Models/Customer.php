@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Customer extends Model
 {
+<<<<<<< HEAD
     protected $table = 'customers';
 
     protected $primaryKey = 'customer_id';
@@ -14,6 +16,10 @@ class Customer extends Model
 
     protected $keyType = 'int';
 
+=======
+    protected $primaryKey = 'customer_id';
+
+>>>>>>> 99478f68ab3bb967d67ce05bf50f595c48e8f13b
     protected $fillable = [
         'first_name',
         'last_name',
@@ -23,6 +29,7 @@ class Customer extends Model
         'preferences',
     ];
 
+<<<<<<< HEAD
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -54,10 +61,14 @@ class Customer extends Model
     }
 
     public function salesOrders()
+=======
+    public function salesOrders(): HasMany
+>>>>>>> 99478f68ab3bb967d67ce05bf50f595c48e8f13b
     {
         return $this->hasMany(SalesOrder::class, 'customer_id', 'customer_id');
     }
 
+<<<<<<< HEAD
     public function getDisplayNameAttribute(): string
     {
         return trim($this->first_name . ' ' . $this->last_name);
@@ -67,5 +78,11 @@ class Customer extends Model
     {
         return 'customer_id';
     }
+=======
+    public function getFullNameAttribute(): string
+{
+    return trim("{$this->first_name} {$this->last_name}");
+}
+>>>>>>> 99478f68ab3bb967d67ce05bf50f595c48e8f13b
 }
 

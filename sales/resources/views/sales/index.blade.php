@@ -5,6 +5,8 @@
 
 @section('content')
 
+    @include('sales.partials.alerts')
+
     <style>
        
         :root{
@@ -337,7 +339,7 @@
 
             <h2>Sales Orders</h2>
 
-           <a href="{{ route('sales.create') }}" class="new-btn">
+           <a href="{{ route('sales.create') }}" class="new-order-btn">
     <i class="bi bi-plus-circle"></i>
     New Sales Order
 </a>
@@ -385,7 +387,7 @@
                         class="filter-btn active"
                         onclick="filterOrders('all', this)"
                     >
-                        All (5)
+                        All ({{ $statusCounts['all'] ?? 0 }})
                     </button>
 
 
@@ -393,7 +395,7 @@
                         class="filter-btn"
                         onclick="filterOrders('pending', this)"
                     >
-                        Pending (1)
+                        Pending ({{ $statusCounts['pending'] ?? 0 }})
                     </button>
 
 
@@ -401,7 +403,7 @@
     class="filter-btn"
     onclick="filterOrders('processed', this)"
 >
-    Processed (2)
+    Processed ({{ $statusCounts['processed'] ?? 0 }})
 </button>
 
 
@@ -409,7 +411,7 @@
                         class="filter-btn"
                         onclick="filterOrders('shipped', this)"
                     >
-                        Shipped (1)
+                        Shipped ({{ $statusCounts['shipped'] ?? 0 }})
                     </button>
 
 
@@ -417,7 +419,7 @@
                         class="filter-btn"
                         onclick="filterOrders('delivered', this)"
                     >
-                        Delivered (1)
+                        Delivered ({{ $statusCounts['delivered'] ?? 0 }})
                     </button>
 
                 </div>
@@ -460,265 +462,86 @@
 
                     <tbody>
 
-
-                        <!-- ORDER 1 -->
-
-                        <tr data-status="pending">
+                        @forelse ($orders as $order)
+                        <tr data-status="{{ strtolower($order->order_status) }}">
 
                             <td class="order-id">
-                                SO-001
+                                {{ $order->order_number }}
                             </td>
 
                             <td>
-                                ABC Company
+                               {{ $order->customer?->full_name ?? 'N/A' }}
                             </td>
 
                             <td>
-                                July 7, 2026
-
-                                <span class="small-text">
-                                    Due July 18, 2026
-                                </span>
+                                {{ $order->order_date?->format('F j, Y') ?? '—' }}
                             </td>
 
                             <td>
-                                ₱25,000
+                                ₱{{ number_format((float) $order->subtotal, 0) }}
                             </td>
 
                             <td class="discount">
-                                - ₱1,000
+                                - ₱{{ number_format((float) $order->discount, 0) }}
 
+                                @if ($order->discountPercent() > 0)
                                 <span class="small-text">
-                                    4%
+                                    {{ $order->discountPercent() }}%
                                 </span>
+                                @endif
                             </td>
 
                             <td>
-                                ₱2,880
+                                ₱{{ number_format((float) $order->tax, 0) }}
 
+                                @if ($order->taxPercent() > 0)
                                 <span class="small-text">
-                                    12%
+                                    {{ $order->taxPercent() }}%
+                                </span>
+                                @endif
+                            </td>
+
+                            <td>
+                                ₱{{ number_format((float) $order->total_amount, 0) }}
+                            </td>
+
+                            <td>
+                                <span class="status {{ $order->statusCssClass() }}">
+                                    {{ $order->formattedStatus() }}
                                 </span>
                             </td>
 
                             <td>
-                                ₱26,880
-                            </td>
-
-                            <td>
-
-                                <span class="status status-pending">
-                                    Pending
-                                </span>
-
-                            </td>
-
-                            <td>
-                                  <a href="{{ route('sales.profile', ['id' => 'SO-001']) }}"
-   class="action-btn view-btn">
-    <i class="bi bi-eye"></i>
-</a>
-
-                                <button class="action-btn edit-btn">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-
-                                <button class="action-btn delete-btn">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-
-                            </td>
-
-                        </tr>
-
-
-                        <!-- ORDER 2 -->
-                            <tr data-status="processed">
-
-                            <td class="order-id">
-                                SO-002
-                            </td>
-
-                            <td>
-                                XYZ Trading
-                            </td>
-
-                            <td>
-                                July 8, 2026
-
-                                <span class="small-text">
-                                    Due July 20, 2026
-                                </span>
-                            </td>
-
-                            <td>
-                                ₱18,500
-                            </td>
-
-                            <td class="discount">
-                                - ₱500
-                            </td>
-
-                            <td>
-                                ₱2,160
-                            </td>
-
-                            <td>
-                                ₱20,160
-                            </td>
-
-                            <td>
-
-                               <span class="status status-processed">
-    Processed
-</span>
-
-                            </td>
-
-                            <td>
-
-                                <button class="action-btn view-btn">
+                                <a href="{{ route('sales.profile', $order) }}"
+                                   class="action-btn view-btn">
                                     <i class="bi bi-eye"></i>
-                                </button>
+                                </a>
 
-                                <button class="action-btn edit-btn">
+                                <a href="{{ route('sales.edit', $order) }}"
+                                   class="action-btn edit-btn">
                                     <i class="bi bi-pencil"></i>
-                                </button>
+                                </a>
 
-                                <button class="action-btn delete-btn">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-
+                                <form action="{{ route('sales.destroy', $order) }}"
+                                      method="POST"
+                                      style="display:inline;"
+                                      onsubmit="return confirm('Delete this sales order?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="action-btn delete-btn">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
                             </td>
 
                         </tr>
-
-
-                        <!-- ORDER 3 -->
-
-                        <tr data-status="shipped">
-
-                            <td class="order-id">
-                                SO-003
+                        @empty
+                        <tr>
+                            <td colspan="9" class="text-center py-4 text-muted">
+                                No sales orders found. Create your first order to get started.
                             </td>
-
-                            <td>
-                                John Doe
-                            </td>
-
-                            <td>
-                                July 9, 2026
-
-                                <span class="small-text">
-                                    Due July 21, 2026
-                                </span>
-                            </td>
-
-                            <td>
-                                ₱31,200
-                            </td>
-
-                            <td class="discount">
-                                - ₱1,200
-                            </td>
-
-                            <td>
-                                ₱3,600
-                            </td>
-
-                            <td>
-                                ₱33,600
-                            </td>
-
-                            <td>
-
-                                <span class="status status-shipped">
-                                    Shipped
-                                </span>
-
-                            </td>
-
-                            <td>
-
-                                <button class="action-btn view-btn">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-
-                                <button class="action-btn edit-btn">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-
-                                <button class="action-btn delete-btn">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-
-                            </td>
-
                         </tr>
-
-
-                        <!-- ORDER 4 -->
-
-                        <tr data-status="delivered">
-
-                            <td class="order-id">
-                                SO-004
-                            </td>
-
-                            <td>
-                                Maria Santos
-                            </td>
-
-                            <td>
-                                July 10, 2026
-                            </td>
-
-                            <td>
-                                ₱15,000
-                            </td>
-
-                            <td class="discount">
-                                - ₱500
-                            </td>
-
-                            <td>
-                                ₱1,740
-                            </td>
-
-                            <td>
-                                ₱16,240
-                            </td>
-
-                            <td>
-
-                                <span class="status status-delivered">
-                                    Delivered
-                                </span>
-
-                            </td>
-
-                            <td>
-
-                                <button class="action-btn view-btn">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-
-                                <button class="action-btn edit-btn">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-
-                                <button class="action-btn delete-btn">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-
-                            </td>
-
-                        </tr>
-
-
-                      
-                        </tr>
-
+                        @endforelse
 
                     </tbody>
 

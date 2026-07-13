@@ -14,11 +14,15 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ForecastingController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\SalesOrderController;
 
 use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\AfterSalesSupportController;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 99478f68ab3bb967d67ce05bf50f595c48e8f13b
 use Illuminate\Support\Facades\Route;
 
 
@@ -38,6 +42,7 @@ Route::get('/logout', function () {
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 Route::get('/sales-order-management', [SalesOrderController::class, 'index'])->name('sales.order-management');
+Route::redirect('/sales-order-management/index', '/sales-orders');
 
 // CRM Dashboard
 Route::redirect('/crm', '/customer-directory')->name('crm.index');
@@ -108,14 +113,15 @@ Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index
 // Sales Order Management
 // =========================
 
-Route::view('/sales-orders', 'sales.index')
-    ->name('sales.index');
+Route::get('/sales-orders', [SalesOrderController::class, 'index'])->name('sales.index');
+Route::get('/sales-orders/create', [SalesOrderController::class, 'create'])->name('sales.create');
+Route::post('/sales-orders', [SalesOrderController::class, 'store'])->name('sales.store');
+Route::get('/sales-orders/{salesOrder}/edit', [SalesOrderController::class, 'edit'])->name('sales.edit');
+Route::put('/sales-orders/{salesOrder}', [SalesOrderController::class, 'update'])->name('sales.update');
+Route::delete('/sales-orders/{salesOrder}', [SalesOrderController::class, 'destroy'])->name('sales.destroy');
+Route::get('/sales-order-management/profile/{salesOrder}', [SalesOrderController::class, 'show'])->name('sales.profile');
+Route::patch('/sales-order-management/profile/{salesOrder}/status', [SalesOrderController::class, 'updateStatus'])->name('sales.update-status');
 
-Route::view('/quotations', 'sales.quotations')
-    ->name('quotations.index');
-
-Route::view('/quotations/create', 'sales.create-quotation')
-    ->name('quotations.create');
 
 Route::view('/pricing-rules', 'sales.pricing-rules')
     ->name('pricing.index');
@@ -132,6 +138,7 @@ Route::view('/invoices/create', 'sales.create-invoice')
 Route::view('/invoices/generate', 'sales.generate-invoice')
     ->name('invoices.generate');
 
+<<<<<<< HEAD
 // Route removed: SalesController does not exist in this codebase.
 
 
@@ -139,7 +146,9 @@ Route::get('/sales-order-management/profile/{id}', function ($id) {
 
     return view('sales.profile', compact('id'));
 })->name('sales.profile');
+=======
 
-Route::get('/sales-orders/create', function () {
-    return view('sales.create-sales-order');
-})->name('sales.create');
+>>>>>>> 99478f68ab3bb967d67ce05bf50f595c48e8f13b
+
+Route::resource('quotations', QuotationController::class);
+
