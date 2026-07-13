@@ -25,8 +25,16 @@ class ForecastingController extends Controller
             'values' => array_map(fn ($v) => (float) $v, $values),
         ];
 
+        // UI-only fallback dataset for Top 5 products (labels sorted highest to lowest in the desired UI)
+        // Values represent sales amount (PHP) for each product.
+        $topProducts = [
+            'labels' => ['Product A', 'Product B', 'Product C', 'Product D', 'Product E'],
+            'values' => [680000, 520000, 460000, 310000, 240000],
+        ];
+
         return view('forecasting.reports', [
             'monthlyRevenue' => $monthlyRevenue,
+            'topProducts' => $topProducts,
             'selectedYear' => $year,
         ]);
     }

@@ -22,14 +22,16 @@
         return { labels, values };
     }
 
-    function maybeSortAscending(labels, values) {
+    function maybeSortDescending(labels, values) {
         const pairs = labels.map((label, i) => ({ label, value: values[i] }));
-        pairs.sort((a, b) => Number(a.value) - Number(b.value));
+        // Highest -> least
+        pairs.sort((a, b) => Number(b.value) - Number(a.value));
         return {
             labels: pairs.map((p) => p.label),
             values: pairs.map((p) => p.value),
         };
     }
+
 
     function readInitialDataFromRoot(rootEl) {
         if (!rootEl) return null;
@@ -70,7 +72,8 @@
             return;
         }
 
-        const { labels, values } = maybeSortAscending(built.labels, built.values);
+        const { labels, values } = maybeSortDescending(built.labels, built.values);
+
 
         const existing = createChartRegistry.get(chartId);
         if (existing && typeof existing.destroy === 'function') {

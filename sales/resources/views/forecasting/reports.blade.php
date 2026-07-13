@@ -86,6 +86,20 @@
         @include('components.revenue-trend', ['initialData' => $monthlyRevenue])
     @endisset
 
+    {{-- Sales by Product container (no content yet) --}}
+    <div class="max-w-full">
+        <div class="flex items-center justify-between mb-3">
+            <h3 id="sales-by-product-title" class="text-lg font-bold text-gray-900">Sales by Product</h3>
+            <!-- future: filters / export buttons go here -->
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-4">
+            <div class="w-full" style="min-height: 500px;">
+                {{-- Horizontal bar chart: Top products (UI-only data for now) --}}
+       
+            </div>
+        </div>
+    </div>
 
     @include('components.report-filter')
 @endsection
