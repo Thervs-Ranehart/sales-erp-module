@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ForecastingController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\SalesOrderController;
 use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\AfterSalesSupportController;
@@ -80,11 +81,6 @@ Route::delete('/sales-orders/{salesOrder}', [SalesOrderController::class, 'destr
 Route::get('/sales-order-management/profile/{salesOrder}', [SalesOrderController::class, 'show'])->name('sales.profile');
 Route::patch('/sales-order-management/profile/{salesOrder}/status', [SalesOrderController::class, 'updateStatus'])->name('sales.update-status');
 
-Route::view('/quotations', 'sales.quotations')
-    ->name('quotations.index');
-
-Route::view('/quotations/create', 'sales.create-quotation')
-    ->name('quotations.create');
 
 Route::view('/pricing-rules', 'sales.pricing-rules')
     ->name('pricing.index');
@@ -100,3 +96,8 @@ Route::view('/invoices/create', 'sales.create-invoice')
 
 Route::view('/invoices/generate', 'sales.generate-invoice')
     ->name('invoices.generate');
+
+
+
+Route::resource('quotations', QuotationController::class);
+

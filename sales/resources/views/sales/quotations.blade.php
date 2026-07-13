@@ -265,11 +265,10 @@
             <h2 class="page-title">
                 Quotations
             </h2>
-
-            <button class="new-btn">
-                <i class="bi bi-plus-circle me-1"></i>
-                New Quotation
-            </button>
+<a href="{{ route('quotations.create') }}" class="new-btn text-decoration-none">
+    <i class="bi bi-plus-circle me-1"></i>
+    New Quotation
+</a>
 
         </div>
 
@@ -293,48 +292,29 @@
 
         </div>
 
+<div class="filter-buttons">
 
-        <!-- FILTERS -->
+    <button class="filter-btn active" onclick="filterQuotation('all', this)">
+        All ({{ $statusCounts['all'] }})
+    </button>
 
-        <div class="filter-buttons">
+    <button class="filter-btn" onclick="filterQuotation('draft', this)">
+        Draft ({{ $statusCounts['draft'] }})
+    </button>
 
-            <button
-                class="filter-btn active"
-                onclick="filterQuotation('all', this)"
-            >
-                All (4)
-            </button>
+    <button class="filter-btn" onclick="filterQuotation('sent', this)">
+        Sent ({{ $statusCounts['sent'] }})
+    </button>
 
-            <button
-                class="filter-btn"
-                onclick="filterQuotation('draft', this)"
-            >
-                Draft (1)
-            </button>
+    <button class="filter-btn" onclick="filterQuotation('accepted', this)">
+        Accepted ({{ $statusCounts['accepted'] }})
+    </button>
 
-            <button
-                class="filter-btn"
-                onclick="filterQuotation('pending', this)"
-            >
-                Pending (1)
-            </button>
+    <button class="filter-btn" onclick="filterQuotation('rejected', this)">
+        Rejected ({{ $statusCounts['rejected'] }})
+    </button>
 
-            <button
-                class="filter-btn"
-                onclick="filterQuotation('approved', this)"
-            >
-                Approved (1)
-            </button>
-
-            <button
-                class="filter-btn"
-                onclick="filterQuotation('rejected', this)"
-            >
-                Rejected (1)
-            </button>
-
-        </div>
-
+</div>
 
         <!-- TABLE -->
 
@@ -363,134 +343,106 @@
 
                     <tbody>
 
-                        <tr data-status="draft">
-                            <td>QT-001</td>
-                            <td>Adelaide Ful</td>
-                            <td>09-07-2026</td>
-                            <td>09-21-2026</td>
-                            <td>₱45,000</td>
-                            <td>₱2,000</td>
-                            <td>₱5,160</td>
-                            <td>₱48,160</td>
+@forelse($quotations as $quotation)
 
-                            <td>
-                                <span class="status status-draft">
-                                    Draft
-                                </span>
-                            </td>
+<tr data-status="{{ strtolower($quotation->quotation_status) }}">
 
-                            <td>
-                                <a href="#" class="action-btn view-btn">
-                                    <i class="bi bi-eye"></i>
-                                </a>
+    <td>{{ $quotation->quotation_number }}</td>
 
-                                <a href="#" class="action-btn edit-btn">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
+    <td>
+        {{ $quotation->customer?->full_name ?? 'N/A' }}
+    </td>
 
-                                <button class="action-btn delete-btn">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
+    <td>
+        {{ $quotation->quotation_date?->format('M d, Y') }}
+    </td>
 
+    <td>
+        {{ $quotation->valid_until?->format('M d, Y') }}
+    </td>
 
-                        <tr data-status="pending">
-                            <td>QT-002</td>
-                            <td>Maria Santos</td>
-                            <td>09-10-2026</td>
-                            <td>09-24-2026</td>
-                            <td>₱32,500</td>
-                            <td>₱1,500</td>
-                            <td>₱3,720</td>
-                            <td>₱34,720</td>
+    <td>
+        ₱{{ number_format((float)$quotation->subtotal,2) }}
+    </td>
 
-                            <td>
-                                <span class="status status-pending">
-                                    Pending
-                                </span>
-                            </td>
+    <td>
+        ₱{{ number_format((float)$quotation->discount,2) }}
+    </td>
 
-                            <td>
-                                <a href="#" class="action-btn view-btn">
-                                    <i class="bi bi-eye"></i>
-                                </a>
+    <td>
+        ₱{{ number_format((float)$quotation->tax,2) }}
+    </td>
 
-                                <a href="#" class="action-btn edit-btn">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
+    <td>
+        ₱{{ number_format((float)$quotation->total_amount,2) }}
+    </td>
 
-                                <button class="action-btn delete-btn">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
+    <td>
 
+        @php
+            $status = strtolower($quotation->quotation_status);
 
-                        <tr data-status="approved">
-                            <td>QT-003</td>
-                            <td>Jose Reyes</td>
-                            <td>09-12-2026</td>
-                            <td>09-26-2026</td>
-                            <td>₱58,000</td>
-                            <td>₱3,000</td>
-                            <td>₱6,600</td>
-                            <td>₱61,600</td>
+            $class = match($status){
+                'draft' => 'status-draft',
+                'pending' => 'status-pending',
+                'approved' => 'status-approved',
+                'accepted' => 'status-approved',
+                'rejected' => 'status-rejected',
+                default => 'status-draft'
+            };
+        @endphp
 
-                            <td>
-                                <span class="status status-approved">
-                                    Approved
-                                </span>
-                            </td>
+        <span class="status {{ $class }}">
+            {{ ucfirst($quotation->quotation_status) }}
+        </span>
 
-                            <td>
-                                <a href="#" class="action-btn view-btn">
-                                    <i class="bi bi-eye"></i>
-                                </a>
+    </td>
 
-                                <a href="#" class="action-btn edit-btn">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
+    <td>
 
-                                <button class="action-btn delete-btn">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
+        <a href="{{ route('quotations.show',$quotation) }}" class="action-btn view-btn">
+            <i class="bi bi-eye"></i>
+        </a>
 
+        <a href="{{ route('quotations.edit',$quotation) }}" class="action-btn edit-btn">
+            <i class="bi bi-pencil"></i>
+        </a>
 
-                        <tr data-status="rejected">
-                            <td>QT-004</td>
-                            <td>Juan Dela Cruz</td>
-                            <td>09-15-2026</td>
-                            <td>09-29-2026</td>
-                            <td>₱27,000</td>
-                            <td>₱1,000</td>
-                            <td>₱3,120</td>
-                            <td>₱29,120</td>
+        <form action="{{ route('quotations.destroy',$quotation) }}"
+              method="POST"
+              style="display:inline;">
 
-                            <td>
-                                <span class="status status-rejected">
-                                    Rejected
-                                </span>
-                            </td>
+            @csrf
+            @method('DELETE')
 
-                            <td>
-                                <a href="#" class="action-btn view-btn">
-                                    <i class="bi bi-eye"></i>
-                                </a>
+            <button class="action-btn delete-btn"
+                    onclick="return confirm('Delete this quotation?')">
 
-                                <a href="#" class="action-btn edit-btn">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
+                <i class="bi bi-trash"></i>
 
-                                <button class="action-btn delete-btn">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
+            </button>
 
-                    </tbody>
+        </form>
+
+    </td>
+
+</tr>
+
+@empty
+
+<tr>
+
+    <td colspan="10" class="text-center py-5">
+
+        No quotations found.
+
+    </td>
+
+</tr>
+
+@endforelse
+
+</tbody>
 
                 </table>
 
