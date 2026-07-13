@@ -149,23 +149,6 @@
 <body>
 
 
-
-<div class="content">
-
-    <div class="topbar">
-
-        <h3>Sales Order Management</h3>
-
-        <div class="top-icons">
-            <i class="bi bi-bell"></i>
-            <i class="bi bi-envelope"></i>
-            <i class="bi bi-question-circle"></i>
-            <i class="bi bi-person-circle"></i>
-        </div>
-
-    </div>
-
-
     <div class="page-container">
 
         <h4 class="page-title">Order Management</h4>

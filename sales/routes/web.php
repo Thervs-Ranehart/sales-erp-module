@@ -89,6 +89,9 @@ Route::view('/invoices', 'sales.invoices')
 Route::view('/invoices/create', 'sales.create-invoice')
     ->name('invoices.create');
 
+Route::view('/invoices/generate', 'sales.generate-invoice')
+    ->name('invoices.generate');
+
 Route::get('/sales-order-management/profile/{id}', function ($id) {
     return view('sales.profile', compact('id'));
 })->name('sales.profile');
