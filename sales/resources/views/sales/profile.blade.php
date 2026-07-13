@@ -4,7 +4,9 @@
 @section('page-title', 'Sales Order Management')
 
 @section('content')
- 
+
+@include('sales.partials.alerts')
+
     <style>
          
         :root{
@@ -144,10 +146,6 @@
             background:var(--secondary);
         }
     </style>
-</head>
-
-<body>
-
 
     <div class="page-container">
 
@@ -168,22 +166,22 @@
 
                     <div class="info-row">
                         <span class="info-label">Order No.:</span>
-                        {{ $id ?? 'SO-001' }}
+                        {{ $order->order_number }}
                     </div>
 
                     <div class="info-row">
                         <span class="info-label">Customer Name:</span>
-                        Adelaide Ful
+                        {{ $order->customer?->full_name ?? 'N/A' }}
                     </div>
 
                     <div class="info-row">
                         <span class="info-label">Phone Number:</span>
-                        0917-123-4567
+                        {{ $order->customer?->contact_no ?? '—' }}
                     </div>
 
                     <div class="info-row">
                         <span class="info-label">Email Address:</span>
-                        fiona@gmail.com
+                        {{ $order->customer?->email ?? '—' }}
                     </div>
 
                 </div>
@@ -193,13 +191,12 @@
 
                     <div class="info-row">
                         <span class="info-label">Order Date:</span>
-                        July 9, 2026
+                        {{ $order->order_date?->format('F j, Y') ?? '—' }}
                     </div>
 
                     <div class="info-row">
                         <span class="info-label">Shipping Address:</span><br>
-                        067 Latania St., Tanza<br>
-                        Island, Cavite
+                        {!! nl2br(e($order->customer?->address ?? '—')) !!}
                     </div>
 
                 </div>
@@ -222,26 +219,18 @@
 
                     <tbody>
 
+                        @forelse ($order->items as $item)
                         <tr>
-                            <td>PC</td>
-                            <td>1</td>
-                            <td>₱45,000.00</td>
-                            <td>₱45,000.00</td>
+                            <td>{{ $item->product?->product_name ?? 'N/A' }}</td>
+                            <td>{{ $item->quantity }}</td>
+                            <td>₱{{ number_format((float) $item->unit_price, 2) }}</td>
+                            <td>₱{{ number_format((float) $item->subtotal, 2) }}</td>
                         </tr>
-
+                        @empty
                         <tr>
-                            <td>Monitor</td>
-                            <td>1</td>
-                            <td>₱8,500.00</td>
-                            <td>₱8,500.00</td>
+                            <td colspan="4">No products on this order.</td>
                         </tr>
-
-                        <tr>
-                            <td>Keyboard</td>
-                            <td>1</td>
-                            <td>₱2,500.00</td>
-                            <td>₱2,500.00</td>
-                        </tr>
+                        @endforelse
 
                     </tbody>
 
@@ -254,22 +243,22 @@
 
                 <div class="total-row">
                     <span>Subtotal:</span>
-                    <span>₱56,000</span>
+                    <span>₱{{ number_format((float) $order->subtotal, 0) }}</span>
                 </div>
 
                 <div class="total-row">
-                    <span>VAT (12%):</span>
-                    <span>₱6,720</span>
+                    <span>VAT ({{ $order->taxPercent() }}%):</span>
+                    <span>₱{{ number_format((float) $order->tax, 0) }}</span>
                 </div>
 
                 <div class="total-row">
                     <span>Discount:</span>
-                    <span>₱1,000</span>
+                    <span>₱{{ number_format((float) $order->discount, 0) }}</span>
                 </div>
 
                 <div class="total-row grand-total">
                     <span>Grand Total:</span>
-                    <span>₱61,720</span>
+                    <span>₱{{ number_format((float) $order->total_amount, 0) }}</span>
                 </div>
 
             </div>
@@ -279,38 +268,26 @@
 
                 <h6 class="info-label">Order Status:</h6>
 
-                <div class="status-options">
+                <form action="{{ route('sales.update-status', $order) }}" method="POST">
+                    @csrf
+                    @method('PATCH')
 
-                    <label>
-                        <input type="radio" name="status" value="pending" checked>
-                        Pending
-                    </label>
+                    <div class="status-options">
 
-                    <label>
-                        <input type="radio" name="status" value="processed">
-                        Processed
-                    </label>
+                        @foreach (['pending', 'processed', 'shipped', 'delivered', 'cancelled'] as $status)
+                        <label>
+                            <input type="radio" name="status" value="{{ $status }}"
+                                @checked(old('status', $order->order_status) === $status)>
+                            {{ ucfirst($status) }}
+                        </label>
+                        @endforeach
 
-                    <label>
-                        <input type="radio" name="status" value="shipped">
-                        Shipped
-                    </label>
+                    </div>
 
-                    <label>
-                        <input type="radio" name="status" value="delivered">
-                        Delivered
-                    </label>
-
-                    <label>
-                        <input type="radio" name="status" value="cancelled">
-                        Cancelled
-                    </label>
-
-                </div>
-
-                <button class="update-btn">
-                    Update Status
-                </button>
+                    <button type="submit" class="update-btn">
+                        Update Status
+                    </button>
+                </form>
 
             </div>
 
@@ -318,8 +295,4 @@
 
     </div>
 
-</div>
-
-</body>
-</html>
 @endsection
