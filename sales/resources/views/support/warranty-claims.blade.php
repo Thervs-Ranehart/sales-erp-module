@@ -119,7 +119,8 @@
     <div class="card p-4 mt-4">
         <div class="d-flex align-items-center justify-content-between mb-3">
             <h5 class="fw-bold mb-0">Claims</h5>
-            <div class="text-muted small">Use placeholders (no backend queries).</div>
+            <div class="text-muted small">Review and process claim statuses.</div>
+
         </div>
 
         <div class="table-responsive">
@@ -145,12 +146,14 @@
                         <td class="text-muted">2026-07-11</td>
                         <td><span class="badge bg-warning text-dark">Pending</span></td>
                         <td>Warranty Desk • Senior Agent</td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyClaimModal">
-                                <i class="bi bi-eye me-1"></i> View
-                            </button>
-                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
-                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
+                        <td class="text-end" style="min-width: 260px; white-space: nowrap;">
+                            <div class="d-flex align-items-center justify-content-end flex-nowrap gap-2">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyClaimModal">
+                                    <i class="bi bi-eye me-1"></i><span class="text-nowrap"> View</span>
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Edit</span></button>
+                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash me-1"></i><span class="text-nowrap"> Delete</span></button>
+                            </div>
                         </td>
                     </tr>
 
@@ -163,11 +166,13 @@
                         <td><span class="badge bg-primary">Approved</span></td>
                         <td>Warranty Desk • Team Lead</td>
                         <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyClaimModal">
-                                <i class="bi bi-eye me-1"></i> View
-                            </button>
-                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
-                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
+                            <div class="d-flex align-items-center justify-content-end flex-nowrap gap-2">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyClaimModal">
+                                    <i class="bi bi-eye me-1"></i> View
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil me-1"></i> Edit</button>
+                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash me-1"></i> Delete</button>
+                            </div>
                         </td>
                     </tr>
 
@@ -180,11 +185,13 @@
                         <td><span class="badge bg-danger">Rejected</span></td>
                         <td>Claims QC • Specialist</td>
                         <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyClaimModal">
-                                <i class="bi bi-eye me-1"></i> View
-                            </button>
-                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
-                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
+                            <div class="d-flex align-items-center justify-content-end flex-nowrap gap-2">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyClaimModal">
+                                    <i class="bi bi-eye me-1"></i> View
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil me-1"></i> Edit</button>
+                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash me-1"></i> Delete</button>
+                            </div>
                         </td>
                     </tr>
 
@@ -196,12 +203,14 @@
                         <td class="text-muted">2026-07-10</td>
                         <td><span class="badge bg-success">Completed</span></td>
                         <td>Resolutions • Senior Agent</td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyClaimModal">
-                                <i class="bi bi-eye me-1"></i> View
-                            </button>
-                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
-                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
+                        <td class="text-end" style="min-width: 260px; white-space: nowrap;">
+                            <div class="d-flex align-items-center justify-content-end flex-nowrap gap-2">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyClaimModal">
+                                    <i class="bi bi-eye me-1"></i><span class="text-nowrap"> View</span>
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Edit</span></button>
+                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash me-1"></i><span class="text-nowrap"> Delete</span></button>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
@@ -209,7 +218,8 @@
         </div>
 
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mt-4">
-            <div class="text-muted small">Showing 4 of 62 claims (placeholder).</div>
+            <div class="text-muted small">Showing results.</div>
+
             <nav aria-label="Claims pagination">
                 <ul class="pagination pagination-sm mb-0">
                     <li class="page-item disabled"><span class="page-link">Previous</span></li>

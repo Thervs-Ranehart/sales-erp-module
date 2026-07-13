@@ -158,83 +158,99 @@
             font-size:14px;
         }
 
-        /* ================= STATUS ================= */
+ .status{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:95px;
+    padding:7px 14px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:600;
+    color:#fff;
+}
 
-        .status{
-            display:inline-block;
-            min-width:90px;
-            padding:7px 12px;
-            border-radius:20px;
-            text-align:center;
-            font-size:11px;
-            font-weight:700;
-        }
+.status-draft{
+    background:#5347CE;
+}
 
-        .status-draft{
-            background:#D9D4FF;
-            color:#4035A8;
-        }
+.status-pending{
+    background:#F4B400;
+    color:#111827;
+}
 
-        .status-pending{
-            background:#AFA5F5;
-            color:#33279B;
-        }
+.status-approved{
+    background:#16A34A;
+}
 
-        .status-approved{
-            background:#70D8D3;
-            color:#086B6A;
-        }
+.status-rejected{
+    background:#EF4444;
+}
+/* ================= ACTION BUTTONS ================= */
 
-        .status-rejected{
-            background:#B7CFF5;
-            color:#285A9C;
-        }
+.action-btn{
+    width:38px;
+    height:38px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:10px;
+    border:1.5px solid;
+    background:#fff;
+    text-decoration:none;
+    transition:all .25s ease;
+    margin-right:6px;
+}
 
-        /* ================= ACTION BUTTONS ================= */
+/* View */
 
-        .action-btn{
-            width:36px;
-            height:36px;
-            display:inline-flex;
-            align-items:center;
-            justify-content:center;
-            border:none;
-            border-radius:8px;
-            margin-right:4px;
-            text-decoration:none;
-            transition:.2s;
-        }
+.view-btn{
+    border-color:#2563EB;
+    color:#2563EB;
+}
 
-        .view-btn{
-            background:#4896FE;
-            color:white;
-        }
+.view-btn:hover{
+    background:#2563EB;
+    color:#fff;
+}
 
-        .edit-btn{
-            background:#887CFD;
-            color:white;
-        }
+/* Edit */
 
-        .delete-btn{
-            background:#5347CE;
-            color:white;
-        }
+.edit-btn{
+    border-color:#F4B400;
+    color:#F4B400;
+}
 
-        .action-btn:hover{
-            transform:translateY(-2px);
-            color:white;
-            opacity:.85;
-        }
+.edit-btn:hover{
+    background:#F4B400;
+    color:#111827;
+}
 
-        @media(max-width:900px){
-            .sidebar{
-                width:220px;
-            }
+/* Delete */
 
-            .main-content{
-                margin-left:220px;
-            }
-        }
+.delete-btn{
+    border-color:#EF4444;
+    color:#EF4444;
+}
+
+.delete-btn:hover{
+    background:#EF4444;
+    color:#fff;
+}
+
+/* Responsive */
+
+@media(max-width:900px){
+
+    .sidebar{
+        width:220px;
+    }
+
+    .main-content{
+        margin-left:220px;
+    }
+
+}
     </style>
 </head>
 

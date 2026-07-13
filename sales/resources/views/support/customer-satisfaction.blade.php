@@ -135,7 +135,8 @@
 
             <div class="col-lg-4">
                 <div class="card p-3" style="box-shadow: none; border: 1px solid rgba(0,0,0,.06); background: rgba(255,255,255,.7);">
-                    <h6 class="fw-bold mb-2">Feedback Highlights (Placeholder)</h6>
+                    <h6 class="fw-bold mb-2">Feedback Highlights</h6>
+
                     <div class="bg-light rounded-3 p-3">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <div class="text-muted small">Top Theme</div>
@@ -158,7 +159,7 @@
                                 <div class="col-6"><div class="bg-warning rounded-2" style="height: 36px; opacity:.35"></div></div>
                                 <div class="col-6"><div class="bg-danger rounded-2" style="height: 36px; opacity:.35"></div></div>
                             </div>
-                            <div class="text-muted small mt-2">Replace with real analytics after backend integration.</div>
+Insight summary based on recent feedback.
                         </div>
                     </div>
                 </div>
@@ -166,7 +167,8 @@
         </div>
 
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mt-4">
-            <div class="text-muted small">Showing 4 of 210 feedback entries (placeholder).</div>
+            <div class="text-muted small">Showing results.</div>
+
             <nav aria-label="Feedback pagination">
                 <ul class="pagination pagination-sm mb-0">
                     <li class="page-item disabled"><span class="page-link">Previous</span></li>

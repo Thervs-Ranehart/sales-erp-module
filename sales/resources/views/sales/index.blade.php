@@ -197,90 +197,106 @@
             color:#DC3545;
         }
 
-   /* ================= STATUS BADGES ================= */
+   /* ================= STATUS ================= */
 
+/* ================= STATUS ================= */
 
 .status{
-    display:inline-block;
-    min-width:90px;
-    padding:7px 12px;
-    border-radius:20px;
-    text-align:center;
-    font-size:11px;
-    font-weight:700;
-}
-
-/* Pending - Deep Lavender */
-.status-pending{
-    background:#AFA5F5;
-    color:#33279B;
-}
-
-/* Ordered - Strong Accent Blue */
-.status-processed{
-    background:#86BAFF;
-    color:#174F9B;
-}
-
-/* Shipped - Dashboard Purple */
-.status-shipped{
-    background:#9B8FE8;
-    color:#3F348F;
-}
-
-/* Delivered - Dashboard Turquoise */
-.status-delivered{
-    background:#70D8D3;
-    color:#086B6A;
-}
-
-/* ================= ACTION BUTTONS ================= */
-
-.action-btn{
-    width:36px;
-    height:36px;
     display:inline-flex;
     align-items:center;
     justify-content:center;
-    border:none;
-    border-radius:8px;
-    text-decoration:none;
+    padding:6px 14px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:600;
+    min-width:100px;
 }
-/* View */
-.view-btn{
-    background:#4896FE;
+
+/* Pending */
+.status-pending{
+    background:#FBBF24;
+    color:#1F2937;
+}
+
+/* Processed */
+.status-processed{
+    background:#2563EB;
     color:#FFFFFF;
 }
 
-/* Edit */
-.edit-btn{
-    background:#887CFD;
-    color:#FFFFFF;
-}
-
-/* Delete */
-.delete-btn{
+/* Shipped */
+.status-shipped{
     background:#5347CE;
     color:#FFFFFF;
 }
 
-/* Hover Effects */
-.view-btn:hover{
-    background:#2876D8;
+/* Delivered */
+.status-delivered{
+    background:#198754;
     color:#FFFFFF;
-    transform:translateY(-2px);
+}
+
+/* Active */
+.status-active{
+    background:#198754;
+    color:#FFFFFF;
+}
+
+/* Draft */
+.status-draft{
+    background:#E9D5FF;
+    color:#6B21A8;
+}
+/* ================= ACTION BUTTONS ================= */
+
+.action-btn{
+    width:40px;
+    height:40px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:10px;
+    border:1.5px solid;
+    text-decoration:none;
+    transition:.25s;
+    margin-right:6px;
+    background:#fff;
+}
+
+/* View */
+
+.view-btn{
+    border-color:#2563EB;
+    color:#2563EB;
+}
+
+.view-btn:hover{
+    background:#2563EB;
+    color:#fff;
+}
+
+/* Edit */
+
+.edit-btn{
+    border-color:#F4B400;
+    color:#F4B400;
 }
 
 .edit-btn:hover{
-    background:#7164E8;
-    color:#FFFFFF;
-    transform:translateY(-2px);
+    background:#F4B400;
+    color:#111827;
+}
+
+/* Delete */
+
+.delete-btn{
+    border-color:#EF4444;
+    color:#EF4444;
 }
 
 .delete-btn:hover{
-    background:#4035A8;
-    color:#FFFFFF;
-    transform:translateY(-2px);
+    background:#EF4444;
+    color:#fff;
 }
         /* ================= RESPONSIVE ================= */
 
