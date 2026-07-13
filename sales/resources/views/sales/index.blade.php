@@ -321,10 +321,10 @@
 
             <h2>Sales Orders</h2>
 
-            <button class="new-order-btn">
-                <i class="bi bi-plus-circle"></i>
-                New Sales Order
-            </button>
+           <a href="{{ route('sales.create') }}" class="new-btn">
+    <i class="bi bi-plus-circle"></i>
+    New Sales Order
+</a>
 
         </div>
 
