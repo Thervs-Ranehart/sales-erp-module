@@ -754,36 +754,23 @@ Inactive
 
 
 <td class="text-center">
+    <div class="d-flex justify-content-center align-items-center gap-2">
+        <a class="btn btn-sm btn-outline-primary action-btn" href="{{ route('crm.directory.show', ['customer' => $customer->customer_id] + request()->query()) }}" aria-label="View">
+            <i class="bi bi-eye"></i>
+        </a>
 
+        <a class="btn btn-sm btn-outline-warning action-btn" href="{{ route('crm.profiles', ['customer_id' => $customer->customer_id] + request()->query()) }}" aria-label="Edit">
+            <i class="bi bi-pencil"></i>
+        </a>
 
-<a class="btn btn-sm btn-outline-primary action-btn" href="{{ route('crm.directory.show', ['customer' => $customer->customer_id] + request()->query()) }}" aria-label="View">
-
-<i class="bi bi-eye"></i>
-
-</a>
-
-
-<a class="btn btn-sm btn-outline-warning action-btn" href="{{ route('crm.profiles', ['customer_id' => $customer->customer_id] + request()->query()) }}" aria-label="Edit">
-
-<i class="bi bi-pencil"></i>
-
-</a>
-
-
-<form method="POST" action="{{ route('crm.directory.destroy', ['customer' => $customer->customer_id]) }}" onsubmit="return confirm('Delete this customer?')">
-
-@csrf
-@method('DELETE')
-
-<button class="btn btn-sm btn-outline-danger action-btn" type="submit" aria-label="Delete">
-
-<i class="bi bi-trash"></i>
-
-</button>
-
-</form>
-
-
+        <form method="POST" action="{{ route('crm.directory.destroy', ['customer' => $customer->customer_id]) }}" class="m-0" onsubmit="return confirm('Delete this customer?')">
+            @csrf
+            @method('DELETE')
+            <button class="btn btn-sm btn-outline-danger action-btn" type="submit" aria-label="Delete">
+                <i class="bi bi-trash"></i>
+            </button>
+        </form>
+    </div>
 </td>
 
 

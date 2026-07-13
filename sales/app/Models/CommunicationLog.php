@@ -45,5 +45,3 @@ class CommunicationLog extends Model
         return 'communication_id';
     }
 }
-
-s

@@ -19,10 +19,7 @@ use App\Http\Controllers\SalesOrderController;
 
 use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\AfterSalesSupportController;
-<<<<<<< HEAD
 
-=======
->>>>>>> 99478f68ab3bb967d67ce05bf50f595c48e8f13b
 use Illuminate\Support\Facades\Route;
 
 
@@ -138,17 +135,4 @@ Route::view('/invoices/create', 'sales.create-invoice')
 Route::view('/invoices/generate', 'sales.generate-invoice')
     ->name('invoices.generate');
 
-<<<<<<< HEAD
-// Route removed: SalesController does not exist in this codebase.
-
-
-Route::get('/sales-order-management/profile/{id}', function ($id) {
-
-    return view('sales.profile', compact('id'));
-})->name('sales.profile');
-=======
-
->>>>>>> 99478f68ab3bb967d67ce05bf50f595c48e8f13b
-
 Route::resource('quotations', QuotationController::class);
-
