@@ -159,92 +159,106 @@
             font-size:14px;
             white-space:nowrap;
         }
+/* ================= STATUS ================= */
 
-        /* STATUS */
+.status{
+    display:inline-block;
+    min-width:95px;
+    padding:6px 14px;
+    border-radius:50px;
+    text-align:center;
+    font-size:12px;
+    font-weight:600;
+    color:#fff;
+}
 
-        .status{
-            display:inline-block;
-            min-width:92px;
-            padding:7px 13px;
-            border-radius:20px;
-            text-align:center;
-            font-size:11px;
-            font-weight:700;
-        }
+/* Bright colors */
 
-        .status-paid{
-            background:#77D9D4;
-            color:#075F5E;
-        }
+.status-paid,
+.status-approved{
+    background:#198754;   /* Green */
+}
 
-        .status-pending{
-            background:#B5ACF4;
-            color:#392E9C;
-        }
+.status-pending{
+    background:#FFC107;   /* Yellow */
+    color:#212529;
+}
 
-        .status-overdue{
-            background:#A9BFE8;
-            color:#294E89;
-        }
+.status-overdue,
+.status-rejected{
+    background:#DC3545;   /* Red */
+}
 
-        .status-draft{
-            background:#D0CCF8;
-            color:#4A419B;
-        }
+.status-draft{
+    background:#6C757D;   /* Gray */
+}
 
-        /* ACTION BUTTONS */
+.status-shipped{
+    background:#0DCAF0;   /* Cyan */
+}
 
-        .action-btn{
-            width:36px;
-            height:36px;
-            display:inline-flex;
-            align-items:center;
-            justify-content:center;
-            border:none;
-            border-radius:8px;
-            margin-right:4px;
-            color:white;
-            text-decoration:none;
-            transition:.2s;
-        }
+.status-processed{
+    background:#0D6EFD;   /* Blue */
+}
 
-        .view-btn{
-            background:var(--accent);
-        }
 
-        .edit-btn{
-            background:var(--secondary);
-        }
+.action-btn{
+    width:36px;
+    height:36px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    border:1px solid transparent;
+    border-radius:8px;
+    background:#fff;
+    text-decoration:none;
+    transition:all .2s ease;
+    margin-right:4px;
+}
 
-        .download-btn{
-            background:var(--success);
-        }
+/* View */
+.view-btn{
+    border-color:#0D6EFD;
+    color:#0D6EFD;
+}
 
-        .delete-btn{
-            background:var(--primary);
-        }
+.view-btn:hover{
+    background:#0D6EFD;
+    color:#fff;
+}
 
-        .action-btn:hover{
-            color:white;
-            opacity:.85;
-            transform:translateY(-2px);
-        }
+/* Edit */
+.edit-btn{
+    border-color:#FFC107;
+    color:#FFC107;
+}
 
-        @media(max-width:900px){
-            .sidebar{
-                width:220px;
-            }
+.edit-btn:hover{
+    background:#FFC107;
+    color:#212529;
+}
 
-            .main-content{
-                margin-left:220px;
-            }
+/* Download */
+.download-btn{
+    border-color:#198754;
+    color:#198754;
+}
 
-            .page-header{
-                flex-direction:column;
-                align-items:flex-start;
-                gap:15px;
-            }
-        }
+.download-btn:hover{
+    background:#198754;
+    color:#fff;
+}
+
+/* Delete */
+.delete-btn{
+    border-color:#DC3545;
+    color:#DC3545;
+}
+
+.delete-btn:hover{
+    background:#DC3545;
+    color:#fff;
+}
     </style>
 </head>
 

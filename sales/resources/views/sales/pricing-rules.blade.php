@@ -81,46 +81,115 @@
             color:white;
         }
 
-        /* KPI CARDS */
+        /* ================= KPI CARDS ================= */
 
-        .stat-card{
-            background:white;
-            border-radius:16px;
-            padding:22px;
-            box-shadow:0 5px 20px rgba(0,0,0,.06);
-            height:100%;
-        }
+.stat-card{
+    background:#FFFFFF;
+    border:none;
+    border-radius:18px;
+    padding:22px;
+    box-shadow:0 10px 25px rgba(0,0,0,.06);
+    transition:.25s;
+    height:100%;
+}
 
-        .stat-top{
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-        }
+.stat-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 15px 35px rgba(83,71,206,.12);
+}
 
-        .stat-label{
-            color:var(--text2);
-            font-size:14px;
-            font-weight:600;
-        }
+.stat-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+}
 
-        .stat-number{
-            font-size:29px;
-            font-weight:700;
-            margin:8px 0 0;
-        }
+.stat-label{
+    font-size:15px;
+    font-weight:600;
+    color:#5B6475;
+    margin-bottom:8px;
+}
 
-        .stat-icon{
-            width:46px;
-            height:46px;
-            border-radius:12px;
-            background:var(--light-purple);
-            color:var(--primary);
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            font-size:21px;
-        }
+.stat-number{
+    font-size:48px;
+    font-weight:700;
+    color:#1F2937;
+    line-height:1;
+    margin-bottom:14px;
+}
 
+/* ICON */
+
+.stat-icon{
+    width:56px;
+    height:56px;
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+}
+
+/* Different icon colors */
+
+.icon-purple{
+    background:#ECE9FF;
+    color:#5347CE;
+}
+
+.icon-blue{
+    background:#E6F0FF;
+    color:#2563EB;
+}
+
+.icon-green{
+    background:#DDF8F5;
+    color:#16C8C7;
+}
+
+.icon-yellow{
+    background:#FFF3DB;
+    color:#F59E0B;
+}
+
+.icon-red{
+    background:#FDECEC;
+    color:#EF4444;
+}
+
+/* Small badge */
+
+.stat-badge{
+    display:inline-flex;
+    align-items:center;
+    padding:6px 12px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:600;
+    color:#fff;
+}
+
+.badge-purple{
+    background:#5347CE;
+}
+
+.badge-green{
+    background:#198754;
+}
+
+.badge-blue{
+    background:#2563EB;
+}
+
+.badge-yellow{
+    background:#F4B400;
+    color:#111827;
+}
+
+.badge-red{
+    background:#DC3545;
+}
         /* FILTER CARD */
 
         .filter-card{
@@ -216,95 +285,106 @@
             margin-top:3px;
         }
 
-        /* BADGES */
+    /* ================= BADGES ================= */
 
-        .status-active{
-            background:#D7F5EE;
-            color:#087A62;
-        }
+.custom-badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:95px;
+    padding:7px 14px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:600;
+    color:#fff;
+}
 
-        .status-inactive{
-            background:#E8E7F8;
-            color:#514B8E;
-        }
+/* Status */
 
-        .status-scheduled{
-            background:#E0E8FF;
-            color:#3D56A6;
-        }
+.status-active{
+    background:#198754;
+    color:#fff;
+}
 
-        .type-discount{
-            background:#E8E5FF;
-            color:#5347CE;
-        }
+.status-inactive{
+    background:#6C757D;
+    color:#fff;
+}
 
-        .type-markup{
-            background:#DDEEFF;
-            color:#286FA8;
-        }
+.status-scheduled{
+    background:#2563EB;
+    color:#fff;
+}
 
-        .type-volume{
-            background:#D8F3F2;
-            color:#087F7E;
-        }
+/* Rule Type */
 
-        .custom-badge{
-            display:inline-block;
-            padding:7px 12px;
-            border-radius:20px;
-            font-size:12px;
-            font-weight:700;
-        }
+.type-discount{
+    background:#5347CE;
+    color:#fff;
+}
 
-        /* ACTION BUTTONS */
+.type-markup{
+    background:#F4B400;
+    color:#111827;
+}
 
-        .action-btn{
-            width:35px;
-            height:35px;
-            border:none;
-            border-radius:8px;
-            display:inline-flex;
-            align-items:center;
-            justify-content:center;
-            margin-right:4px;
-            transition:.2s;
-        }
+.type-volume{
+    background:#16C8C7;
+    color:#fff;
+}
 
-        .view-btn{
-            background:#E5E3FF;
-            color:var(--primary);
-        }
 
-        .edit-btn{
-            background:#DDEEFF;
-            color:#286FA8;
-        }
+/* ================= ACTION BUTTONS ================= */
 
-        .delete-btn{
-            background:#F0E4F3;
-            color:#7A467F;
-        }
+.action-btn{
+    width:38px;
+    height:38px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:10px;
+    border:1.5px solid;
+    background:#fff;
+    text-decoration:none;
+    transition:all .25s ease;
+    margin-right:6px;
+}
 
-        .action-btn:hover{
-            transform:translateY(-2px);
-        }
+/* View */
 
-        @media(max-width:768px){
-            .sidebar{
-                position:relative;
-                width:100%;
-                height:auto;
-            }
+.view-btn{
+    border-color:#2563EB;
+    color:#2563EB;
+}
 
-            .main-content{
-                margin-left:0;
-            }
+.view-btn:hover{
+    background:#2563EB;
+    color:#fff;
+}
 
-            .page-header{
-                flex-direction:column;
-                align-items:flex-start;
-            }
-        }
+/* Edit */
+
+.edit-btn{
+    border-color:#F4B400;
+    color:#F4B400;
+}
+
+.edit-btn:hover{
+    background:#F4B400;
+    color:#111827;
+}
+
+/* Delete */
+
+.delete-btn{
+    border-color:#EF4444;
+    color:#EF4444;
+}
+
+.delete-btn:hover{
+    background:#EF4444;
+    color:#fff;
+}
     </style>
 </head>
 
