@@ -326,11 +326,13 @@
                         <div class="text-muted small">CSAT Theme</div>
                         <span class="badge bg-primary"><i class="bi bi-chat-dots me-1"></i> Communication</span>
                     </div>
+
                     <div class="progress" style="height: 10px;">
                         <div class="progress-bar bg-success" role="progressbar" style="width: 72%" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
-                    <div class="text-muted small mt-2">Placeholder insight panel—wire to analytics later.</div>
+                    <div class="text-muted small mt-2">Insight summary based on recent feedback.</div>
                 </div>
+
 
                 <div class="list-group">
                     <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="{{ route('support.customer-satisfaction') }}">

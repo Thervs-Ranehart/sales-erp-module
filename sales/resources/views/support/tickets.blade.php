@@ -107,7 +107,7 @@
                         <th style="min-width: 140px;">Status</th>
                         <th style="min-width: 190px;">Assigned Employee</th>
                         <th style="min-width: 150px;">Due Date</th>
-                        <th class="text-end" style="min-width: 220px;">Actions</th>
+                        <th class="text-end" style="min-width: 260px;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -121,16 +121,18 @@
                         <td><span class="badge bg-primary">In Progress</span></td>
                         <td>Support Team Lead A</td>
                         <td class="text-muted">2026-07-13</td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#ticketDetailsModal">
-                                <i class="bi bi-eye me-1"></i> View
-                            </button>
-                            <button class="btn btn-sm btn-outline-warning me-1">
-                                <i class="bi bi-pencil me-1"></i> Edit
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger">
-                                <i class="bi bi-trash me-1"></i> Delete
-                            </button>
+                        <td class="text-end" style="min-width: 260px; white-space: nowrap;">
+                            <div class="d-flex align-items-center justify-content-end flex-nowrap gap-2">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ticketDetailsModal">
+                                    <i class="bi bi-eye me-1"></i><span class="text-nowrap"> View</span>
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning">
+                                    <i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Edit</span>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash me-1"></i><span class="text-nowrap"> Delete</span>
+                                </button>
+                            </div>
                         </td>
                     </tr>
 
@@ -144,16 +146,18 @@
                         <td><span class="badge bg-warning text-dark">Pending</span></td>
                         <td>Warranty Desk</td>
                         <td class="text-muted">2026-07-14</td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#ticketDetailsModal">
-                                <i class="bi bi-eye me-1"></i> View
-                            </button>
-                            <button class="btn btn-sm btn-outline-warning me-1">
-                                <i class="bi bi-pencil me-1"></i> Edit
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger">
-                                <i class="bi bi-trash me-1"></i> Delete
-                            </button>
+                        <td class="text-end" style="min-width: 260px; white-space: nowrap;">
+                            <div class="d-flex align-items-center justify-content-end flex-nowrap gap-2">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ticketDetailsModal">
+                                    <i class="bi bi-eye me-1"></i><span class="text-nowrap"> View</span>
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning">
+                                    <i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Edit</span>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash me-1"></i><span class="text-nowrap"> Delete</span>
+                                </button>
+                            </div>
                         </td>
                     </tr>
 
@@ -167,16 +171,18 @@
                         <td><span class="badge bg-success">Resolved</span></td>
                         <td>Resolutions</td>
                         <td class="text-muted">2026-07-10</td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#ticketDetailsModal">
-                                <i class="bi bi-eye me-1"></i> View
-                            </button>
-                            <button class="btn btn-sm btn-outline-warning me-1">
-                                <i class="bi bi-pencil me-1"></i> Edit
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger">
-                                <i class="bi bi-trash me-1"></i> Delete
-                            </button>
+                        <td class="text-end" style="min-width: 260px; white-space: nowrap;">
+                            <div class="d-flex align-items-center justify-content-end flex-nowrap gap-2">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ticketDetailsModal">
+                                    <i class="bi bi-eye me-1"></i><span class="text-nowrap"> View</span>
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning">
+                                    <i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Edit</span>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash me-1"></i><span class="text-nowrap"> Delete</span>
+                                </button>
+                            </div>
                         </td>
                     </tr>
 
@@ -190,16 +196,18 @@
                         <td><span class="badge bg-danger">Escalated</span></td>
                         <td>Support Team Lead B</td>
                         <td class="text-muted">2026-07-13</td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#ticketDetailsModal">
-                                <i class="bi bi-eye me-1"></i> View
-                            </button>
-                            <button class="btn btn-sm btn-outline-warning me-1">
-                                <i class="bi bi-pencil me-1"></i> Edit
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger">
-                                <i class="bi bi-trash me-1"></i> Delete
-                            </button>
+                        <td class="text-end" style="min-width: 260px; white-space: nowrap;">
+                            <div class="d-flex align-items-center justify-content-end flex-nowrap gap-2">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ticketDetailsModal">
+                                    <i class="bi bi-eye me-1"></i><span class="text-nowrap"> View</span>
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning">
+                                    <i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Edit</span>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash me-1"></i><span class="text-nowrap"> Delete</span>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
@@ -207,7 +215,8 @@
         </div>
 
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mt-4">
-            <div class="text-muted small">Showing 4 of 128 tickets (placeholder).</div>
+            <div class="text-muted small">Showing results.</div>
+
             <nav aria-label="Tickets pagination">
                 <ul class="pagination pagination-sm mb-0">
                     <li class="page-item disabled"><span class="page-link">Previous</span></li>
@@ -221,5 +230,4 @@
     </div>
 
 @endsection
-
 

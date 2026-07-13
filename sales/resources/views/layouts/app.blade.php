@@ -183,10 +183,56 @@
             color: #fff;
         }
 
+        /* Layout stability: ensure sidebar never gets covered and content always starts after it */
         .content-area {
-            flex: 1;
+            flex: 1 1 auto;
             min-height: 100vh;
+            min-width: 0; /* allow content to shrink without overflow */
+            overflow-x: hidden;
         }
+
+
+        .d-flex {
+            min-width: 0;
+        }
+
+        /* Prevent sidebar from being shrunk by flexbox when content gets wide (tables/modals) */
+        #app-sidebar {
+            flex: 0 0 78px;
+        }
+
+        /* Sidebar: keep width predictable and prevent text clipping */
+        #app-sidebar {
+            min-width: 78px;
+            max-width: 190px;
+            flex: 0 0 78px; /* keep collapsed width stable */
+            z-index: 1000; /* stay above content */
+        }
+
+        #app-sidebar:hover {
+            flex-basis: 190px;
+        }
+
+
+        .sidebar a {
+            overflow: hidden;
+        }
+
+        .sidebar .nav-label {
+            min-width: 0;
+            max-width: 140px;
+            overflow: visible;
+        }
+
+        .sidebar:hover .nav-label {
+            max-width: 160px;
+        }
+
+        /* When collapsed, keep labels hidden but never clip icons */
+        .sidebar:not(:hover) .nav-label {
+            display: none !important;
+        }
+
 
         .topbar {
             background: #fff;
@@ -233,7 +279,8 @@
     <div class="d-flex">
         <x-sidebar current-route="{{ Route::currentRouteName() }}" />
 
-        <div class="content-area">
+
+        <div class="content-area flex-grow-1">
             <x-topbar title="{{ $title ?? 'Sales Quotation Management System' }}" subtitle="{{ $subtitle ?? 'Enterprise dashboard' }}" />
 
             <main class="p-4">

@@ -64,6 +64,7 @@
     @include('support.resolution-details-modal')
 
         {{-- Resolution Table --}}
+
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead>
@@ -90,12 +91,18 @@
                             <span class="badge bg-success">18h 25m</span>
                         </td>
                         <td>2026-07-10</td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#resolutionDetailsModal">
-                                <i class="bi bi-eye me-1"></i> View details
-                            </button>
-                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
-                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
+                        <td class="text-end" style="min-width: 260px; white-space: nowrap;">
+                            <div class="d-flex align-items-center justify-content-end flex-nowrap gap-2">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#resolutionDetailsModal">
+                                    <i class="bi bi-eye me-1"></i><span class="text-nowrap"> View details</span>
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning">
+                                    <i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Edit</span>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash me-1"></i><span class="text-nowrap"> Delete</span>
+                                </button>
+                            </div>
                         </td>
                     </tr>
 
@@ -111,12 +118,14 @@
                             <span class="badge bg-primary">12h 10m</span>
                         </td>
                         <td>2026-07-09</td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#resolutionDetailsModal">
-                                <i class="bi bi-eye me-1"></i> View details
-                            </button>
-                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
-                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
+                        <td class="text-end" style="min-width: 260px; white-space: nowrap;">
+                            <div class="d-flex align-items-center justify-content-end flex-nowrap gap-2">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#resolutionDetailsModal">
+                                    <i class="bi bi-eye me-1"></i><span class="text-nowrap"> View details</span>
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Edit</span></button>
+                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash me-1"></i><span class="text-nowrap"> Delete</span></button>
+                            </div>
                         </td>
                     </tr>
 
@@ -132,12 +141,14 @@
                             <span class="badge bg-warning text-dark">9h 40m</span>
                         </td>
                         <td>2026-07-08</td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#resolutionDetailsModal">
-                                <i class="bi bi-eye me-1"></i> View details
-                            </button>
-                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
-                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
+                        <td class="text-end" style="min-width: 260px; white-space: nowrap;">
+                            <div class="d-flex align-items-center justify-content-end flex-nowrap gap-2">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#resolutionDetailsModal">
+                                    <i class="bi bi-eye me-1"></i><span class="text-nowrap"> View details</span>
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Edit</span></button>
+                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash me-1"></i><span class="text-nowrap"> Delete</span></button>
+                            </div>
                         </td>
                     </tr>
 
@@ -153,20 +164,23 @@
                             <span class="badge bg-danger">21h 05m</span>
                         </td>
                         <td>2026-07-06</td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#resolutionDetailsModal">
-                                <i class="bi bi-eye me-1"></i> View details
-                            </button>
-                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
-                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
+                        <td class="text-end" style="min-width: 260px; white-space: nowrap;">
+                            <div class="d-flex align-items-center justify-content-end flex-nowrap gap-2">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#resolutionDetailsModal">
+                                    <i class="bi bi-eye me-1"></i><span class="text-nowrap"> View details</span>
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Edit</span></button>
+                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash me-1"></i><span class="text-nowrap"> Delete</span></button>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
-        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mt-4">
-            <div class="text-muted small">Showing 4 of 77 resolutions (placeholder).</div>
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mt-4">
+            <div class="text-muted small">Showing results.</div>
+
             <nav aria-label="Resolution pagination">
                 <ul class="pagination pagination-sm mb-0">
                     <li class="page-item disabled"><span class="page-link">Previous</span></li>

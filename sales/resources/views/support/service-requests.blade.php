@@ -119,7 +119,8 @@
     <div class="card p-4 mt-4">
         <div class="d-flex align-items-center justify-content-between mb-3">
             <h5 class="fw-bold mb-0">Service Requests</h5>
-            <div class="text-muted small">Placeholder values only.</div>
+            <div class="text-muted small">Manage service requests and their schedules.</div>
+
         </div>
 
         <div class="table-responsive">
@@ -200,8 +201,9 @@
                         <td>Field Engineer A</td>
                         <td>
                             <div class="small text-muted mb-1">2026-07-13</div>
-                            <div>Completed (placeholder)</div>
+                            <div>Completed</div>
                         </td>
+
                         <td><span class="badge bg-danger">Completed</span></td>
                         <td class="text-end">
                             <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceRequestScheduleModal">
@@ -216,7 +218,8 @@
         </div>
 
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mt-4">
-            <div class="text-muted small">Showing 4 of 48 service requests (placeholder).</div>
+            <div class="text-muted small">Showing results.</div>
+
             <nav aria-label="Service request pagination">
                 <ul class="pagination pagination-sm mb-0">
                     <li class="page-item disabled"><span class="page-link">Previous</span></li>

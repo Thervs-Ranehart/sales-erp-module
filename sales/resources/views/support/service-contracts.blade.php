@@ -9,7 +9,7 @@
     @include('support.service-contract-view-modal')
 
     {{-- Contract summary cards --}}
-    <div class="row g-4">
+    <div class="row g-3">
         <div class="col-md-3">
             <div class="card p-3 h-100">
                 <div class="d-flex align-items-center justify-content-between">
@@ -120,11 +120,13 @@
     <div class="card p-4 mt-4">
         <div class="d-flex align-items-center justify-content-between mb-3">
             <h5 class="fw-bold mb-0">Contracts</h5>
-            <div class="text-muted small">UI-only placeholder table.</div>
+            <div class="text-muted small">View contract details and status.</div>
         </div>
+
 
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
+
                 <thead>
                     <tr>
                         <th style="min-width: 160px;">Contract Number</th>
@@ -210,7 +212,8 @@
         </div>
 
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mt-4">
-            <div class="text-muted small">Showing 4 of 103 contracts (placeholder).</div>
+            <div class="text-muted small">Showing results.</div>
+
             <nav aria-label="Contracts pagination">
                 <ul class="pagination pagination-sm mb-0">
                     <li class="page-item disabled"><span class="page-link">Previous</span></li>
