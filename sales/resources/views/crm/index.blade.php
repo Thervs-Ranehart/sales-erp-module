@@ -1,267 +1,123 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('layouts.app')
 
-<head>
+@section('title', 'Customer Relationship Management')
+@section('page-title', 'Customer Relationship Management')
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@section('content')
 
-    <title>Customer Relationship Management</title>
+<div class="container-fluid">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <div class="row g-4">
 
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
-    <style>
-
-    body{
-        background:#F8FAFC;
-        font-family:Segoe UI,sans-serif;
-    }
-
-    .sidebar{
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 270px;
-        height: 100vh;
-        background:#5347CE;
-        color:#fff;
-        overflow-y:auto;
-        box-shadow:3px 0 15px rgba(0,0,0,.15);
-    }
-
-    .sidebar h4{
-        padding:25px;
-        margin:0;
-        text-align:center;
-        font-weight:bold;
-        border-bottom:1px solid rgba(255,255,255,.15);
-    }
-
-    .sidebar .text-uppercase{
-        color:rgba(255,255,255,.75)!important;
-        font-size:12px;
-        margin-top:20px;
-        margin-bottom:10px;
-        padding-left:25px;
-    }
-
-    .sidebar a{
-        display:flex;
-        align-items:center;
-        gap:12px;
-        padding:14px 25px;
-        color:white;
-        text-decoration:none;
-        transition:.3s;
-    }
-
-    .sidebar a:hover{
-        background:#887CFD;
-        padding-left:32px;
-    }
-
-    .sidebar a.active{
-        background:#16C8C7;
-        border-left:5px solid white;
-        font-weight:bold;
-    }
-
-    .content{
-        margin-left:270px;
-        padding:20px;
-    }
-
-    .navbar{
-        background:white;
-        border-radius:15px;
-        box-shadow:0 5px 15px rgba(0,0,0,.08);
-        margin-bottom:25px;
-    }
-
-    .card{
-        border:none;
-        border-radius:15px;
-        box-shadow:0 5px 20px rgba(0,0,0,.08);
-    }
-
-    </style>
-
-</head>
-
-<body>
-
-    <!-- Sidebar -->
-
-    <div class="sidebar">
-
-        <h4>SQMS</h4>
-
-        <a href="{{ route('dashboard') }}">
-            <i class="bi bi-speedometer2"></i>
-            Dashboard
-        </a>
-
-        <div class="text-uppercase fw-bold">
-            Customer Relationship Management
+        <div class="col-md-3">
+            <div class="card p-4">
+                <h6>Total Customers</h6>
+                <h2>1,245</h2>
+            </div>
         </div>
 
-        <a href="{{ route('crm.directory') }}" class="active">
-            <i class="bi bi-people"></i>
-            Customer Directory
-        </a>
+        <div class="col-md-3">
+            <div class="card p-4">
+                <h6>Active Customers</h6>
+                <h2>987</h2>
+            </div>
+        </div>
 
-        <a href="{{ route('crm.profiles') }}">
-            <i class="bi bi-person-badge"></i>
-            Customer Profiles
-        </a>
+        <div class="col-md-3">
+            <div class="card p-4">
+                <h6>Loyalty Members</h6>
+                <h2>654</h2>
+            </div>
+        </div>
 
-        <a href="{{ route('crm.purchase') }}">
-            <i class="bi bi-bag-check"></i>
-            Purchase History
-        </a>
-
-        <a href="{{ route('crm.logs') }}">
-            <i class="bi bi-chat-left-text"></i>
-            Communication Logs
-        </a>
-
-        <a href="{{ route('crm.followups') }}">
-            <i class="bi bi-calendar-check"></i>
-            Follow-Ups
-        </a>
-
-        <a href="{{ route('crm.loyalty') }}">
-            <i class="bi bi-award"></i>
-            Loyalty Program
-        </a>
-
-        <a href="{{ route('crm.segmentation') }}">
-            <i class="bi bi-diagram-3"></i>
-            Customer Segmentation
-        </a>
+        <div class="col-md-3">
+            <div class="card p-4">
+                <h6>Pending Follow-Ups</h6>
+                <h2>18</h2>
+            </div>
+        </div>
 
     </div>
 
-    <!-- Main Content -->
+    <div class="row mt-4">
 
-    <div class="content">
+        <div class="col-lg-8">
 
-        <nav class="navbar navbar-expand-lg px-4 py-3">
+            <div class="card p-4">
 
-            <h4 class="mb-0">
-                Customer Relationship Management
-            </h4>
+                <h5 class="fw-bold mb-3">
+                    Recent Customer Activities
+                </h5>
 
-            <div class="ms-auto">
-                <i class="bi bi-person-circle"></i> Admin
-            </div>
+                <table class="table">
 
-        </nav>
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Activity</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
 
-        <div class="container-fluid">
+                    <tbody>
 
-            <div class="row g-4">
+                        <tr>
+                            <td>ABC Corporation</td>
+                            <td>Placed New Order</td>
+                            <td>July 7, 2026</td>
+                        </tr>
 
-                <div class="col-md-3">
-                    <div class="card p-4">
-                        <h6>Total Customers</h6>
-                        <h2>1,245</h2>
-                    </div>
-                </div>
+                        <tr>
+                            <td>XYZ Trading</td>
+                            <td>Updated Profile</td>
+                            <td>July 6, 2026</td>
+                        </tr>
 
-                <div class="col-md-3">
-                    <div class="card p-4">
-                        <h6>Active Customers</h6>
-                        <h2>987</h2>
-                    </div>
-                </div>
+                        <tr>
+                            <td>John Smith</td>
+                            <td>Redeemed Loyalty Points</td>
+                            <td>July 5, 2026</td>
+                        </tr>
 
-                <div class="col-md-3">
-                    <div class="card p-4">
-                        <h6>Loyalty Members</h6>
-                        <h2>654</h2>
-                    </div>
-                </div>
+                    </tbody>
 
-                <div class="col-md-3">
-                    <div class="card p-4">
-                        <h6>Pending Follow-Ups</h6>
-                        <h2>18</h2>
-                    </div>
-                </div>
+                </table>
 
             </div>
 
-            <div class="row mt-4">
+        </div>
 
-                <div class="col-lg-8">
+        <div class="col-lg-4">
 
-                    <div class="card p-4">
+            <div class="card p-4">
 
-                        <h5>Recent Customer Activities</h5>
+                <h5 class="fw-bold mb-3">
+                    CRM Summary
+                </h5>
 
-                        <table class="table">
+                <ul class="list-group list-group-flush">
 
-                            <thead>
-                                <tr>
-                                    <th>Customer</th>
-                                    <th>Activity</th>
-                                    <th>Date</th>
-                                </tr>
-                            </thead>
+                    <li class="list-group-item d-flex justify-content-between">
+                        New Customers
+                        <strong>15</strong>
+                    </li>
 
-                            <tbody>
+                    <li class="list-group-item d-flex justify-content-between">
+                        Today's Follow-Ups
+                        <strong>7</strong>
+                    </li>
 
-                                <tr>
-                                    <td>ABC Corporation</td>
-                                    <td>Placed New Order</td>
-                                    <td>July 7, 2026</td>
-                                </tr>
+                    <li class="list-group-item d-flex justify-content-between">
+                        Support Requests
+                        <strong>4</strong>
+                    </li>
 
-                                <tr>
-                                    <td>XYZ Trading</td>
-                                    <td>Updated Profile</td>
-                                    <td>July 6, 2026</td>
-                                </tr>
+                    <li class="list-group-item d-flex justify-content-between">
+                        VIP Customers
+                        <strong>82</strong>
+                    </li>
 
-                                <tr>
-                                    <td>John Smith</td>
-                                    <td>Redeemed Loyalty Points</td>
-                                    <td>July 5, 2026</td>
-                                </tr>
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                </div>
-
-                <div class="col-lg-4">
-
-                    <div class="card p-4">
-
-                        <h5>CRM Summary</h5>
-
-                        <ul class="list-group list-group-flush">
-
-                            <li class="list-group-item">New Customers <strong class="float-end">15</strong></li>
-
-                            <li class="list-group-item">Today's Follow-Ups <strong class="float-end">7</strong></li>
-
-                            <li class="list-group-item">Support Requests <strong class="float-end">4</strong></li>
-
-                            <li class="list-group-item">VIP Customers <strong class="float-end">82</strong></li>
-
-                        </ul>
-
-                    </div>
-
-                </div>
+                </ul>
 
             </div>
 
@@ -269,5 +125,6 @@
 
     </div>
 
-</body>
-</html>
+</div>
+
+@endsection
