@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\RevenueTrendService;
+use Illuminate\Http\Request;
+
 class ForecastingController extends Controller
 {
     public function index()
@@ -9,9 +12,16 @@ class ForecastingController extends Controller
         return view('forecasting.index');
     }
 
-    public function reports()
+    public function reports(Request $request, RevenueTrendService $revenueTrendService)
     {
-        return view('forecasting.reports');
+        $year = (int) $request->query('year', now()->year);
+
+        $monthlyRevenue = $revenueTrendService->getMonthlyRevenue($year);
+
+        return view('forecasting.reports', [
+            'monthlyRevenue' => $monthlyRevenue,
+            'selectedYear' => $year,
+        ]);
     }
 
     public function performance()
