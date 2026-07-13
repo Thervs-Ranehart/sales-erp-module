@@ -7,6 +7,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SalesOrderController;
 use App\Http\Controllers\SupportTicketController;
+use App\Http\Controllers\AfterSalesSupportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -43,7 +44,15 @@ Route::view('/customer-loyalty', 'crm.customer-loyalty')->name('crm.loyalty');
 
 Route::view('/customer-segmentation', 'crm.customer-segmentation')->name('crm.segmentation');
 
+// After-Sales Support (case management)
 Route::get('/after-sales-support', [SupportTicketController::class, 'index'])->name('support.index');
+Route::get('/support/tickets', [AfterSalesSupportController::class, 'ticketsIndex'])->name('support.tickets');
+Route::get('/support/warranty-records', [AfterSalesSupportController::class, 'warrantyRecordsIndex'])->name('support.warranty-records');
+Route::get('/support/warranty-claims', [AfterSalesSupportController::class, 'warrantyClaimsIndex'])->name('support.warranty-claims');
+Route::get('/support/service-contracts', [AfterSalesSupportController::class, 'serviceContractsIndex'])->name('support.service-contracts');
+Route::get('/support/service-requests', [AfterSalesSupportController::class, 'serviceRequestsIndex'])->name('support.service-requests');
+Route::get('/support/resolution-tracking', [AfterSalesSupportController::class, 'resolutionTrackingIndex'])->name('support.resolution-tracking');
+Route::get('/support/customer-satisfaction', [AfterSalesSupportController::class, 'customerSatisfactionIndex'])->name('support.customer-satisfaction');
 
 Route::get('/forecasting', [ForecastingController::class, 'index'])->name('forecasting.index');
 Route::get('/forecasting/reports', [ForecastingController::class, 'reports'])->name('forecasting.reports');
