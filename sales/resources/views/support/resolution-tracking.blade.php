@@ -61,65 +61,105 @@
             </div>
         </div>
 
+    @include('support.resolution-details-modal')
+
+        {{-- Resolution Table --}}
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th style="min-width: 160px;">Resolution #</th>
-                        <th>Ticket</th>
-                        <th style="min-width: 320px;">Summary</th>
-                        <th style="min-width: 180px;">Resolved At</th>
-                        <th style="min-width: 170px;">Outcome</th>
-                        <th class="text-end" style="min-width: 160px;">Actions</th>
+                        <th style="min-width: 160px;">Ticket</th>
+                        <th style="min-width: 170px;">Resolved By</th>
+                        <th style="min-width: 260px;">Root Cause</th>
+                        <th style="min-width: 260px;">Corrective Action</th>
+                        <th style="min-width: 180px;">Resolution Time</th>
+                        <th style="min-width: 180px;">Resolved Date</th>
+                        <th style="min-width: 200px;" class="text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td class="fw-semibold">RS-6001</td>
-                        <td><a class="text-decoration-none" style="color:#5347CE; font-weight:700;" href="{{ route('support.tickets') }}">TK-1003</a></td>
                         <td>
-                            <div class="fw-semibold">Replacement issued for warranty claim</div>
-                            <div class="text-muted small">Corrective action: revised QC checklist for serial validation.</div>
+                            <a class="text-decoration-none" style="color:#5347CE; font-weight:700;" href="{{ route('support.tickets') }}">TK-1003</a>
+                            <div class="text-muted small">RS-6001</div>
+                        </td>
+                        <td>QC & Resolutions Team</td>
+                        <td>Mismatch between serial database and production batch</td>
+                        <td>Updated QC checklist + added cross-check step for serial-to-batch verification</td>
+                        <td>
+                            <span class="badge bg-success">18h 25m</span>
                         </td>
                         <td>2026-07-10</td>
-                        <td><span class="badge bg-success">Closed</span></td>
-                        <td class="text-end"><a class="btn btn-sm btn-outline-success" href="{{ route('support.customer-satisfaction') }}">CSAT</a></td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#resolutionDetailsModal">
+                                <i class="bi bi-eye me-1"></i> View details
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
+                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
+                        </td>
                     </tr>
 
                     <tr>
-                        <td class="fw-semibold">RS-6014</td>
-                        <td><a class="text-decoration-none" style="color:#5347CE; font-weight:700;" href="{{ route('support.tickets') }}">TK-1012</a></td>
                         <td>
-                            <div class="fw-semibold">Repair completed and device tested</div>
-                            <div class="text-muted small">Corrective action: update parts substitution rules.</div>
+                            <a class="text-decoration-none" style="color:#5347CE; font-weight:700;" href="{{ route('support.tickets') }}">TK-1012</a>
+                            <div class="text-muted small">RS-6014</div>
+                        </td>
+                        <td>Support Team B</td>
+                        <td>Incorrect parts substitution rules during repair workflow</td>
+                        <td>Revised substitution rules + added parts validation gate before closure</td>
+                        <td>
+                            <span class="badge bg-primary">12h 10m</span>
                         </td>
                         <td>2026-07-09</td>
-                        <td><span class="badge bg-primary">Resolved</span></td>
-                        <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="{{ route('support.customer-satisfaction') }}">Request rating</a></td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#resolutionDetailsModal">
+                                <i class="bi bi-eye me-1"></i> View details
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
+                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
+                        </td>
                     </tr>
 
                     <tr>
-                        <td class="fw-semibold">RS-6022</td>
-                        <td><a class="text-decoration-none" style="color:#5347CE; font-weight:700;" href="{{ route('support.tickets') }}">TK-1005</a></td>
                         <td>
-                            <div class="fw-semibold">Parts replaced; awaiting final QC sign-off</div>
-                            <div class="text-muted small">Corrective action: verify supplier batch documentation.</div>
+                            <a class="text-decoration-none" style="color:#5347CE; font-weight:700;" href="{{ route('support.tickets') }}">TK-1005</a>
+                            <div class="text-muted small">RS-6022</div>
+                        </td>
+                        <td>Supplier Quality Team</td>
+                        <td>Supplier batch documentation not aligned with acceptance criteria</td>
+                        <td>Added documentation verification checklist for supplier batches</td>
+                        <td>
+                            <span class="badge bg-warning text-dark">9h 40m</span>
                         </td>
                         <td>2026-07-08</td>
-                        <td><span class="badge bg-warning text-dark">Pending QC</span></td>
-                        <td class="text-end"><a class="btn btn-sm btn-outline-warning" href="#">Open QC</a></td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#resolutionDetailsModal">
+                                <i class="bi bi-eye me-1"></i> View details
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
+                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
+                        </td>
                     </tr>
 
                     <tr>
-                        <td class="fw-semibold">RS-6031</td>
-                        <td><a class="text-decoration-none" style="color:#5347CE; font-weight:700;" href="{{ route('support.tickets') }}">TK-1020</a></td>
                         <td>
-                            <div class="fw-semibold">Case reopened due to recurring issue</div>
-                            <div class="text-muted small">Corrective action: escalate to engineering root cause analysis.</div>
+                            <a class="text-decoration-none" style="color:#5347CE; font-weight:700;" href="{{ route('support.tickets') }}">TK-1020</a>
+                            <div class="text-muted small">RS-6031</div>
+                        </td>
+                        <td>Engineering Escalations</td>
+                        <td>Recurring issue after repair indicates missing root-cause closure step</td>
+                        <td>Escalated to engineering for root-cause analysis + updated escalation policy</td>
+                        <td>
+                            <span class="badge bg-danger">21h 05m</span>
                         </td>
                         <td>2026-07-06</td>
-                        <td><span class="badge bg-danger">Reopened</span></td>
-                        <td class="text-end"><a class="btn btn-sm btn-outline-danger" href="#">Escalate</a></td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#resolutionDetailsModal">
+                                <i class="bi bi-eye me-1"></i> View details
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
+                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
+                        </td>
                     </tr>
                 </tbody>
             </table>

@@ -6,132 +6,204 @@
 
     @include('components.page-header', ['title' => $title, 'subtitle' => $subtitle])
 
-    <div class="card p-4">
-        <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-3">
-            <div>
-                <h5 class="fw-bold mb-1">Maintenance Coverage Management</h5>
-                <div class="text-muted small">Track contract status, renewals, and service entitlements.</div>
-            </div>
+    @include('support.service-contract-view-modal')
 
-            <div class="d-flex gap-2 flex-wrap">
-                <div class="input-group input-group-sm" style="min-width: 260px;">
+    {{-- Contract summary cards --}}
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div class="card p-3 h-100">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small fw-semibold">Active</div>
+                        <div class="display-6 fw-bold">76</div>
+                    </div>
+                    <div class="rounded-3" style="background:rgba(22,200,199,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-shield-check" style="color:#16C8C7; font-size:20px;"></i>
+                    </div>
+                </div>
+                <div class="mt-2"><span class="badge bg-success">Coverage enabled</span></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 h-100">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small fw-semibold">Expiring</div>
+                        <div class="display-6 fw-bold">11</div>
+                    </div>
+                    <div class="rounded-3" style="background:rgba(245,158,11,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-hourglass-split" style="color:#F59E0B; font-size:20px;"></i>
+                    </div>
+                </div>
+                <div class="mt-2"><span class="badge bg-warning text-dark">Renewal window</span></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 h-100">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small fw-semibold">Suspended</div>
+                        <div class="display-6 fw-bold">3</div>
+                    </div>
+                    <div class="rounded-3" style="background:rgba(83,71,206,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-pause-circle" style="color:#5347CE; font-size:20px;"></i>
+                    </div>
+                </div>
+                <div class="mt-2"><span class="badge bg-primary">On hold</span></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 h-100">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small fw-semibold">Expired</div>
+                        <div class="display-6 fw-bold">7</div>
+                    </div>
+                    <div class="rounded-3" style="background:rgba(239,68,68,.10); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-x-circle" style="color:#EF4444; font-size:20px;"></i>
+                    </div>
+                </div>
+                <div class="mt-2"><span class="badge bg-danger">Expired terms</span></div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Search + Filters --}}
+    <div class="card p-3 mt-4" style="background: rgba(255,255,255,.7); border: 1px solid rgba(0,0,0,.06); box-shadow: none;">
+        <div class="row g-3">
+            <div class="col-12 col-lg-4">
+                <label class="form-label small text-muted">Search</label>
+                <div class="input-group input-group-sm">
                     <span class="input-group-text" style="background: rgba(83,71,206,.08); border-color: rgba(83,71,206,.2);">
                         <i class="bi bi-search"></i>
                     </span>
-                    <input type="text" class="form-control" placeholder="Search contract (e.g., SC-4001)" aria-label="Search contracts" />
+                    <input type="text" class="form-control" placeholder="Contract number, customer, service type..." aria-label="Search contracts" />
                 </div>
+            </div>
 
-                <select class="form-select form-select-sm" style="min-width: 190px;" aria-label="Filter by contract status">
-                    <option selected>Status: Active</option>
-                    <option>Status: Expiring</option>
-                    <option>Status: Suspended</option>
-                    <option>Status: Expired</option>
+            <div class="col-6 col-lg-2">
+                <label class="form-label small text-muted">Status</label>
+                <select class="form-select form-select-sm" aria-label="Status filter">
+                    <option selected>Status: All</option>
+                    <option>Active</option>
+                    <option>Expiring</option>
+                    <option>Suspended</option>
+                    <option>Expired</option>
                 </select>
+            </div>
 
-                <button class="btn btn-sm" style="background:#5347CE;color:#fff;border:1px solid rgba(255,255,255,.25);">
-                    <i class="bi bi-arrow-clockwise me-1"></i> Renew
-                </button>
+            <div class="col-6 col-lg-2">
+                <label class="form-label small text-muted">Customer</label>
+                <select class="form-select form-select-sm" aria-label="Customer filter">
+                    <option selected>All customers</option>
+                    <option>XYZ Trading</option>
+                    <option>ABC Corporation</option>
+                    <option>Northwind Retail</option>
+                    <option>Greenfield Industries</option>
+                </select>
+            </div>
+
+            <div class="col-12 col-lg-4 d-flex align-items-end justify-content-lg-end">
+                <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-sm" style="background:#5347CE;color:#fff;border:1px solid rgba(255,255,255,.25);">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Renew
+                    </button>
+                    <a class="btn btn-sm btn-outline-primary" href="#">
+                        <i class="bi bi-plus-circle me-1"></i> Create Contract
+                    </a>
+                </div>
             </div>
         </div>
+    </div>
 
-        <div class="row g-3 mb-4">
-            <div class="col-md-3">
-                <div class="p-3 rounded-3" style="background: rgba(22,200,199,.10);">
-                    <div class="text-muted small">Active Contracts</div>
-                    <div class="fw-bold fs-5">76</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="p-3 rounded-3" style="background: rgba(245,158,11,.10);">
-                    <div class="text-muted small">Expiring (30d)</div>
-                    <div class="fw-bold fs-5">11</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="p-3 rounded-3" style="background: rgba(83,71,206,.08);">
-                    <div class="text-muted small">On Hold</div>
-                    <div class="fw-bold fs-5">3</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="p-3 rounded-3" style="background: rgba(239,68,68,.08);">
-                    <div class="text-muted small">Expired</div>
-                    <div class="fw-bold fs-5">7</div>
-                </div>
-            </div>
+    {{-- Contract table --}}
+    <div class="card p-4 mt-4">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h5 class="fw-bold mb-0">Contracts</h5>
+            <div class="text-muted small">UI-only placeholder table.</div>
         </div>
 
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th style="min-width: 150px;">Contract #</th>
-                        <th>Customer</th>
-                        <th>Service Type</th>
-                        <th style="min-width: 180px;">Coverage Window</th>
-                        <th style="min-width: 160px;">Status</th>
-                        <th class="text-end" style="min-width: 160px;">Actions</th>
+                        <th style="min-width: 160px;">Contract Number</th>
+                        <th style="min-width: 220px;">Customer</th>
+                        <th>Product</th>
+                        <th style="min-width: 200px;">Service Type</th>
+                        <th style="min-width: 160px;">Start Date</th>
+                        <th style="min-width: 160px;">End Date</th>
+                        <th style="min-width: 150px;">Status</th>
+                        <th class="text-end" style="min-width: 220px;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td class="fw-semibold">SC-4001</td>
                         <td>XYZ Trading</td>
-                        <td>
-                            <div class="fw-semibold">Extended Support</div>
-                            <div class="text-muted small">Includes remote diagnostics</div>
-                        </td>
-                        <td>
-                            <div class="small text-muted mb-1">Started 2026-01-01</div>
-                            <div class="small">Ends in <span class="fw-semibold">210d</span></div>
-                        </td>
+                        <td>Widget A</td>
+                        <td>Extended Support</td>
+                        <td class="text-muted">2026-01-01</td>
+                        <td class="text-muted">2026-08-20</td>
                         <td><span class="badge bg-success">Active</span></td>
-                        <td class="text-end"><a class="btn btn-sm btn-outline-success" href="{{ route('support.service-requests') }}">Manage</a></td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceContractModal">
+                                <i class="bi bi-eye me-1"></i> View
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
+                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
+                        </td>
                     </tr>
 
                     <tr>
                         <td class="fw-semibold">SC-4007</td>
                         <td>ABC Corporation</td>
-                        <td>
-                            <div class="fw-semibold">Premium Maintenance</div>
-                            <div class="text-muted small">Quarterly on-site visits</div>
-                        </td>
-                        <td>
-                            <div class="small text-muted mb-1">Started 2025-10-15</div>
-                            <div class="small">Ends in <span class="fw-semibold">19d</span></div>
-                        </td>
+                        <td>Industrial Pump X</td>
+                        <td>Premium Maintenance</td>
+                        <td class="text-muted">2025-10-15</td>
+                        <td class="text-muted">2026-04-03</td>
                         <td><span class="badge bg-warning text-dark">Expiring</span></td>
-                        <td class="text-end"><a class="btn btn-sm btn-outline-warning" href="{{ route('support.service-requests') }}">Renew</a></td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceContractModal">
+                                <i class="bi bi-eye me-1"></i> View
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
+                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
+                        </td>
                     </tr>
 
                     <tr>
                         <td class="fw-semibold">SC-4011</td>
                         <td>Northwind Retail</td>
-                        <td>
-                            <div class="fw-semibold">Standard Support</div>
-                            <div class="text-muted small">Includes parts replacement</div>
-                        </td>
-                        <td>
-                            <div class="small text-muted mb-1">Started 2025-02-01</div>
-                            <div class="small">Ended <span class="fw-semibold">11d ago</span></div>
-                        </td>
+                        <td>Appliance Z</td>
+                        <td>Standard Support</td>
+                        <td class="text-muted">2025-02-01</td>
+                        <td class="text-muted">2026-01-10</td>
                         <td><span class="badge bg-danger">Expired</span></td>
-                        <td class="text-end"><a class="btn btn-sm btn-outline-danger" href="{{ route('support.service-contracts') }}">Reinstate</a></td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceContractModal">
+                                <i class="bi bi-eye me-1"></i> View
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
+                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
+                        </td>
                     </tr>
 
                     <tr>
                         <td class="fw-semibold">SC-4018</td>
                         <td>Greenfield Industries</td>
-                        <td>
-                            <div class="fw-semibold">On-demand Service</div>
-                            <div class="text-muted small">Dispatch based on SLA tiers</div>
-                        </td>
-                        <td>
-                            <div class="small text-muted mb-1">Started 2026-03-20</div>
-                            <div class="small">Ends in <span class="fw-semibold">143d</span></div>
-                        </td>
+                        <td>Widget B</td>
+                        <td>On-demand Service</td>
+                        <td class="text-muted">2026-03-20</td>
+                        <td class="text-muted">2026-09-30</td>
                         <td><span class="badge bg-primary">Review</span></td>
-                        <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="{{ route('support.service-requests') }}">Review</a></td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceContractModal">
+                                <i class="bi bi-eye me-1"></i> View
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
+                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -151,5 +223,6 @@
         </div>
     </div>
 @endsection
+
 
 

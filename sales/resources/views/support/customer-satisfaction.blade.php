@@ -34,32 +34,34 @@
             </div>
         </div>
 
+        {{-- Summary cards --}}
         <div class="row g-3 mb-4">
             <div class="col-md-3">
                 <div class="p-3 rounded-3" style="background: rgba(22,200,199,.10);">
-                    <div class="text-muted small">Avg CSAT</div>
+                    <div class="text-muted small">Average Rating</div>
                     <div class="fw-bold fs-5">4.6 / 5</div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="p-3 rounded-3" style="background: rgba(83,71,206,.08);">
-                    <div class="text-muted small">Promoters (4–5)</div>
-                    <div class="fw-bold fs-5">78%</div>
+                    <div class="text-muted small">5-Star Ratings</div>
+                    <div class="fw-bold fs-5">56%</div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="p-3 rounded-3" style="background: rgba(245,158,11,.10);">
-                    <div class="text-muted small">Neutrals (3)</div>
-                    <div class="fw-bold fs-5">14%</div>
+                    <div class="text-muted small">Lowest Ratings</div>
+                    <div class="fw-bold fs-5">1–2: 8%</div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="p-3 rounded-3" style="background: rgba(239,68,68,.08);">
-                    <div class="text-muted small">Detractors (1–2)</div>
-                    <div class="fw-bold fs-5">8%</div>
+                    <div class="text-muted small">Responses</div>
+                    <div class="fw-bold fs-5">210</div>
                 </div>
             </div>
         </div>
+
 
         <div class="row g-4">
             <div class="col-lg-8">
@@ -79,16 +81,34 @@
                             <tr>
                                 <td class="fw-semibold">FB-7001</td>
                                 <td><a class="text-decoration-none" style="color:#5347CE; font-weight:700;" href="{{ route('support.tickets') }}">TK-1003</a></td>
-                                <td><span class="badge bg-success">5</span></td>
+                                <td>
+                                    <span class="text-warning">
+                                        <i class="bi bi-star-fill"></i>
+                                        <i class="bi bi-star-fill"></i>
+                                        <i class="bi bi-star-fill"></i>
+                                        <i class="bi bi-star-fill"></i>
+                                        <i class="bi bi-star-fill"></i>
+                                    </span>
+                                </td>
                                 <td><span class="badge bg-success">Very Satisfied</span></td>
+
                                 <td class="text-muted">Quick resolution and clear communication from the support team.</td>
                                 <td class="text-end"><a class="btn btn-sm btn-outline-success" href="#">View</a></td>
                             </tr>
                             <tr>
                                 <td class="fw-semibold">FB-7008</td>
                                 <td><a class="text-decoration-none" style="color:#5347CE; font-weight:700;" href="{{ route('support.tickets') }}">TK-1002</a></td>
-                                <td><span class="badge bg-primary">4</span></td>
+                                <td>
+                                    <span class="text-warning">
+                                        <i class="bi bi-star-fill"></i>
+                                        <i class="bi bi-star-fill"></i>
+                                        <i class="bi bi-star-fill"></i>
+                                        <i class="bi bi-star-fill"></i>
+                                        <i class="bi bi-star"></i>
+                                    </span>
+                                </td>
                                 <td><span class="badge bg-primary">Satisfied</span></td>
+
                                 <td class="text-muted">Service was good; would like more frequent updates on scheduling.</td>
                                 <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="#">Follow up</a></td>
                             </tr>

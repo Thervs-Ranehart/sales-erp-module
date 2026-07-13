@@ -6,120 +6,202 @@
 
     @include('components.page-header', ['title' => $title, 'subtitle' => $subtitle])
 
-    <div class="card p-4">
-        <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-3">
-            <div>
-                <h5 class="fw-bold mb-1">Claims Intake & Review</h5>
-                <div class="text-muted small">Manage claim submissions, validation checks, and approval workflow.</div>
-            </div>
+    @include('support.warranty-claim-view-modal')
 
-            <div class="d-flex gap-2 flex-wrap">
-                <div class="input-group input-group-sm" style="min-width: 260px;">
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div class="card p-3 h-100">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small fw-semibold">Pending</div>
+                        <div class="display-6 fw-bold">14</div>
+                    </div>
+                    <div class="rounded-3" style="background:rgba(245,158,11,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-hourglass-split" style="color:#F59E0B; font-size:20px;"></i>
+                    </div>
+                </div>
+                <div class="mt-2"><span class="badge bg-warning text-dark">Needs review</span></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 h-100">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small fw-semibold">Approved</div>
+                        <div class="display-6 fw-bold">9</div>
+                    </div>
+                    <div class="rounded-3" style="background:rgba(22,200,199,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-check2-circle" style="color:#16C8C7; font-size:20px;"></i>
+                    </div>
+                </div>
+                <div class="mt-2"><span class="badge bg-success">Ready to fulfill</span></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 h-100">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small fw-semibold">Rejected</div>
+                        <div class="display-6 fw-bold">3</div>
+                    </div>
+                    <div class="rounded-3" style="background:rgba(239,68,68,.10); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-x-circle" style="color:#EF4444; font-size:20px;"></i>
+                    </div>
+                </div>
+                <div class="mt-2"><span class="badge bg-danger">No coverage</span></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 h-100">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small fw-semibold">Completed</div>
+                        <div class="display-6 fw-bold">22</div>
+                    </div>
+                    <div class="rounded-3" style="background:rgba(83,71,206,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-clipboard-check" style="color:#5347CE; font-size:20px;"></i>
+                    </div>
+                </div>
+                <div class="mt-2"><span class="badge bg-primary">Closed loop</span></div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Filters + top actions --}}
+    <div class="card p-3 mt-4" style="background: rgba(255,255,255,.7); border: 1px solid rgba(0,0,0,.06); box-shadow: none;">
+        <div class="row g-3">
+            <div class="col-12 col-lg-4">
+                <label class="form-label small text-muted">Search</label>
+                <div class="input-group input-group-sm">
                     <span class="input-group-text" style="background: rgba(83,71,206,.08); border-color: rgba(83,71,206,.2);">
                         <i class="bi bi-search"></i>
                     </span>
-                    <input type="text" class="form-control" placeholder="Search claim (e.g., WC-3001)" aria-label="Search claims" />
+                    <input type="text" class="form-control" placeholder="Claim number, warranty number, customer..." aria-label="Search claims" />
                 </div>
-
-                <select class="form-select form-select-sm" style="min-width: 190px;" aria-label="Filter by claim status">
-                    <option selected>Status: Pending</option>
-                    <option>Status: Approved</option>
-                    <option>Status: Rejected</option>
-                    <option>Status: In Verification</option>
-                </select>
-
-                <button class="btn btn-sm" style="background:#5347CE;color:#fff;border:1px solid rgba(255,255,255,.25);">
-                    <i class="bi bi-check2-circle me-1"></i> Review
-                </button>
             </div>
+
+            <div class="col-6 col-lg-2">
+                <label class="form-label small text-muted">Status</label>
+                <select class="form-select form-select-sm" aria-label="Status filter">
+                    <option selected>Status: All</option>
+                    <option>Pending</option>
+                    <option>Approved</option>
+                    <option>Rejected</option>
+                    <option>Completed</option>
+                </select>
+            </div>
+
+            <div class="col-6 col-lg-2">
+                <label class="form-label small text-muted">Customer</label>
+                <select class="form-select form-select-sm" aria-label="Customer filter">
+                    <option selected>All customers</option>
+                    <option>ABC Corporation</option>
+                    <option>XYZ Trading</option>
+                    <option>Northwind Retail</option>
+                    <option>John Smith</option>
+                </select>
+            </div>
+
+            <div class="col-12 col-lg-4 d-flex align-items-end justify-content-lg-end">
+                <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-sm" style="background:#5347CE;color:#fff;border:1px solid rgba(255,255,255,.25);">
+                        <i class="bi bi-check2 me-1"></i> Review
+                    </button>
+                    <a class="btn btn-sm btn-outline-primary" href="#">
+                        <i class="bi bi-plus-circle me-1"></i> Create Claim
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Claims table --}}
+    <div class="card p-4 mt-4">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h5 class="fw-bold mb-0">Claims</h5>
+            <div class="text-muted small">Use placeholders (no backend queries).</div>
         </div>
 
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th style="min-width: 150px;">Claim #</th>
-                        <th>Customer</th>
-                        <th>Reason</th>
-                        <th style="min-width: 180px;">Verification</th>
+                        <th style="min-width: 160px;">Claim Number</th>
+                        <th>Warranty Number</th>
+                        <th style="min-width: 220px;">Customer</th>
+                        <th>Product</th>
+                        <th style="min-width: 160px;">Claim Date</th>
                         <th style="min-width: 160px;">Status</th>
-                        <th class="text-end" style="min-width: 160px;">Actions</th>
+                        <th style="min-width: 220px;">Assigned Staff</th>
+                        <th class="text-end" style="min-width: 200px;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td class="fw-semibold">WC-3001</td>
+                        <td>WR-2001</td>
                         <td>ABC Corporation</td>
-                        <td>
-                            <div class="fw-semibold">Manufacturing Defect</div>
-                            <div class="text-muted small">Evidence: photos + serial validation</div>
-                        </td>
-                        <td>
-                            <div class="small text-muted mb-1">Requested: 2026-07-11</div>
-                            <div class="progress" style="height: 8px;">
-                                <div class="progress-bar bg-warning" role="progressbar" style="width: 48%" aria-valuenow="48" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                        </td>
+                        <td>Widget A</td>
+                        <td class="text-muted">2026-07-11</td>
                         <td><span class="badge bg-warning text-dark">Pending</span></td>
+                        <td>Warranty Desk • Senior Agent</td>
                         <td class="text-end">
-                            <a class="btn btn-sm btn-outline-warning" href="{{ route('support.resolution-tracking') }}">Open</a>
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyClaimModal">
+                                <i class="bi bi-eye me-1"></i> View
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
+                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
                         </td>
                     </tr>
 
                     <tr>
                         <td class="fw-semibold">WC-3017</td>
+                        <td>WR-2007</td>
                         <td>XYZ Trading</td>
-                        <td>
-                            <div class="fw-semibold">Wear & Tear (Tier-2)</div>
-                            <div class="text-muted small">Requires service report & parts lookup</div>
-                        </td>
-                        <td>
-                            <div class="small text-muted mb-1">Requested: 2026-07-09</div>
-                            <div class="progress" style="height: 8px;">
-                                <div class="progress-bar bg-primary" role="progressbar" style="width: 62%" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                        </td>
-                        <td><span class="badge bg-primary">In Verification</span></td>
+                        <td>Widget B</td>
+                        <td class="text-muted">2026-07-09</td>
+                        <td><span class="badge bg-primary">Approved</span></td>
+                        <td>Warranty Desk • Team Lead</td>
                         <td class="text-end">
-                            <a class="btn btn-sm btn-outline-primary" href="{{ route('support.resolution-tracking') }}">Verify</a>
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyClaimModal">
+                                <i class="bi bi-eye me-1"></i> View
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
+                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
                         </td>
                     </tr>
 
                     <tr>
                         <td class="fw-semibold">WC-3032</td>
+                        <td>WR-2013</td>
                         <td>Northwind Retail</td>
-                        <td>
-                            <div class="fw-semibold">User Handling Damage</div>
-                            <div class="text-muted small">No warranty coverage for this scenario</div>
-                        </td>
-                        <td>
-                            <div class="small text-muted mb-1">Completed: 2026-07-08</div>
-                            <div class="progress" style="height: 8px;">
-                                <div class="progress-bar bg-danger" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                        </td>
+                        <td>Industrial Pump X</td>
+                        <td class="text-muted">2026-07-08</td>
                         <td><span class="badge bg-danger">Rejected</span></td>
+                        <td>Claims QC • Specialist</td>
                         <td class="text-end">
-                            <a class="btn btn-sm btn-outline-danger" href="{{ route('support.customer-satisfaction') }}">View outcome</a>
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyClaimModal">
+                                <i class="bi bi-eye me-1"></i> View
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
+                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
                         </td>
                     </tr>
 
                     <tr>
                         <td class="fw-semibold">WC-3044</td>
+                        <td>WR-2001</td>
                         <td>John Smith</td>
-                        <td>
-                            <div class="fw-semibold">Battery Failure</div>
-                            <div class="text-muted small">Serial within coverage window</div>
-                        </td>
-                        <td>
-                            <div class="small text-muted mb-1">Approved: 2026-07-10</div>
-                            <div class="progress" style="height: 8px;">
-                                <div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                        </td>
-                        <td><span class="badge bg-success">Approved</span></td>
+                        <td>Widget A</td>
+                        <td class="text-muted">2026-07-10</td>
+                        <td><span class="badge bg-success">Completed</span></td>
+                        <td>Resolutions • Senior Agent</td>
                         <td class="text-end">
-                            <a class="btn btn-sm btn-outline-success" href="{{ route('support.resolution-tracking') }}">Process</a>
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyClaimModal">
+                                <i class="bi bi-eye me-1"></i> View
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
+                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
                         </td>
                     </tr>
                 </tbody>
@@ -140,5 +222,6 @@
         </div>
     </div>
 @endsection
+
 
 
