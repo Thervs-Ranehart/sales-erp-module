@@ -30,7 +30,22 @@ $mainItems = [
             ['label' => 'Customer Segmentation', 'route' => 'crm.segmentation', 'icon' => 'diagram-3'],
         ],
     ],
-    ['label' => 'After-Sales Support and Case Management', 'route' => 'support.index', 'icon' => 'headset', 'hasDropdown' => true],
+    [
+        'label' => 'After-Sales Support and Case Management',
+        'route' => 'support.index',
+        'icon' => 'headset',
+        'hasDropdown' => true,
+        'children' => [
+            ['label' => 'Support Dashboard', 'route' => 'support.index', 'icon' => 'speedometer2'],
+            ['label' => 'Support Tickets', 'route' => 'support.tickets', 'icon' => 'ticket'],
+            ['label' => 'Warranty Records', 'route' => 'support.warranty-records', 'icon' => 'clipboard2-check'],
+            ['label' => 'Warranty Claims', 'route' => 'support.warranty-claims', 'icon' => 'file-earmark-text'],
+            ['label' => 'Service Contracts', 'route' => 'support.service-contracts', 'icon' => 'file-earmark'],
+            ['label' => 'Service Requests', 'route' => 'support.service-requests', 'icon' => 'list-check'],
+            ['label' => 'Resolution Tracking', 'route' => 'support.resolution-tracking', 'icon' => 'diagram-3'],
+            ['label' => 'Customer Satisfaction', 'route' => 'support.customer-satisfaction', 'icon' => 'star'],
+        ],
+    ],
     [
         'label' => 'Sales Performance Reporting and Forecasting',
         'route' => 'forecasting.index',
@@ -73,7 +88,14 @@ $utilityItems = [
                     }
                 }
 
+                // Expand parent when any child route is active.
                 $isActive = $isActive || $showChildren;
+
+                // Auto-open submenu when viewing children (expanded + open state)
+                // so the parent is highlighted correctly.
+                if (!empty($item['children']) && $showChildren) {
+                    // no-op: state handled by $showChildren and the 'open' class below
+                }
             @endphp
 
             <div class="nav-group">
