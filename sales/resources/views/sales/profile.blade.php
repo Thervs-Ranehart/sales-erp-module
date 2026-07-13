@@ -1,32 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('layouts.app')
 
-    <title>Customer Profile</title>
+@section('title', 'Profile')
+@section('page-title', 'Sales Order Management')
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-
+@section('content')
+ 
     <style>
-          /* Your existing CSS */
-
-        .sidebar .sub-menu {
-            padding-left: 50px;
-            font-size: 14px;
-            background: rgba(255, 255, 255, 0.08);
-            border-left: 3px solid #887CFD;
-        }
-
-        .sidebar .sub-menu:hover {
-            background: #887CFD;
-        }
-
-        .sidebar .sub-menu.active {
-            background: #16C8C7;
-            border-left: 4px solid #fff;
-        }
+         
         :root{
             --primary:#5347CE;
             --secondary:#887CFD;
@@ -44,82 +24,7 @@
             color:var(--text);
         }
 
-        /* SIDEBAR */
-
-        .sidebar{
-            position:fixed;
-            top:0;
-            left:0;
-            width:285px;
-            height:100vh;
-            background:var(--primary);
-            color:white;
-        }
-
-        .sidebar h4{
-            padding:28px 27px;
-            margin:0 0 15px;
-            font-size:27px;
-            font-weight:700;
-        }
-
-        .menu-title{
-            padding:18px 27px 8px;
-            font-size:11px;
-            color:rgba(255,255,255,.65);
-        }
-
-        .sidebar a{
-            display:flex;
-            align-items:center;
-            gap:12px;
-            padding:14px 27px;
-            color:white;
-            text-decoration:none;
-        }
-
-        .sidebar a:hover{
-            background:var(--secondary);
-        }
-
-        .sidebar a.active{
-            background:white;
-            color:var(--text);
-        }
-
-        .sidebar a.active i{
-            color:var(--primary);
-        }
-
-        /* CONTENT */
-
-        .content{
-            margin-left:285px;
-            min-height:100vh;
-        }
-
-        .topbar{
-            height:82px;
-            padding:0 30px;
-            background:white;
-            display:flex;
-            align-items:center;
-            box-shadow:0 2px 10px rgba(0,0,0,.07);
-        }
-
-        .topbar h3{
-            margin:0;
-            font-weight:600;
-        }
-
-        .top-icons{
-            margin-left:auto;
-            display:flex;
-            gap:18px;
-            color:var(--primary);
-            font-size:20px;
-        }
-
+       
         .page-container{
             padding:28px;
         }
@@ -434,3 +339,4 @@
 
 </body>
 </html>
+@endsection

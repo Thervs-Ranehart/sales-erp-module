@@ -1,13 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+@extends('layouts.app')
 
-    <title>Quotations</title>
+@section('title', 'Quotations')
+@section('page-title', 'Sales Order Management')
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+@section('content')
 
     <style>
 
@@ -15,23 +11,7 @@
     <!-- Bootstrap links -->
 
     <style>
-        /* Your existing CSS */
-
-        .sidebar .sub-menu {
-            padding-left: 50px;
-            font-size: 14px;
-            background: rgba(255, 255, 255, 0.08);
-            border-left: 3px solid #887CFD;
-        }
-
-        .sidebar .sub-menu:hover {
-            background: #887CFD;
-        }
-
-        .sidebar .sub-menu.active {
-            background: #16C8C7;
-            border-left: 4px solid #fff;
-        }
+   
    
         :root{
             --primary:#5347CE;
@@ -56,98 +36,7 @@
             color:var(--text);
         }
 
-        /* ================= SIDEBAR ================= */
-
-        .sidebar{
-            position:fixed;
-            top:0;
-            left:0;
-            width:285px;
-            height:100vh;
-            background:var(--primary);
-            color:white;
-            overflow-y:auto;
-        }
-
-        .logo{
-            padding:27px;
-            font-size:27px;
-            font-weight:700;
-        }
-
-        .menu-title{
-            padding:18px 27px 8px;
-            font-size:11px;
-            font-weight:600;
-            text-transform:uppercase;
-            color:rgba(255,255,255,.65);
-        }
-
-        .sidebar a{
-            display:flex;
-            align-items:center;
-            gap:12px;
-            margin:3px 14px;
-            padding:13px 15px;
-            border-radius:8px;
-            color:white;
-            text-decoration:none;
-            font-size:15px;
-            transition:.2s;
-        }
-
-        .sidebar a i{
-            width:22px;
-            font-size:18px;
-        }
-
-        .sidebar a:hover{
-            background:var(--secondary);
-        }
-
-        .sidebar a.active{
-            background:white;
-            color:var(--primary);
-            font-weight:600;
-        }
-
-        /* ================= MAIN CONTENT ================= */
-
-        .main-content{
-            margin-left:285px;
-            min-height:100vh;
-        }
-
-        /* ================= TOPBAR ================= */
-
-        .topbar{
-            height:82px;
-            background:white;
-            display:flex;
-            align-items:center;
-            padding:0 30px;
-            box-shadow:0 2px 10px rgba(0,0,0,.06);
-        }
-
-        .topbar-title{
-            font-size:25px;
-            font-weight:600;
-            margin:0;
-        }
-
-        .top-icons{
-            margin-left:auto;
-            display:flex;
-            align-items:center;
-            gap:18px;
-            color:var(--primary);
-            font-size:19px;
-        }
-
-        .profile-icon{
-            font-size:32px;
-            color:var(--accent);
-        }
+        
 
         /* ================= PAGE ================= */
 
@@ -351,25 +240,6 @@
 
 <body>
 
-@include('sales.partials.sidebar')
-<!-- ================= MAIN CONTENT ================= -->
-
-<div class="main-content">
-
-    <div class="topbar">
-
-        <h3 class="topbar-title">
-            Sales Order Management
-        </h3>
-
-        <div class="top-icons">
-            <i class="bi bi-bell"></i>
-            <i class="bi bi-envelope"></i>
-            <i class="bi bi-question-circle"></i>
-            <i class="bi bi-person-circle profile-icon"></i>
-        </div>
-
-    </div>
 
 
     <div class="page-content">
@@ -680,3 +550,5 @@
 
 </body>
 </html>
+
+@endsection

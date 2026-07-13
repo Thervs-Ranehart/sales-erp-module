@@ -3,7 +3,18 @@
 @php
 $mainItems = [  
     ['label' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'speedometer2', 'hasDropdown' => false],
-    ['label' => 'Sales Order Management', 'route' => 'sales.index', 'icon' => 'cart-check', 'hasDropdown' => true],
+    [
+    'label' => 'Sales Order Management',
+    'route' => 'sales.index',
+    'icon' => 'cart-check',
+    'hasDropdown' => true,
+    'children' => [
+        ['label'=>'Sales Orders','route'=>'sales.index','icon'=>'cart'],
+        ['label'=>'Quotations','route'=>'quotations.index','icon'=>'file-earmark-text'],
+        ['label'=>'Pricing Rules','route'=>'pricing.index','icon'=>'tags'],
+        ['label'=>'Invoices','route'=>'invoices.index','icon'=>'receipt'],
+    ],
+],
     [
         'label' => 'Customer Relationship Management',
         'route' => 'crm.index',
