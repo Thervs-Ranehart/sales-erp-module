@@ -1,7 +1,10 @@
 @props(['currentRoute' => null])
 
 @php
+use Illuminate\Support\Facades\Route;
+
 $mainItems = [  
+
     ['label' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'speedometer2', 'hasDropdown' => false],
     [
     'label' => 'Sales Order Management',
@@ -100,7 +103,14 @@ $utilityItems = [
             @endphp
 
             <div class="nav-group">
-                <a href="{{ route($item['route']) }}" class="{{ $isActive ? 'active' : '' }}" title="{{ $item['label'] }}">
+                @php
+                    $itemRouteName = $item['route'];
+                    $itemUrl = Route::has($itemRouteName) ? route($itemRouteName) : null;
+                @endphp
+
+                @if ($itemUrl)
+                    <a href="{{ $itemUrl }}" class="{{ $isActive ? 'active' : '' }}" title="{{ $item['label'] }}">
+
                     <i class="bi bi-{{ $item['icon'] }}"></i>
                     <span class="nav-label">{{ $item['label'] }}</span>
                     @if ($item['hasDropdown'] ?? false)
@@ -108,18 +118,30 @@ $utilityItems = [
                     @endif
                 </a>
 
+                @endif
+
                 @if (!empty($item['children']))
+
                     <div class="sub-nav {{ $showChildren ? 'open' : '' }}">
                         @foreach ($item['children'] as $child)
                             @php
                                 $childActive = $currentRoute === $child['route'] || str_contains($currentRoute ?? '', $child['route']);
                             @endphp
 
-                            <a href="{{ route($child['route']) }}" class="sub-nav-link" title="{{ $child['label'] }}" data-submenu-icon data-active-route="{{ $childActive ? '1' : '0' }}">
+                            @php
+                                $childRouteName = $child['route'];
+                                $childUrl = Route::has($childRouteName) ? route($childRouteName) : null;
+                            @endphp
+
+                            @if ($childUrl)
+                                <a href="{{ $childUrl }}" class="sub-nav-link" title="{{ $child['label'] }}" data-submenu-icon data-active-route="{{ $childActive ? '1' : '0' }}">
+
                                 <i class="bi bi-{{ $child['icon'] }}" data-submenu-icon-inner></i>
                                 <span class="nav-label">{{ $child['label'] }}</span>
                             </a>
+                            @endif
                         @endforeach
+
                     </div>
                 @endif
             </div>
@@ -132,13 +154,28 @@ $utilityItems = [
                 $isActive = $currentRoute === $item['route'] || str_contains($currentRoute ?? '', $item['route']);
             @endphp
 
-            <a href="{{ route($item['route']) }}" class="{{ $isActive ? 'active' : '' }}" title="{{ $item['label'] }}">
+            @php
+                $utilRouteName = $item['route'];
+                $utilUrl = Route::has($utilRouteName) ? route($utilRouteName) : null;
+            @endphp
+
+            @if ($utilUrl)
+                <a href="{{ $utilUrl }}" class="{{ $isActive ? 'active' : '' }}" title="{{ $item['label'] }}">
+
                 <i class="bi bi-{{ $item['icon'] }}"></i>
                 <span class="nav-label">{{ $item['label'] }}</span>
             </a>
+
+            @endif
         @endforeach
 
-        <a href="{{ route('logout') }}" title="Logout">
+
+        @php
+            $logoutUrl = Route::has('logout') ? route('logout') : url('/');
+        @endphp
+
+        <a href="{{ $logoutUrl }}" title="Logout">
+
             <i class="bi bi-box-arrow-right"></i>
             <span class="nav-label">Logout</span>
         </a>

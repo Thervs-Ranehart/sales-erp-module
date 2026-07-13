@@ -136,14 +136,48 @@ padding:14px;
 
 .tag {
 
-background:#f1f0ff;
-color:#5347CE;
-padding:6px 12px;
-border-radius:20px;
-font-size:12px;
+    background:#f1f0ff;
+    color:#5347CE;
+    padding:6px 12px;
+    border-radius:20px;
+    font-size:12px;
+    cursor:pointer;
+    transition:0.2s;
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
 
 }
 
+
+.tag:hover {
+
+    background:#5347CE;
+    color:white;
+
+}
+
+
+.tag.active {
+
+    background:#5347CE;
+    color:white;
+
+}
+
+
+.tag i {
+
+    display:none;
+
+}
+
+
+.tag.active i {
+
+    display:inline-block;
+
+}
 
 
 </style>
@@ -783,37 +817,47 @@ Customer Tags
 <div class="d-flex flex-wrap gap-2">
 
 
-<span class="tag">
+<div class="d-flex flex-wrap gap-2">
+
+
+<span class="tag active">
+<i class="bi bi-check-circle"></i>
 VIP Customer
 </span>
 
 
 <span class="tag">
+<i class="bi bi-check-circle"></i>
 Frequent Buyer
 </span>
 
 
 <span class="tag">
+<i class="bi bi-check-circle"></i>
 Office Supplies
 </span>
 
 
 <span class="tag">
+<i class="bi bi-check-circle"></i>
 High Value Customer
 </span>
 
 
 <span class="tag">
+<i class="bi bi-check-circle"></i>
 Loyalty Member
 </span>
 
 
 <span class="tag">
+<i class="bi bi-check-circle"></i>
 Email Preferred
 </span>
 
 
 <span class="tag">
+<i class="bi bi-check-circle"></i>
 Returning Customer
 </span>
 
@@ -828,7 +872,19 @@ Returning Customer
 </div>
 
 
+<script>
 
+document.querySelectorAll('.tag').forEach(tag => {
+
+    tag.addEventListener('click', function(){
+
+        this.classList.toggle('active');
+
+    });
+
+});
+
+</script>
 
 
 

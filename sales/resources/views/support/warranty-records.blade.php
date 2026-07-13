@@ -152,7 +152,8 @@
         </div>
 
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mt-4">
-            <div class="text-muted small">Showing 4 of 245 warranties (placeholder).</div>
+            <div class="text-muted small">Showing results.</div>
+
             <nav aria-label="Warranty pagination">
                 <ul class="pagination pagination-sm mb-0">
                     <li class="page-item disabled"><span class="page-link">Previous</span></li>
