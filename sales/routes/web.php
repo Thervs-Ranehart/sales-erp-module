@@ -92,6 +92,13 @@ Route::view('/invoices/create', 'sales.create-invoice')
 Route::view('/invoices/generate', 'sales.generate-invoice')
     ->name('invoices.generate');
 
+ Route::post('/sales-orders', [SalesController::class, 'store'])
+    ->name('sales.store');
+
 Route::get('/sales-order-management/profile/{id}', function ($id) {
     return view('sales.profile', compact('id'));
 })->name('sales.profile');
+
+Route::get('/sales-orders/create', function () {
+    return view('sales.create-sales-order');
+})->name('sales.create');
