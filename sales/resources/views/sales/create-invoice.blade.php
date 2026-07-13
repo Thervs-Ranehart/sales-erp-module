@@ -467,11 +467,10 @@ body
                     Save as Draft
                 </button>
 
-               <a href="{{ route('invoices.index') }}" class="create-btn text-decoration-none">
+            <a href="{{ route('invoices.generate') }}" class="create-btn text-decoration-none">
     <i class="bi bi-check-circle me-1"></i>
-    Create Invoice
+    Generate Invoice
 </a>
-
             </div>
 
         </form>
