@@ -105,13 +105,9 @@
 
             <div class="col-12 col-lg-4 d-flex align-items-end justify-content-lg-end">
                 <div class="d-flex gap-2 flex-wrap">
-                    <button class="btn btn-sm" style="background:#5347CE;color:#fff;border:1px solid rgba(255,255,255,.25);">
-                        <i class="bi bi-arrow-clockwise me-1"></i> Renew
-                    </button>
-                    <a class="btn btn-sm btn-outline-primary" href="#">
-                        <i class="bi bi-plus-circle me-1"></i> Create Contract
-                    </a>
+                    {{-- Service Coordinator: view-only contracts (no create/renew/edit/delete) --}}
                 </div>
+
             </div>
         </div>
     </div>

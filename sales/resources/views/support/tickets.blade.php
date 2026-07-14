@@ -7,6 +7,7 @@
     @include('components.page-header', ['title' => $title, 'subtitle' => $subtitle])
 
     @include('support.tickets-details-modal')
+    @include('support.tickets-assign-modal')
 
     <div class="card p-4">
         {{-- Top section: page title + breadcrumb + actions --}}
@@ -24,11 +25,8 @@
                 </nav>
             </div>
 
-            <div class="d-flex flex-wrap gap-2 justify-content-start justify-content-lg-end">
-                <a href="{{ route('support.tickets') }}" class="btn btn-primary btn-sm">
-                    <i class="bi bi-plus-circle me-1"></i> New Ticket
-                </a>
-            </div>
+
+
         </div>
 
         {{-- Search + Filters --}}
@@ -126,11 +124,13 @@
                                 <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ticketDetailsModal">
                                     <i class="bi bi-eye me-1"></i><span class="text-nowrap"> View</span>
                                 </button>
-                                <button class="btn btn-sm btn-outline-warning">
-                                    <i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Edit</span>
+
+                                <button class="btn btn-sm btn-outline-warning" type="button">
+                                    <i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Change Status</span>
                                 </button>
-                                <button class="btn btn-sm btn-outline-danger">
-                                    <i class="bi bi-trash me-1"></i><span class="text-nowrap"> Delete</span>
+
+                                <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#ticketsAssignModal">
+                                    <i class="bi bi-diagram-3 me-1"></i><span class="text-nowrap"> Assign</span>
                                 </button>
                             </div>
                         </td>
@@ -151,11 +151,13 @@
                                 <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ticketDetailsModal">
                                     <i class="bi bi-eye me-1"></i><span class="text-nowrap"> View</span>
                                 </button>
-                                <button class="btn btn-sm btn-outline-warning">
-                                    <i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Edit</span>
+
+                                <button class="btn btn-sm btn-outline-warning" type="button">
+                                    <i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Change Status</span>
                                 </button>
-                                <button class="btn btn-sm btn-outline-danger">
-                                    <i class="bi bi-trash me-1"></i><span class="text-nowrap"> Delete</span>
+
+                                <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#ticketsAssignModal">
+                                    <i class="bi bi-diagram-3 me-1"></i><span class="text-nowrap"> Assign</span>
                                 </button>
                             </div>
                         </td>
@@ -176,11 +178,13 @@
                                 <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ticketDetailsModal">
                                     <i class="bi bi-eye me-1"></i><span class="text-nowrap"> View</span>
                                 </button>
-                                <button class="btn btn-sm btn-outline-warning">
-                                    <i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Edit</span>
+
+                                <button class="btn btn-sm btn-outline-warning" type="button">
+                                    <i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Change Status</span>
                                 </button>
-                                <button class="btn btn-sm btn-outline-danger">
-                                    <i class="bi bi-trash me-1"></i><span class="text-nowrap"> Delete</span>
+
+                                <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#ticketsAssignModal">
+                                    <i class="bi bi-diagram-3 me-1"></i><span class="text-nowrap"> Assign</span>
                                 </button>
                             </div>
                         </td>
@@ -201,11 +205,13 @@
                                 <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ticketDetailsModal">
                                     <i class="bi bi-eye me-1"></i><span class="text-nowrap"> View</span>
                                 </button>
-                                <button class="btn btn-sm btn-outline-warning">
-                                    <i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Edit</span>
+
+                                <button class="btn btn-sm btn-outline-warning" type="button">
+                                    <i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Change Status</span>
                                 </button>
-                                <button class="btn btn-sm btn-outline-danger">
-                                    <i class="bi bi-trash me-1"></i><span class="text-nowrap"> Delete</span>
+
+                                <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#ticketsAssignModal">
+                                    <i class="bi bi-diagram-3 me-1"></i><span class="text-nowrap"> Assign</span>
                                 </button>
                             </div>
                         </td>

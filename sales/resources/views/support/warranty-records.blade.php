@@ -22,11 +22,8 @@
                 </nav>
             </div>
 
-            <div class="d-flex flex-wrap gap-2 justify-content-start justify-content-lg-end">
-                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#warrantyViewModal">
-                    <i class="bi bi-plus-circle me-1"></i> Register Warranty
-                </button>
-            </div>
+
+
         </div>
 
         {{-- Filters --}}
@@ -74,6 +71,7 @@
 
         {{-- Table --}}
         <div class="table-responsive">
+
             <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
@@ -95,7 +93,8 @@
                         <td>SO-9001</td>
                         <td class="text-muted">2025-06-10</td>
                         <td class="text-muted">2026-12-12</td>
-                        <td><span class="badge bg-warning text-dark">Active</span></td>
+                        <td><span class="badge bg-success">Active</span></td>
+
                         <td class="text-end">
                             <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyViewModal">
                                 <i class="bi bi-eye me-1"></i> View
@@ -110,7 +109,8 @@
                         <td>SO-9034</td>
                         <td class="text-muted">2025-07-01</td>
                         <td class="text-muted">2026-08-15</td>
-                        <td><span class="badge bg-primary">Expiring Soon</span></td>
+                        <td><span class="badge bg-warning text-dark">Expiring Soon</span></td>
+
                         <td class="text-end">
                             <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyViewModal">
                                 <i class="bi bi-eye me-1"></i> View
@@ -126,10 +126,13 @@
                         <td class="text-muted">2024-04-18</td>
                         <td class="text-muted">2025-06-18</td>
                         <td><span class="badge bg-danger">Expired</span></td>
+
                         <td class="text-end">
                             <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#warrantyViewModal">
                                 <i class="bi bi-eye me-1"></i> View
                             </button>
+
+
                         </td>
                     </tr>
 
@@ -140,7 +143,9 @@
                         <td>SO-9120</td>
                         <td class="text-muted">2025-09-22</td>
                         <td class="text-muted">2026-12-15</td>
-                        <td><span class="badge bg-secondary">On Hold</span></td>
+                        <td><span class="badge bg-danger">Expired</span></td>
+
+
                         <td class="text-end">
                             <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#warrantyViewModal">
                                 <i class="bi bi-eye me-1"></i> View
