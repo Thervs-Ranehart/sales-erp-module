@@ -1,4 +1,4 @@
-@extends('layouts.app')
+cd s@extends('layouts.app')
 
 @section('content')
     @php($title = 'Service Requests')
@@ -151,9 +151,12 @@
                             <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceRequestScheduleModal">
                                 <i class="bi bi-calendar3 me-1"></i> Schedule
                             </button>
-                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
-                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
                         </td>
+                            <button class="btn btn-sm btn-outline-primary ms-1"><i class="bi bi-eye me-1"></i> View</button>
+
+
+
+
                     </tr>
 
                     <tr>
@@ -170,8 +173,7 @@
                             <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceRequestScheduleModal">
                                 <i class="bi bi-calendar3 me-1"></i> Schedule
                             </button>
-                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
-                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
+
                         </td>
                     </tr>
 
@@ -189,8 +191,7 @@
                             <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceRequestScheduleModal">
                                 <i class="bi bi-calendar3 me-1"></i> Schedule
                             </button>
-                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
-                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
+
                         </td>
                     </tr>
 
@@ -209,8 +210,7 @@
                             <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceRequestScheduleModal">
                                 <i class="bi bi-calendar3 me-1"></i> Schedule
                             </button>
-                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
-                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
+
                         </td>
                     </tr>
                 </tbody>

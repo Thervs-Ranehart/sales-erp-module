@@ -107,11 +107,9 @@
                     <button class="btn btn-sm" style="background:#5347CE;color:#fff;border:1px solid rgba(255,255,255,.25);">
                         <i class="bi bi-check2 me-1"></i> Review
                     </button>
-                    <a class="btn btn-sm btn-outline-primary" href="#">
-                        <i class="bi bi-plus-circle me-1"></i> Create Claim
-                    </a>
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -151,8 +149,10 @@
                                 <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyClaimModal">
                                     <i class="bi bi-eye me-1"></i><span class="text-nowrap"> View</span>
                                 </button>
-                                <button class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Edit</span></button>
-                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash me-1"></i><span class="text-nowrap"> Delete</span></button>
+                                <button class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Review</span></button>
+                                <button class="btn btn-sm btn-outline-success"><i class="bi bi-arrow-repeat me-1"></i><span class="text-nowrap"> Update Status</span></button>
+
+
                             </div>
                         </td>
                     </tr>
@@ -170,8 +170,10 @@
                                 <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyClaimModal">
                                     <i class="bi bi-eye me-1"></i> View
                                 </button>
-                                <button class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil me-1"></i> Edit</button>
-                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash me-1"></i> Delete</button>
+                                <button class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil me-1"></i> Review</button>
+                                <button class="btn btn-sm btn-outline-success"><i class="bi bi-arrow-repeat me-1"></i> Update Status</button>
+
+
                             </div>
                         </td>
                     </tr>
@@ -189,8 +191,9 @@
                                 <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyClaimModal">
                                     <i class="bi bi-eye me-1"></i> View
                                 </button>
-                                <button class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil me-1"></i> Edit</button>
-                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash me-1"></i> Delete</button>
+                                <button class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil me-1"></i> Review</button>
+                                <button class="btn btn-sm btn-outline-success"><i class="bi bi-arrow-repeat me-1"></i> Update Status</button>
+
                             </div>
                         </td>
                     </tr>
@@ -208,8 +211,9 @@
                                 <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyClaimModal">
                                     <i class="bi bi-eye me-1"></i><span class="text-nowrap"> View</span>
                                 </button>
-                                <button class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Edit</span></button>
-                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash me-1"></i><span class="text-nowrap"> Delete</span></button>
+                                <button class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Review</span></button>
+                                <button class="btn btn-sm btn-outline-success"><i class="bi bi-arrow-repeat me-1"></i><span class="text-nowrap"> Update Status</span></button>
+
                             </div>
                         </td>
                     </tr>

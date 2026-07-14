@@ -2,56 +2,45 @@
 
 @section('content')
     @php($title = 'Service Contracts')
-    @php($subtitle = 'Manage maintenance and service coverage')
+    @php($subtitle = 'Support staff: verify contract coverage during case management')
 
     @include('components.page-header', ['title' => $title, 'subtitle' => $subtitle])
 
+    {{-- Read-only contract coverage modal (UI only) --}}
     @include('support.service-contract-view-modal')
 
-    {{-- Contract summary cards --}}
+    {{-- Contract statistics (support verification focus) --}}
     <div class="row g-3">
         <div class="col-md-3">
             <div class="card p-3 h-100">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <div class="text-muted small fw-semibold">Active</div>
+                        <div class="text-muted small fw-semibold">Active Coverage</div>
                         <div class="display-6 fw-bold">76</div>
                     </div>
                     <div class="rounded-3" style="background:rgba(22,200,199,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
                         <i class="bi bi-shield-check" style="color:#16C8C7; font-size:20px;"></i>
                     </div>
                 </div>
-                <div class="mt-2"><span class="badge bg-success">Coverage enabled</span></div>
+                <div class="mt-2"><span class="badge bg-success">Eligible</span></div>
             </div>
         </div>
+
         <div class="col-md-3">
             <div class="card p-3 h-100">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <div class="text-muted small fw-semibold">Expiring</div>
+                        <div class="text-muted small fw-semibold">Expiring Soon</div>
                         <div class="display-6 fw-bold">11</div>
                     </div>
                     <div class="rounded-3" style="background:rgba(245,158,11,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
                         <i class="bi bi-hourglass-split" style="color:#F59E0B; font-size:20px;"></i>
                     </div>
                 </div>
-                <div class="mt-2"><span class="badge bg-warning text-dark">Renewal window</span></div>
+                <div class="mt-2"><span class="badge bg-warning text-dark">Within window</span></div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card p-3 h-100">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-muted small fw-semibold">Suspended</div>
-                        <div class="display-6 fw-bold">3</div>
-                    </div>
-                    <div class="rounded-3" style="background:rgba(83,71,206,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
-                        <i class="bi bi-pause-circle" style="color:#5347CE; font-size:20px;"></i>
-                    </div>
-                </div>
-                <div class="mt-2"><span class="badge bg-primary">On hold</span></div>
-            </div>
-        </div>
+
         <div class="col-md-3">
             <div class="card p-3 h-100">
                 <div class="d-flex align-items-center justify-content-between">
@@ -63,7 +52,22 @@
                         <i class="bi bi-x-circle" style="color:#EF4444; font-size:20px;"></i>
                     </div>
                 </div>
-                <div class="mt-2"><span class="badge bg-danger">Expired terms</span></div>
+                <div class="mt-2"><span class="badge bg-danger">Not eligible</span></div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card p-3 h-100">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small fw-semibold">Coverage Verification Rate</div>
+                        <div class="display-6 fw-bold">92%</div>
+                    </div>
+                    <div class="rounded-3" style="background:rgba(83,71,206,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-check2-circle" style="color:#5347CE; font-size:20px;"></i>
+                    </div>
+                </div>
+                <div class="mt-2"><span class="badge bg-primary">UI placeholder</span></div>
             </div>
         </div>
     </div>
@@ -77,7 +81,7 @@
                     <span class="input-group-text" style="background: rgba(83,71,206,.08); border-color: rgba(83,71,206,.2);">
                         <i class="bi bi-search"></i>
                     </span>
-                    <input type="text" class="form-control" placeholder="Contract number, customer, service type..." aria-label="Search contracts" />
+                    <input type="text" class="form-control" placeholder="Contract Number, Customer, Ticket Number..." aria-label="Search contracts" />
                 </div>
             </div>
 
@@ -87,7 +91,6 @@
                     <option selected>Status: All</option>
                     <option>Active</option>
                     <option>Expiring</option>
-                    <option>Suspended</option>
                     <option>Expired</option>
                 </select>
             </div>
@@ -102,37 +105,27 @@
                     <option>Greenfield Industries</option>
                 </select>
             </div>
-
-            <div class="col-12 col-lg-4 d-flex align-items-end justify-content-lg-end">
-                <div class="d-flex gap-2 flex-wrap">
-                    {{-- Service Coordinator: view-only contracts (no create/renew/edit/delete) --}}
-                </div>
-
-            </div>
         </div>
     </div>
 
     {{-- Contract table --}}
     <div class="card p-4 mt-4">
         <div class="d-flex align-items-center justify-content-between mb-3">
-            <h5 class="fw-bold mb-0">Contracts</h5>
-            <div class="text-muted small">View contract details and status.</div>
+            <h5 class="fw-bold mb-0">Contract Coverage</h5>
+            <div class="text-muted small">Verify coverage details for support cases.</div>
         </div>
-
 
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-
                 <thead>
                     <tr>
                         <th style="min-width: 160px;">Contract Number</th>
                         <th style="min-width: 220px;">Customer</th>
-                        <th>Product</th>
-                        <th style="min-width: 200px;">Service Type</th>
-                        <th style="min-width: 160px;">Start Date</th>
-                        <th style="min-width: 160px;">End Date</th>
-                        <th style="min-width: 150px;">Status</th>
-                        <th class="text-end" style="min-width: 220px;">Actions</th>
+                        <th>Related Product</th>
+                        <th style="min-width: 220px;">Coverage Period</th>
+                        <th style="min-width: 150px;">Coverage Status</th>
+                        <th style="min-width: 220px;">Related Support Ticket</th>
+                        <th class="text-end" style="min-width: 160px;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -140,16 +133,13 @@
                         <td class="fw-semibold">SC-4001</td>
                         <td>XYZ Trading</td>
                         <td>Widget A</td>
-                        <td>Extended Support</td>
-                        <td class="text-muted">2026-01-01</td>
-                        <td class="text-muted">2026-08-20</td>
+                        <td class="text-muted">2026-01-01 → 2026-08-20</td>
                         <td><span class="badge bg-success">Active</span></td>
+                        <td class="text-muted">TK-1020 (placeholder)</td>
                         <td class="text-end">
                             <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceContractModal">
-                                <i class="bi bi-eye me-1"></i> View
+                                <i class="bi bi-eye me-1"></i> View Coverage
                             </button>
-                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
-                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
                         </td>
                     </tr>
 
@@ -157,16 +147,13 @@
                         <td class="fw-semibold">SC-4007</td>
                         <td>ABC Corporation</td>
                         <td>Industrial Pump X</td>
-                        <td>Premium Maintenance</td>
-                        <td class="text-muted">2025-10-15</td>
-                        <td class="text-muted">2026-04-03</td>
+                        <td class="text-muted">2025-10-15 → 2026-04-03</td>
                         <td><span class="badge bg-warning text-dark">Expiring</span></td>
+                        <td class="text-muted">TK-1005 (placeholder)</td>
                         <td class="text-end">
                             <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceContractModal">
-                                <i class="bi bi-eye me-1"></i> View
+                                <i class="bi bi-eye me-1"></i> View Coverage
                             </button>
-                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
-                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
                         </td>
                     </tr>
 
@@ -174,16 +161,13 @@
                         <td class="fw-semibold">SC-4011</td>
                         <td>Northwind Retail</td>
                         <td>Appliance Z</td>
-                        <td>Standard Support</td>
-                        <td class="text-muted">2025-02-01</td>
-                        <td class="text-muted">2026-01-10</td>
+                        <td class="text-muted">2025-02-01 → 2026-01-10</td>
                         <td><span class="badge bg-danger">Expired</span></td>
+                        <td class="text-muted">TK-1003 (placeholder)</td>
                         <td class="text-end">
                             <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceContractModal">
-                                <i class="bi bi-eye me-1"></i> View
+                                <i class="bi bi-eye me-1"></i> View Coverage
                             </button>
-                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
-                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
                         </td>
                     </tr>
 
@@ -191,16 +175,13 @@
                         <td class="fw-semibold">SC-4018</td>
                         <td>Greenfield Industries</td>
                         <td>Widget B</td>
-                        <td>On-demand Service</td>
-                        <td class="text-muted">2026-03-20</td>
-                        <td class="text-muted">2026-09-30</td>
-                        <td><span class="badge bg-primary">Review</span></td>
+                        <td class="text-muted">2026-03-20 → 2026-09-30</td>
+                        <td><span class="badge bg-primary">In Review</span></td>
+                        <td class="text-muted">TK-1002 (placeholder)</td>
                         <td class="text-end">
                             <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceContractModal">
-                                <i class="bi bi-eye me-1"></i> View
+                                <i class="bi bi-eye me-1"></i> View Coverage
                             </button>
-                            <button class="btn btn-sm btn-outline-warning ms-1"><i class="bi bi-pencil me-1"></i> Edit</button>
-                            <button class="btn btn-sm btn-outline-danger ms-1"><i class="bi bi-trash me-1"></i> Delete</button>
                         </td>
                     </tr>
                 </tbody>
@@ -222,6 +203,4 @@
         </div>
     </div>
 @endsection
-
-
 

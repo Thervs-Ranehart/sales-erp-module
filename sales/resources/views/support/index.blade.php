@@ -27,8 +27,7 @@
             <div class="card h-100 p-3">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <div class="text-muted small fw-semibold">Pending Claims</div>
-                        <div class="display-6 fw-bold">16</div>
+
                     </div>
                     <div class="rounded-3" style="background:rgba(245,158,11,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
                         <i class="bi bi-shield-check" style="color:#F59E0B; font-size:20px;"></i>
@@ -53,35 +52,7 @@
             </div>
         </div>
 
-        <div class="col-md-4 col-lg-3">
-            <div class="card h-100 p-3">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-muted small fw-semibold">Active Service Contracts</div>
-                        <div class="display-6 fw-bold">76</div>
-                    </div>
-                    <div class="rounded-3" style="background:rgba(83,71,206,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
-                        <i class="bi bi-file-earmark" style="color:#5347CE; font-size:20px;"></i>
-                    </div>
-                </div>
-                <div class="mt-2"><span class="badge bg-primary">Renewal ready</span></div>
-            </div>
-        </div>
 
-        <div class="col-md-4 col-lg-3">
-            <div class="card h-100 p-3">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-muted small fw-semibold">Pending Requests</div>
-                        <div class="display-6 fw-bold">27</div>
-                    </div>
-                    <div class="rounded-3" style="background:rgba(22,200,199,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
-                        <i class="bi bi-tools" style="color:#16C8C7; font-size:20px;"></i>
-                    </div>
-                </div>
-                <div class="mt-2"><span class="badge bg-success">In queue</span></div>
-            </div>
-        </div>
 
         <div class="col-md-4 col-lg-3">
             <div class="card h-100 p-3">
@@ -139,19 +110,9 @@
                         <div class="text-muted small">Create new items and route them into the correct workflow.</div>
                     </div>
                     <div class="d-flex flex-wrap gap-2">
-                        <a class="btn btn-primary btn-sm" href="{{ route('support.tickets') }}">
-                            <i class="bi bi-plus-circle me-1"></i> New Ticket
-                        </a>
-                        <a class="btn btn-warning btn-sm" href="{{ route('support.warranty-records') }}">
-                            <i class="bi bi-shield-check me-1"></i> Register Warranty
-                        </a>
-                        <a class="btn btn-outline-warning btn-sm" href="{{ route('support.warranty-claims') }}">
-                            <i class="bi bi-file-earmark-text me-1"></i> Create Claim
-                        </a>
-                        <a class="btn btn-success btn-sm" href="{{ route('support.service-requests') }}">
-                            <i class="bi bi-tools me-1"></i> Create Service Request
-                        </a>
                     </div>
+
+
                 </div>
             </div>
         </div>
@@ -205,12 +166,7 @@
 
         <div class="col-lg-6">
             <div class="card p-4 h-100">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <h5 class="fw-bold mb-0">Recent Warranty Claims</h5>
-                    <a class="text-decoration-none" style="color:#5347CE;font-weight:700;" href="{{ route('support.warranty-claims') }}">
-                        View all <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
+
 
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
@@ -249,12 +205,7 @@
 
         <div class="col-lg-6">
             <div class="card p-4 h-100">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <h5 class="fw-bold mb-0">Recent Service Requests</h5>
-                    <a class="text-decoration-none" style="color:#5347CE;font-weight:700;" href="{{ route('support.service-requests') }}">
-                        View all <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
+
 
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
