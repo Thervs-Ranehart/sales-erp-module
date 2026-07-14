@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    @php($title = 'Target vs. Actual Performance')
+    @php($title = 'Target vs. Actual Performance Performance    ')
     @php($subtitle = 'Compare targets, track variances, and spot opportunities')
 
     @php($tabs = [
@@ -23,7 +23,7 @@
     <main class="w-full flex items-center" style="margin: -1rem -1rem 0; width: calc(100% + 2rem); padding: 32px 48px; height: 258px; max-height: 258px; background: linear-gradient(90deg, #128B99 0%, #1CE5BD 100%); border-radius: 0;">
         <div class="d-flex flex-column h-100 w-100">
             <div>
-                <h1 class="text-white font-semibold text-[45px] leading-tight">Target vs. Actual</h1>
+                <h1 class="text-white font-semibold text-[45px] leading-tight">Target vs. Actual Performance</h1>
             </div>
             <div class="flex-grow-1 d-flex align-items-center">
                 <p class="text-white" style="width: 100%; margin: 0; font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 600; line-height: 1.6; opacity: 0.95;">

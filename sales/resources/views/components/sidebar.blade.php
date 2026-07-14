@@ -57,7 +57,7 @@ $mainItems = [
         'hasDropdown' => true,
         'children' => [
             ['label' => 'Sales Reports', 'route' => 'forecasting.reports', 'icon' => 'bar-chart-line'],
-            ['label' => 'Target vs. Actual Performance', 'route' => 'forecasting.performance', 'icon' => 'clipboard-data'],
+            ['label' => 'Target vs. Actual', 'route' => 'forecasting.performance', 'icon' => 'clipboard-data'],
             ['label' => 'Forecasting', 'route' => 'forecasting.forecast', 'icon' => 'graph-up'],
             ['label' => 'Recommendations', 'route' => 'forecasting.recommendations', 'icon' => 'lightbulb'],
         ],
