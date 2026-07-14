@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Customer extends Model
 {
-<<<<<<< HEAD
     protected $table = 'customers';
 
     protected $primaryKey = 'customer_id';
@@ -16,10 +15,6 @@ class Customer extends Model
 
     protected $keyType = 'int';
 
-=======
-    protected $primaryKey = 'customer_id';
-
->>>>>>> 99478f68ab3bb967d67ce05bf50f595c48e8f13b
     protected $fillable = [
         'first_name',
         'last_name',
@@ -29,7 +24,6 @@ class Customer extends Model
         'preferences',
     ];
 
-<<<<<<< HEAD
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -60,29 +54,29 @@ class Customer extends Model
         return $this->hasMany(CustomerBehaviorAnalysis::class, 'customer_id', 'customer_id');
     }
 
-    public function salesOrders()
-=======
     public function salesOrders(): HasMany
->>>>>>> 99478f68ab3bb967d67ce05bf50f595c48e8f13b
     {
         return $this->hasMany(SalesOrder::class, 'customer_id', 'customer_id');
     }
 
-<<<<<<< HEAD
+    /**
+     * Used by quotations and sales orders.
+     */
+    public function getFullNameAttribute(): string
+    {
+        return trim("{$this->first_name} {$this->last_name}");
+    }
+
+    /**
+     * Optional alias so existing CRM code using display_name still works.
+     */
     public function getDisplayNameAttribute(): string
     {
-        return trim($this->first_name . ' ' . $this->last_name);
+        return $this->full_name;
     }
 
     public function getRouteKeyName(): string
     {
         return 'customer_id';
     }
-=======
-    public function getFullNameAttribute(): string
-{
-    return trim("{$this->first_name} {$this->last_name}");
 }
->>>>>>> 99478f68ab3bb967d67ce05bf50f595c48e8f13b
-}
-

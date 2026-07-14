@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SalesOrder extends Model
 {
-<<<<<<< HEAD
     protected $table = 'sales_orders';
 
     protected $primaryKey = 'order_id';
@@ -17,10 +16,6 @@ class SalesOrder extends Model
 
     public $incrementing = true;
 
-=======
-    protected $primaryKey = 'order_id';
-
->>>>>>> 99478f68ab3bb967d67ce05bf50f595c48e8f13b
     protected $fillable = [
         'order_number',
         'quotation_id',
@@ -48,9 +43,6 @@ class SalesOrder extends Model
         'total_amount' => 'decimal:2',
     ];
 
-<<<<<<< HEAD
-    public function customer()
-=======
     protected static function booted(): void
     {
         static::deleting(function (SalesOrder $order): void {
@@ -64,14 +56,10 @@ class SalesOrder extends Model
     }
 
     public function customer(): BelongsTo
->>>>>>> 99478f68ab3bb967d67ce05bf50f595c48e8f13b
     {
         return $this->belongsTo(Customer::class, 'customer_id', 'customer_id');
     }
 
-<<<<<<< HEAD
-    public function items()
-=======
     public function employee(): BelongsTo
     {
         return $this->belongsTo(Employee::class, 'employee_id', 'employee_id');
@@ -83,16 +71,15 @@ class SalesOrder extends Model
     }
 
     public function items(): HasMany
->>>>>>> 99478f68ab3bb967d67ce05bf50f595c48e8f13b
     {
         return $this->hasMany(SalesOrderItem::class, 'order_id', 'order_id');
     }
 
-<<<<<<< HEAD
-    public function invoices()
+    public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class, 'order_id', 'order_id');
-=======
+    }
+
     public function statusCssClass(): string
     {
         return match (strtolower((string) $this->order_status)) {
@@ -128,7 +115,5 @@ class SalesOrder extends Model
         }
 
         return round(((float) $this->tax / $taxable) * 100, 1);
->>>>>>> 99478f68ab3bb967d67ce05bf50f595c48e8f13b
     }
 }
-
