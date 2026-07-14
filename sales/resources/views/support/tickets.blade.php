@@ -38,40 +38,44 @@
                         <span class="input-group-text" style="background: rgba(83,71,206,.08); border-color: rgba(83,71,206,.2);">
                             <i class="bi bi-search"></i>
                         </span>
-                        <input type="text" class="form-control" placeholder="Ticket number, customer, product..." aria-label="Search tickets" />
+                        <input type="text" name="search" class="form-control" placeholder="Ticket number, customer, product..." aria-label="Search tickets" value="{{ $search ?? '' }}" />
                     </div>
+
                 </div>
 
                 <div class="col-6 col-lg-2">
                     <label class="form-label small text-muted">Status</label>
-                    <select class="form-select form-select-sm" aria-label="Status filter">
-                        <option selected>Status: All</option>
-                        <option>Pending</option>
-                        <option>In Progress</option>
-                        <option>Resolved</option>
-                        <option>Escalated</option>
+                    <select class="form-select form-select-sm" aria-label="Status filter" name="status">
+                        <option value="all" {{ ($status ?? '') === '' || ($status ?? '') === 'all' ? 'selected' : '' }}>Status: All</option>
+                        <option value="Pending" {{ ($status ?? '') === 'Pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="In Progress" {{ ($status ?? '') === 'In Progress' ? 'selected' : '' }}>In Progress</option>
+                        <option value="Resolved" {{ ($status ?? '') === 'Resolved' ? 'selected' : '' }}>Resolved</option>
+                        <option value="Escalated" {{ ($status ?? '') === 'Escalated' ? 'selected' : '' }}>Escalated</option>
                     </select>
+
                 </div>
 
                 <div class="col-6 col-lg-2">
                     <label class="form-label small text-muted">Priority</label>
-                    <select class="form-select form-select-sm" aria-label="Priority filter">
-                        <option selected>Priority: All</option>
-                        <option>High</option>
-                        <option>Medium</option>
-                        <option>Low</option>
+                    <select class="form-select form-select-sm" aria-label="Priority filter" name="priority">
+                        <option value="all" {{ ($priority ?? '') === '' || ($priority ?? '') === 'all' ? 'selected' : '' }}>Priority: All</option>
+                        <option value="High" {{ ($priority ?? '') === 'High' ? 'selected' : '' }}>High</option>
+                        <option value="Medium" {{ ($priority ?? '') === 'Medium' ? 'selected' : '' }}>Medium</option>
+                        <option value="Low" {{ ($priority ?? '') === 'Low' ? 'selected' : '' }}>Low</option>
                     </select>
+
                 </div>
 
                 <div class="col-12 col-lg-2">
                     <label class="form-label small text-muted">Customer</label>
-                    <select class="form-select form-select-sm" aria-label="Customer filter">
+                    <select class="form-select form-select-sm" aria-label="Customer filter" disabled>
                         <option selected>All Customers</option>
                         <option>ABC Corporation</option>
                         <option>XYZ Trading</option>
                         <option>Northwind Retail</option>
                         <option>Greenfield Industries</option>
                     </select>
+
                 </div>
 
                 <div class="col-6 col-lg-1">
@@ -84,9 +88,10 @@
                 </div>
 
                 <div class="col-12 d-flex justify-content-end">
-                    <button class="btn btn-sm" style="background:#5347CE;color:#fff;border:1px solid rgba(255,255,255,.25);">
+                    <button class="btn btn-sm" type="submit" style="background:#5347CE;color:#fff;border:1px solid rgba(255,255,255,.25);">
                         <i class="bi bi-funnel me-1"></i> Apply Filters
                     </button>
+
                 </div>
             </div>
         </div>
@@ -109,113 +114,64 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td class="fw-semibold">TK-1002</td>
-                        <td>XYZ Trading</td>
-                        <td>SO-9012</td>
-                        <td>Widget A</td>
-                        <td>Product Repair • crack on casing</td>
-                        <td><span class="badge bg-danger">High</span></td>
-                        <td><span class="badge bg-primary">In Progress</span></td>
-                        <td>Support Team Lead A</td>
-                        <td class="text-muted">2026-07-13</td>
-                        <td class="text-end" style="min-width: 260px; white-space: nowrap;">
-                            <div class="d-flex align-items-center justify-content-end flex-nowrap gap-2">
-                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ticketDetailsModal">
-                                    <i class="bi bi-eye me-1"></i><span class="text-nowrap"> View</span>
-                                </button>
+                    @forelse($tickets as $ticket)
+                        <tr>
+                            <td class="fw-semibold">{{ 'TK-' . $ticket->ticket_id }}</td>
+                            <td>{{ $ticket->customer->customer_name ?? '—' }}</td>
+                            <td>{{ $ticket->order->order_number ?? 'SO-' . $ticket->order_id }}</td>
+                            <td>{{ $ticket->product->product_name ?? '—' }}</td>
+                            <td>{{ $ticket->subject ?? '—' }}</td>
+                            <td>
+                                @php($priorityBadge = $ticket->priority)
+                                @if(strtolower((string)$priorityBadge) === 'high')
+                                    <span class="badge bg-danger">{{ $ticket->priority }}</span>
+                                @elseif(strtolower((string)$priorityBadge) === 'medium')
+                                    <span class="badge bg-warning text-dark">{{ $ticket->priority }}</span>
+                                @elseif(strtolower((string)$priorityBadge) === 'low')
+                                    <span class="badge bg-success">{{ $ticket->priority }}</span>
+                                @else
+                                    <span class="badge bg-secondary">{{ $ticket->priority ?? '—' }}</span>
+                                @endif
+                            </td>
+                            <td>
+                                @php($statusBadge = $ticket->status)
+                                @if(strtolower((string)$statusBadge) === 'pending')
+                                    <span class="badge bg-warning text-dark">{{ $ticket->status }}</span>
+                                @elseif(strtolower((string)$statusBadge) === 'in progress')
+                                    <span class="badge bg-primary">{{ $ticket->status }}</span>
+                                @elseif(strtolower((string)$statusBadge) === 'resolved')
+                                    <span class="badge bg-success">{{ $ticket->status }}</span>
+                                @elseif(strtolower((string)$statusBadge) === 'escalated')
+                                    <span class="badge bg-danger">{{ $ticket->status }}</span>
+                                @else
+                                    <span class="badge bg-secondary">{{ $ticket->status ?? '—' }}</span>
+                                @endif
+                            </td>
+                            <td>
+                                {{ $ticket->ticketAssignments->first()->employee->employee_name ?? '—' }}
+                            </td>
+                            <td class="text-muted">{{ optional($ticket->due_date)->format('Y-m-d') }}</td>
+                            <td class="text-end" style="min-width: 260px; white-space: nowrap;">
+                                <div class="d-flex align-items-center justify-content-end flex-nowrap gap-2">
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ticketDetailsModal">
+                                        <i class="bi bi-eye me-1"></i><span class="text-nowrap"> View</span>
+                                    </button>
 
-                                <button class="btn btn-sm btn-outline-warning" type="button">
-                                    <i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Change Status</span>
-                                </button>
+                                    <button class="btn btn-sm btn-outline-warning" type="button">
+                                        <i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Change Status</span>
+                                    </button>
 
-                                <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#ticketsAssignModal">
-                                    <i class="bi bi-diagram-3 me-1"></i><span class="text-nowrap"> Assign</span>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="fw-semibold">TK-1005</td>
-                        <td>Greenfield Industries</td>
-                        <td>SO-9055</td>
-                        <td>Industrial Pump X</td>
-                        <td>Warranty Inspection • leakage detected</td>
-                        <td><span class="badge bg-warning text-dark">Medium</span></td>
-                        <td><span class="badge bg-warning text-dark">Pending</span></td>
-                        <td>Warranty Desk</td>
-                        <td class="text-muted">2026-07-14</td>
-                        <td class="text-end" style="min-width: 260px; white-space: nowrap;">
-                            <div class="d-flex align-items-center justify-content-end flex-nowrap gap-2">
-                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ticketDetailsModal">
-                                    <i class="bi bi-eye me-1"></i><span class="text-nowrap"> View</span>
-                                </button>
-
-                                <button class="btn btn-sm btn-outline-warning" type="button">
-                                    <i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Change Status</span>
-                                </button>
-
-                                <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#ticketsAssignModal">
-                                    <i class="bi bi-diagram-3 me-1"></i><span class="text-nowrap"> Assign</span>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="fw-semibold">TK-1012</td>
-                        <td>ABC Corporation</td>
-                        <td>SO-9098</td>
-                        <td>Appliance Z</td>
-                        <td>Replacement Request • battery failure</td>
-                        <td><span class="badge bg-success">Low</span></td>
-                        <td><span class="badge bg-success">Resolved</span></td>
-                        <td>Resolutions</td>
-                        <td class="text-muted">2026-07-10</td>
-                        <td class="text-end" style="min-width: 260px; white-space: nowrap;">
-                            <div class="d-flex align-items-center justify-content-end flex-nowrap gap-2">
-                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ticketDetailsModal">
-                                    <i class="bi bi-eye me-1"></i><span class="text-nowrap"> View</span>
-                                </button>
-
-                                <button class="btn btn-sm btn-outline-warning" type="button">
-                                    <i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Change Status</span>
-                                </button>
-
-                                <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#ticketsAssignModal">
-                                    <i class="bi bi-diagram-3 me-1"></i><span class="text-nowrap"> Assign</span>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="fw-semibold">TK-1020</td>
-                        <td>Northwind Retail</td>
-                        <td>SO-9120</td>
-                        <td>Widget A</td>
-                        <td>Escalation • repeat failure after repair</td>
-                        <td><span class="badge bg-danger">High</span></td>
-                        <td><span class="badge bg-danger">Escalated</span></td>
-                        <td>Support Team Lead B</td>
-                        <td class="text-muted">2026-07-13</td>
-                        <td class="text-end" style="min-width: 260px; white-space: nowrap;">
-                            <div class="d-flex align-items-center justify-content-end flex-nowrap gap-2">
-                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ticketDetailsModal">
-                                    <i class="bi bi-eye me-1"></i><span class="text-nowrap"> View</span>
-                                </button>
-
-                                <button class="btn btn-sm btn-outline-warning" type="button">
-                                    <i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Change Status</span>
-                                </button>
-
-                                <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#ticketsAssignModal">
-                                    <i class="bi bi-diagram-3 me-1"></i><span class="text-nowrap"> Assign</span>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
+                                    <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#ticketsAssignModal">
+                                        <i class="bi bi-diagram-3 me-1"></i><span class="text-nowrap"> Assign</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="10" class="text-center text-muted py-4">No tickets found.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -223,15 +179,10 @@
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mt-4">
             <div class="text-muted small">Showing results.</div>
 
-            <nav aria-label="Tickets pagination">
-                <ul class="pagination pagination-sm mb-0">
-                    <li class="page-item disabled"><span class="page-link">Previous</span></li>
-                    <li class="page-item active"><span class="page-link">1</span></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                </ul>
-            </nav>
+                <nav aria-label="Tickets pagination">
+                    {{ $tickets->links() }}
+                </nav>
+
         </div>
     </div>
 

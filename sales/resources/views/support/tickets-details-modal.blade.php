@@ -1,11 +1,13 @@
-<!-- Ticket details modal (UI-only, placeholder data) -->
+<!-- Ticket details modal (UI-only but prefilled from selected ticket on page load) -->
 <div class="modal fade" id="ticketDetailsModal" tabindex="-1" aria-labelledby="ticketDetailsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content" style="border-radius: 16px;">
             <div class="modal-header" style="background: rgba(83,71,206,.08); border-bottom: 1px solid rgba(0,0,0,.06);">
                 <div>
                     <h5 class="modal-title fw-bold" id="ticketDetailsModalLabel">Ticket Details</h5>
-                    <div class="text-muted small" id="ticketDetailsSubtitle">TK-1020 • Northwind Retail</div>
+                    <div class="text-muted small" id="ticketDetailsSubtitle">
+                        {{ isset($ticket) ? ('TK-' . $ticket->ticket_id . ' • ' . ($ticket->customer->customer_name ?? '—')) : '—' }}
+                    </div>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -17,12 +19,18 @@
                             <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
                                 <div>
                                     <div class="text-muted small">Subject</div>
-                                    <div class="fw-bold" id="ticketDetailsSubject">Escalation: Repeat Failure</div>
+                                    <div class="fw-bold" id="ticketDetailsSubject">
+                                        {{ $ticket->subject ?? '—' }}
+                                    </div>
                                 </div>
-                                <span class="badge bg-danger" id="ticketDetailsStatus">Escalated</span>
+                                <span class="badge bg-danger" id="ticketDetailsStatus">
+                                    {{ $ticket->status ?? '—' }}
+                                </span>
                             </div>
 
-                            <div class="text-muted small mb-3">Issue category, customer impact, and timeline summary (placeholder).</div>
+                            <div class="text-muted small mb-3">
+                                {{ $ticket->description ?? '—' }}
+                            </div>
 
                             <div class="mb-3">
                                 <div class="text-muted small mb-2">Progress</div>
@@ -34,15 +42,15 @@
                             <div class="row g-3">
                                 <div class="col-sm-6">
                                     <div class="text-muted small">Assigned Employee</div>
-                                    <div class="fw-semibold">Support Team Lead A</div>
+                                <div class="fw-semibold">{{ isset($ticket) ? (optional($ticket->ticketAssignments->first())->employee->employee_name ?? '—') : '—' }}</div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="text-muted small">Due Date</div>
-                                    <div class="fw-semibold">2026-07-13 15:00</div>
+                                    <div class="fw-semibold">{{ isset($ticket) ? (optional($ticket->due_date)->format('Y-m-d H:i') ?? '—') : '—' }}</div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="text-muted small">Priority</div>
-                                    <div class="fw-semibold">High</div>
+                                    <div class="fw-semibold">{{ $ticket->priority ?? '—' }}</div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="text-muted small">Priority Status</div>
@@ -101,4 +109,5 @@
         </div>
     </div>
 </div>
+
 

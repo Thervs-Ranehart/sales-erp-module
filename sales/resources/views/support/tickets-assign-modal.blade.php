@@ -19,7 +19,8 @@
                             <div class="row g-3">
                                 <div class="col-12">
                                     <label class="form-label small text-muted">Ticket Number</label>
-                                    <input type="text" class="form-control" value="TK-1002" readonly aria-label="Ticket number" />
+                                    <input type="text" class="form-control" value="{{ isset($ticket) ? ('TK-' . $ticket->ticket_id) : 'TK-—' }}" readonly aria-label="Ticket number" />
+
                                 </div>
 
                                 <div class="col-12 col-md-6">
@@ -35,12 +36,18 @@
                                 <div class="col-12 col-md-6">
                                     <label class="form-label small text-muted">Assigned Employee</label>
                                     <select class="form-select" aria-label="Assigned employee">
-                                        <option selected>Support Team Lead A</option>
-                                        <option>Support Engineer B</option>
-                                        <option>QC & Resolutions Team</option>
-                                        <option>Field Engineer A</option>
+                                        @php($employeesSafe = $employees ?? collect())
+                                        @foreach($employeesSafe as $employee)
+                                            <option value="{{ $employee->employee_id }}" {{ (isset($currentEmployeeId) && (int)$currentEmployeeId === (int)$employee->employee_id) ? 'selected' : '' }}>
+                                                {{ $employee->getFullNameAttribute() }}
+                                            </option>
+                                        @endforeach
+                                        @if($employeesSafe->isEmpty())
+                                            <option selected>—</option>
+                                        @endif
                                     </select>
                                 </div>
+
 
                                 <div class="col-12 col-md-6">
                                     <label class="form-label small text-muted">Priority</label>

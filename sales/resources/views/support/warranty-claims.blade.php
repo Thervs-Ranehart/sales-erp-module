@@ -14,7 +14,7 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-semibold">Pending</div>
-                        <div class="display-6 fw-bold">14</div>
+                        <div class="display-6 fw-bold">{{ $pendingClaims ?? 0 }}</div>
                     </div>
                     <div class="rounded-3" style="background:rgba(245,158,11,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
                         <i class="bi bi-hourglass-split" style="color:#F59E0B; font-size:20px;"></i>
@@ -28,7 +28,7 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-semibold">Approved</div>
-                        <div class="display-6 fw-bold">9</div>
+                        <div class="display-6 fw-bold">{{ $approvedClaims ?? 0 }}</div>
                     </div>
                     <div class="rounded-3" style="background:rgba(22,200,199,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
                         <i class="bi bi-check2-circle" style="color:#16C8C7; font-size:20px;"></i>
@@ -42,7 +42,7 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-semibold">Rejected</div>
-                        <div class="display-6 fw-bold">3</div>
+                        <div class="display-6 fw-bold">{{ $rejectedClaims ?? 0 }}</div>
                     </div>
                     <div class="rounded-3" style="background:rgba(239,68,68,.10); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
                         <i class="bi bi-x-circle" style="color:#EF4444; font-size:20px;"></i>
@@ -56,7 +56,7 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-semibold">Completed</div>
-                        <div class="display-6 fw-bold">22</div>
+                        <div class="display-6 fw-bold">{{ $completedClaims ?? 0 }}</div>
                     </div>
                     <div class="rounded-3" style="background:rgba(83,71,206,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
                         <i class="bi bi-clipboard-check" style="color:#5347CE; font-size:20px;"></i>
@@ -66,6 +66,7 @@
             </div>
         </div>
     </div>
+
 
     {{-- Filters + top actions --}}
     <div class="card p-3 mt-4" style="background: rgba(255,255,255,.7); border: 1px solid rgba(0,0,0,.06); box-shadow: none;">
@@ -118,7 +119,6 @@
         <div class="d-flex align-items-center justify-content-between mb-3">
             <h5 class="fw-bold mb-0">Claims</h5>
             <div class="text-muted small">Review and process claim statuses.</div>
-
         </div>
 
         <div class="table-responsive">
@@ -136,106 +136,57 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td class="fw-semibold">WC-3001</td>
-                        <td>WR-2001</td>
-                        <td>ABC Corporation</td>
-                        <td>Widget A</td>
-                        <td class="text-muted">2026-07-11</td>
-                        <td><span class="badge bg-warning text-dark">Pending</span></td>
-                        <td>Warranty Desk • Senior Agent</td>
-                        <td class="text-end" style="min-width: 260px; white-space: nowrap;">
-                            <div class="d-flex align-items-center justify-content-end flex-nowrap gap-2">
-                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyClaimModal">
-                                    <i class="bi bi-eye me-1"></i><span class="text-nowrap"> View</span>
-                                </button>
-                                <button class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Review</span></button>
-                                <button class="btn btn-sm btn-outline-success"><i class="bi bi-arrow-repeat me-1"></i><span class="text-nowrap"> Update Status</span></button>
-
-
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="fw-semibold">WC-3017</td>
-                        <td>WR-2007</td>
-                        <td>XYZ Trading</td>
-                        <td>Widget B</td>
-                        <td class="text-muted">2026-07-09</td>
-                        <td><span class="badge bg-primary">Approved</span></td>
-                        <td>Warranty Desk • Team Lead</td>
-                        <td class="text-end">
-                            <div class="d-flex align-items-center justify-content-end flex-nowrap gap-2">
-                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyClaimModal">
-                                    <i class="bi bi-eye me-1"></i> View
-                                </button>
-                                <button class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil me-1"></i> Review</button>
-                                <button class="btn btn-sm btn-outline-success"><i class="bi bi-arrow-repeat me-1"></i> Update Status</button>
-
-
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="fw-semibold">WC-3032</td>
-                        <td>WR-2013</td>
-                        <td>Northwind Retail</td>
-                        <td>Industrial Pump X</td>
-                        <td class="text-muted">2026-07-08</td>
-                        <td><span class="badge bg-danger">Rejected</span></td>
-                        <td>Claims QC • Specialist</td>
-                        <td class="text-end">
-                            <div class="d-flex align-items-center justify-content-end flex-nowrap gap-2">
-                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyClaimModal">
-                                    <i class="bi bi-eye me-1"></i> View
-                                </button>
-                                <button class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil me-1"></i> Review</button>
-                                <button class="btn btn-sm btn-outline-success"><i class="bi bi-arrow-repeat me-1"></i> Update Status</button>
-
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="fw-semibold">WC-3044</td>
-                        <td>WR-2001</td>
-                        <td>John Smith</td>
-                        <td>Widget A</td>
-                        <td class="text-muted">2026-07-10</td>
-                        <td><span class="badge bg-success">Completed</span></td>
-                        <td>Resolutions • Senior Agent</td>
-                        <td class="text-end" style="min-width: 260px; white-space: nowrap;">
-                            <div class="d-flex align-items-center justify-content-end flex-nowrap gap-2">
-                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyClaimModal">
-                                    <i class="bi bi-eye me-1"></i><span class="text-nowrap"> View</span>
-                                </button>
-                                <button class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Review</span></button>
-                                <button class="btn btn-sm btn-outline-success"><i class="bi bi-arrow-repeat me-1"></i><span class="text-nowrap"> Update Status</span></button>
-
-                            </div>
-                        </td>
-                    </tr>
+                    @forelse($warrantyClaims as $claim)
+                        <tr>
+                            <td class="fw-semibold">WC-{{ $claim->claim_id }}</td>
+                            <td>{{ $claim->warrantyRecord->warranty_number ?? ('WR-' . $claim->warranty_id) }}</td>
+                            <td>{{ $claim->warrantyRecord->order->customer->customer_name ?? '—' }}</td>
+                            <td>{{ $claim->warrantyRecord->product->product_name ?? '—' }}</td>
+                            <td class="text-muted">{{ $claim->claim_date ? $claim->claim_date->format('Y-m-d') : '—' }}</td>
+                            <td>
+                                @php($cs = strtolower((string)($claim->claim_status ?? '')))
+                                @if($cs === 'pending')
+                                    <span class="badge bg-warning text-dark">{{ $claim->claim_status }}</span>
+                                @elseif($cs === 'approved')
+                                    <span class="badge bg-primary">{{ $claim->claim_status }}</span>
+                                @elseif($cs === 'rejected')
+                                    <span class="badge bg-danger">{{ $claim->claim_status }}</span>
+                                @else
+                                    <span class="badge bg-secondary">{{ $claim->claim_status ?? '—' }}</span>
+                                @endif
+                            </td>
+                            <td>{{ $claim->supportTicket->ticketAssignments->first()->employee->employee_name ?? '—' }}</td>
+                            <td class="text-end" style="min-width: 260px; white-space: nowrap;">
+                                <div class="d-flex align-items-center justify-content-end flex-nowrap gap-2">
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyClaimModal">
+                                        <i class="bi bi-eye me-1"></i><span class="text-nowrap"> View</span>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil me-1"></i><span class="text-nowrap"> Review</span></button>
+                                    <button class="btn btn-sm btn-outline-success"><i class="bi bi-arrow-repeat me-1"></i><span class="text-nowrap"> Update Status</span></button>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">No warranty claims found.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
 
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mt-4">
             <div class="text-muted small">Showing results.</div>
-
             <nav aria-label="Claims pagination">
-                <ul class="pagination pagination-sm mb-0">
-                    <li class="page-item disabled"><span class="page-link">Previous</span></li>
-                    <li class="page-item active"><span class="page-link">1</span></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                </ul>
+                {{ $warrantyClaims->links() }}
             </nav>
         </div>
     </div>
 @endsection
+
+
+
+
 
 
 

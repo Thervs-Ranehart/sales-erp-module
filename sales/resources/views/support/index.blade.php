@@ -13,7 +13,8 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-semibold">Open Tickets</div>
-                        <div class="display-6 fw-bold">48</div>
+                        <div class="display-6 fw-bold">{{ $ticketCount ?? 0 }}</div>
+
                     </div>
                     <div class="rounded-3" style="background:rgba(83,71,206,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
                         <i class="bi bi-ticket-perforated" style="color:#5347CE; font-size:20px;"></i>
@@ -42,7 +43,8 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-semibold">Active Warranties</div>
-                        <div class="display-6 fw-bold">214</div>
+                        <div class="display-6 fw-bold">{{ $activeWarrantyCount ?? 0 }}</div>
+
                     </div>
                     <div class="rounded-3" style="background:rgba(22,200,199,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
                         <i class="bi bi-clipboard-check" style="color:#16C8C7; font-size:20px;"></i>
@@ -59,7 +61,8 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-semibold">Customer Satisfaction</div>
-                        <div class="display-6 fw-bold">94%</div>
+                        <div class="display-6 fw-bold">{{ $fiveStarPct ?? 0 }}%</div>
+
                     </div>
                     <div class="rounded-3" style="background:rgba(239,68,68,.10); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
                         <i class="bi bi-star" style="color:#EF4444; font-size:20px;"></i>
@@ -74,7 +77,8 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-semibold">Notifications</div>
-                        <div class="display-6 fw-bold">9</div>
+                        <div class="display-6 fw-bold">{{ $notificationsCount ?? 0 }}</div>
+
                     </div>
                     <div class="rounded-3" style="background:rgba(83,71,206,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
                         <i class="bi bi-bell" style="color:#5347CE; font-size:20px;"></i>
@@ -89,7 +93,8 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-semibold">Resolved Cases</div>
-                        <div class="display-6 fw-bold">132</div>
+                        <div class="display-6 fw-bold">{{ $resolvedCaseCount ?? 0 }}</div>
+
                     </div>
                     <div class="rounded-3" style="background:rgba(245,158,11,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
                         <i class="bi bi-check2-circle" style="color:#F59E0B; font-size:20px;"></i>
@@ -140,24 +145,31 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td class="fw-semibold">TK-1020</td>
-                                <td>Northwind Retail</td>
-                                <td>Escalation: repeat failure</td>
-                                <td><span class="badge bg-danger">Escalated</span></td>
-                            </tr>
-                            <tr>
-                                <td class="fw-semibold">TK-1012</td>
-                                <td>ABC Corporation</td>
-                                <td>Replacement request</td>
-                                <td><span class="badge bg-success">Resolved</span></td>
-                            </tr>
-                            <tr>
-                                <td class="fw-semibold">TK-1005</td>
-                                <td>Greenfield Industries</td>
-                                <td>Warranty inspection</td>
-                                <td><span class="badge bg-warning text-dark">Pending</span></td>
-                            </tr>
+                            @forelse($recentTickets as $ticket)
+                                <tr>
+                                    <td class="fw-semibold">TK-{{ $ticket->ticket_id }}</td>
+                                    <td>{{ $ticket->customer->customer_name ?? '—' }}</td>
+                                    <td>{{ $ticket->subject ?? '—' }}</td>
+                                    <td>
+                                        @php($st = strtolower((string)($ticket->status ?? '')))
+                                        @if($st === 'pending')
+                                            <span class="badge bg-warning text-dark">{{ $ticket->status }}</span>
+                                        @elseif($st === 'in progress')
+                                            <span class="badge bg-primary">{{ $ticket->status }}</span>
+                                        @elseif($st === 'resolved')
+                                            <span class="badge bg-success">{{ $ticket->status }}</span>
+                                        @elseif($st === 'escalated')
+                                            <span class="badge bg-danger">{{ $ticket->status }}</span>
+                                        @else
+                                            <span class="badge bg-secondary">{{ $ticket->status ?? '—' }}</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-4">No recent tickets.</td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -179,24 +191,29 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td class="fw-semibold">WC-3044</td>
-                                <td>John Smith</td>
-                                <td>Battery failure</td>
-                                <td><span class="badge bg-success">Approved</span></td>
-                            </tr>
-                            <tr>
-                                <td class="fw-semibold">WC-3017</td>
-                                <td>XYZ Trading</td>
-                                <td>Wear & tear (Tier-2)</td>
-                                <td><span class="badge bg-primary">In Verification</span></td>
-                            </tr>
-                            <tr>
-                                <td class="fw-semibold">WC-3001</td>
-                                <td>ABC Corporation</td>
-                                <td>Manufacturing defect</td>
-                                <td><span class="badge bg-warning text-dark">Pending</span></td>
-                            </tr>
+                            @forelse($recentWarrantyRecords as $warranty)
+                                <tr>
+                                    <td class="fw-semibold">{{ $warranty->warranty_number ?? ('WR-' . $warranty->warranty_id) }}</td>
+                                    <td>{{ $warranty->order->customer->customer_name ?? '—' }}</td>
+                                    <td>{{ $warranty->warranty_status ?? '—' }}</td>
+                                    <td>
+                                        @php($ws = strtolower((string)($warranty->warranty_status ?? '')))
+                                        @if($ws === 'active')
+                                            <span class="badge bg-success">{{ $warranty->warranty_status }}</span>
+                                        @elseif($ws === 'expiring soon')
+                                            <span class="badge bg-warning text-dark">{{ $warranty->warranty_status }}</span>
+                                        @elseif($ws === 'expired')
+                                            <span class="badge bg-danger">{{ $warranty->warranty_status }}</span>
+                                        @else
+                                            <span class="badge bg-secondary">{{ $warranty->warranty_status ?? '—' }}</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-4">No recent warranty records.</td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -218,24 +235,29 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td class="fw-semibold">SR-5056</td>
-                                <td>TK-1020</td>
-                                <td>Escalated field service</td>
-                                <td><span class="badge bg-secondary">Cancelled</span></td>
-                            </tr>
-                            <tr>
-                                <td class="fw-semibold">SR-5040</td>
-                                <td>TK-1005</td>
-                                <td>Parts replacement</td>
-                                <td><span class="badge bg-warning text-dark">Parts Pending</span></td>
-                            </tr>
-                            <tr>
-                                <td class="fw-semibold">SR-5001</td>
-                                <td>TK-1002</td>
-                                <td>On-site repair</td>
-                                <td><span class="badge bg-primary">In Queue</span></td>
-                            </tr>
+                            @forelse($recentServiceRequests as $contract)
+                                <tr>
+                                    <td class="fw-semibold">{{ $contract->contract_number ?? ('SC-' . $contract->contract_id) }}</td>
+                                    <td>{{ $contract->customer->customer_name ?? '—' }}</td>
+                                    <td>{{ $contract->service_type ?? '—' }}</td>
+                                    <td>
+                                        @php($cs = strtolower((string)($contract->contract_status ?? '')))
+                                        @if($cs === 'active')
+                                            <span class="badge bg-success">{{ $contract->contract_status }}</span>
+                                        @elseif($cs === 'expiring')
+                                            <span class="badge bg-warning text-dark">{{ $contract->contract_status }}</span>
+                                        @elseif($cs === 'expired')
+                                            <span class="badge bg-danger">{{ $contract->contract_status }}</span>
+                                        @else
+                                            <span class="badge bg-secondary">{{ $contract->contract_status ?? '—' }}</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-4">No recent service contracts.</td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -255,19 +277,22 @@
                     <div class="col-sm-4">
                         <div class="p-3 rounded-3" style="background: rgba(22,200,199,.10);">
                             <div class="text-muted small">Avg Rating</div>
-                            <div class="fw-bold fs-5">4.6</div>
+                        <div class="fw-bold fs-5">{{ $satisfactionAvg ?? 0 }}</div>
+
                         </div>
                     </div>
                     <div class="col-sm-4">
                         <div class="p-3 rounded-3" style="background: rgba(83,71,206,.08);">
                             <div class="text-muted small">Promoters</div>
-                            <div class="fw-bold fs-5">78%</div>
+                        <div class="fw-bold fs-5">{{ $fiveStarPct ?? 0 }}%</div>
+
                         </div>
                     </div>
                     <div class="col-sm-4">
                         <div class="p-3 rounded-3" style="background: rgba(245,158,11,.10);">
                             <div class="text-muted small">Neutrals</div>
-                            <div class="fw-bold fs-5">14%</div>
+                        <div class="fw-bold fs-5">{{ max(0, 100 - (int)($fiveStarPct ?? 0) - (int)($minRatingPct ?? 0)) }}%</div>
+
                         </div>
                     </div>
                 </div>
@@ -287,13 +312,16 @@
 
                 <div class="list-group">
                     <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="{{ route('support.customer-satisfaction') }}">
-                        Very satisfied <span class="badge bg-success">56</span>
+                        <span class="badge bg-success">{{ (int)($fiveStarPct ?? 0) }}</span>
+
                     </a>
                     <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="{{ route('support.customer-satisfaction') }}">
-                        Neutral <span class="badge bg-warning text-dark">13</span>
+                        <span class="badge bg-warning text-dark">{{ (int)($totalSatisfaction ?? 0) }}</span>
+
                     </a>
                     <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="{{ route('support.customer-satisfaction') }}">
-                        Detractors <span class="badge bg-danger">7</span>
+                        <span class="badge bg-danger">{{ (int)($minRatingPct ?? 0) }}</span>
+
                     </a>
                 </div>
             </div>

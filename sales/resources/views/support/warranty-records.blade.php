@@ -27,42 +27,47 @@
         </div>
 
         {{-- Filters --}}
+        <form method="GET">
         <div class="card p-3 mb-4" style="background: rgba(255,255,255,.7); border: 1px solid rgba(0,0,0,.06); box-shadow: none;">
             <div class="row g-3">
+
                 <div class="col-12 col-lg-4">
                     <label class="form-label small text-muted">Search</label>
                     <div class="input-group input-group-sm">
                         <span class="input-group-text" style="background: rgba(83,71,206,.08); border-color: rgba(83,71,206,.2);">
                             <i class="bi bi-search"></i>
                         </span>
-                        <input type="text" class="form-control" placeholder="Warranty number, customer, product..." aria-label="Search warranties" />
+                        <input type="text" name="search" class="form-control" placeholder="Warranty number, customer, product..." aria-label="Search warranties" value="{{ $search ?? '' }}" />
                     </div>
+
                 </div>
 
                 <div class="col-6 col-lg-2">
                     <label class="form-label small text-muted">Status</label>
-                    <select class="form-select form-select-sm" aria-label="Status filter">
-                        <option selected>Status: All</option>
-                        <option>Status: Active</option>
-                        <option>Status: Expiring Soon</option>
-                        <option>Status: Expired</option>
-                        <option>Status: On Hold</option>
+                    <select class="form-select form-select-sm" aria-label="Status filter" name="status">
+                        <option value="all" {{ ($status ?? '') === '' || ($status ?? '') === 'all' ? 'selected' : '' }}>Status: All</option>
+                        <option value="Active" {{ ($status ?? '') === 'Active' ? 'selected' : '' }}>Status: Active</option>
+                        <option value="Expiring Soon" {{ ($status ?? '') === 'Expiring Soon' ? 'selected' : '' }}>Status: Expiring Soon</option>
+                        <option value="Expired" {{ ($status ?? '') === 'Expired' ? 'selected' : '' }}>Status: Expired</option>
+                        <option value="On Hold" {{ ($status ?? '') === 'On Hold' ? 'selected' : '' }}>Status: On Hold</option>
                     </select>
+
                 </div>
 
                 <div class="col-6 col-lg-2">
                     <label class="form-label small text-muted">Product</label>
-                    <select class="form-select form-select-sm" aria-label="Product filter">
-                        <option selected>Product: All</option>
-                        <option>Widget A</option>
-                        <option>Widget B</option>
-                        <option>Industrial Pump X</option>
-                        <option>Appliance Z</option>
+                    <select class="form-select form-select-sm" aria-label="Product filter" name="product">
+                        <option value="all" {{ ($product ?? '') === '' || ($product ?? '') === 'all' ? 'selected' : '' }}>Product: All</option>
+                        <option value="Widget A" {{ ($product ?? '') === 'Widget A' ? 'selected' : '' }}>Widget A</option>
+                        <option value="Widget B" {{ ($product ?? '') === 'Widget B' ? 'selected' : '' }}>Widget B</option>
+                        <option value="Industrial Pump X" {{ ($product ?? '') === 'Industrial Pump X' ? 'selected' : '' }}>Industrial Pump X</option>
+                        <option value="Appliance Z" {{ ($product ?? '') === 'Appliance Z' ? 'selected' : '' }}>Appliance Z</option>
                     </select>
+
                 </div>
 
                 <div class="col-12 col-lg-4 d-flex align-items-end">
-                    <button class="btn btn-sm" style="background:#5347CE;color:#fff;border:1px solid rgba(255,255,255,.25);">
+                    <button class="btn btn-sm" type="submit" style="background:#5347CE;color:#fff;border:1px solid rgba(255,255,255,.25);">
                         <i class="bi bi-funnel me-1"></i> Apply Filters
                     </button>
                 </div>
@@ -70,6 +75,7 @@
         </div>
 
         {{-- Table --}}
+
         <div class="table-responsive">
 
             <table class="table table-hover align-middle mb-0">
@@ -86,72 +92,38 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td class="fw-semibold">WR-2001</td>
-                        <td>ABC Corporation</td>
-                        <td>Widget A</td>
-                        <td>SO-9001</td>
-                        <td class="text-muted">2025-06-10</td>
-                        <td class="text-muted">2026-12-12</td>
-                        <td><span class="badge bg-success">Active</span></td>
+                    @forelse($warrantyRecords as $warranty)
+                        <tr>
+                            <td class="fw-semibold">{{ $warranty->warranty_number ?? ('WR-' . $warranty->warranty_id) }}</td>
+                            <td>{{ $warranty->order->customer->customer_name ?? '—' }}</td>
+                            <td>{{ $warranty->product->product_name ?? '—' }}</td>
+                            <td>{{ $warranty->order->order_number ?? ('SO-' . $warranty->order_id) }}</td>
+                            <td class="text-muted">{{ $warranty->warranty_start ? $warranty->warranty_start->format('Y-m-d') : '—' }}</td>
+                            <td class="text-muted">{{ $warranty->warranty_end ? $warranty->warranty_end->format('Y-m-d') : '—' }}</td>
+                            <td>
+                                @php($ws = strtolower((string)($warranty->warranty_status ?? '')))
+                                @if($ws === 'active')
+                                    <span class="badge bg-success">{{ $warranty->warranty_status }}</span>
+                                @elseif($ws === 'expiring soon')
+                                    <span class="badge bg-warning text-dark">{{ $warranty->warranty_status }}</span>
+                                @elseif($ws === 'expired')
+                                    <span class="badge bg-danger">{{ $warranty->warranty_status }}</span>
+                                @else
+                                    <span class="badge bg-secondary">{{ $warranty->warranty_status ?? '—' }}</span>
+                                @endif
+                            </td>
 
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyViewModal">
-                                <i class="bi bi-eye me-1"></i> View
-                            </button>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="fw-semibold">WR-2007</td>
-                        <td>XYZ Trading</td>
-                        <td>Widget B</td>
-                        <td>SO-9034</td>
-                        <td class="text-muted">2025-07-01</td>
-                        <td class="text-muted">2026-08-15</td>
-                        <td><span class="badge bg-warning text-dark">Expiring Soon</span></td>
-
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyViewModal">
-                                <i class="bi bi-eye me-1"></i> View
-                            </button>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="fw-semibold">WR-2013</td>
-                        <td>Northwind Retail</td>
-                        <td>Industrial Pump X</td>
-                        <td>SO-9098</td>
-                        <td class="text-muted">2024-04-18</td>
-                        <td class="text-muted">2025-06-18</td>
-                        <td><span class="badge bg-danger">Expired</span></td>
-
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#warrantyViewModal">
-                                <i class="bi bi-eye me-1"></i> View
-                            </button>
-
-
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="fw-semibold">WR-2020</td>
-                        <td>Greenfield Industries</td>
-                        <td>Appliance Z</td>
-                        <td>SO-9120</td>
-                        <td class="text-muted">2025-09-22</td>
-                        <td class="text-muted">2026-12-15</td>
-                        <td><span class="badge bg-danger">Expired</span></td>
-
-
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#warrantyViewModal">
-                                <i class="bi bi-eye me-1"></i> View
-                            </button>
-                        </td>
-                    </tr>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyViewModal">
+                                    <i class="bi bi-eye me-1"></i> View
+                                </button>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">No warranty records found.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -160,17 +132,14 @@
             <div class="text-muted small">Showing results.</div>
 
             <nav aria-label="Warranty pagination">
-                <ul class="pagination pagination-sm mb-0">
-                    <li class="page-item disabled"><span class="page-link">Previous</span></li>
-                    <li class="page-item active"><span class="page-link">1</span></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                </ul>
+                {{ $warrantyRecords->links() }}
             </nav>
         </div>
     </div>
+
+    </form>
 @endsection
+
 
 
 

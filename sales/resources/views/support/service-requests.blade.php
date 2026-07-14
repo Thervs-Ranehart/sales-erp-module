@@ -15,7 +15,7 @@ cd s@extends('layouts.app')
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-semibold">Pending</div>
-                        <div class="display-6 fw-bold">12</div>
+                        <div class="display-6 fw-bold">{{ $pendingServiceRequestsCount ?? 0 }}</div>
                     </div>
                     <div class="rounded-3" style="background:rgba(245,158,11,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
                         <i class="bi bi-hourglass-split" style="color:#F59E0B; font-size:20px;"></i>
@@ -29,7 +29,7 @@ cd s@extends('layouts.app')
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-semibold">Scheduled</div>
-                        <div class="display-6 fw-bold">18</div>
+                        <div class="display-6 fw-bold">{{ $scheduledServiceRequestsCount ?? 0 }}</div>
                     </div>
                     <div class="rounded-3" style="background:rgba(83,71,206,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
                         <i class="bi bi-calendar3" style="color:#5347CE; font-size:20px;"></i>
@@ -43,7 +43,7 @@ cd s@extends('layouts.app')
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-semibold">In Progress</div>
-                        <div class="display-6 fw-bold">9</div>
+                        <div class="display-6 fw-bold">{{ $inProgressServiceRequestsCount ?? 0 }}</div>
                     </div>
                     <div class="rounded-3" style="background:rgba(22,200,199,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
                         <i class="bi bi-tools" style="color:#16C8C7; font-size:20px;"></i>
@@ -57,7 +57,7 @@ cd s@extends('layouts.app')
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-semibold">Completed</div>
-                        <div class="display-6 fw-bold">21</div>
+                        <div class="display-6 fw-bold">{{ $completedServiceRequestsCount ?? 0 }}</div>
                     </div>
                     <div class="rounded-3" style="background:rgba(239,68,68,.10); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
                         <i class="bi bi-check2-all" style="color:#EF4444; font-size:20px;"></i>
@@ -120,7 +120,6 @@ cd s@extends('layouts.app')
         <div class="d-flex align-items-center justify-content-between mb-3">
             <h5 class="fw-bold mb-0">Service Requests</h5>
             <div class="text-muted small">Manage service requests and their schedules.</div>
-
         </div>
 
         <div class="table-responsive">
@@ -137,82 +136,52 @@ cd s@extends('layouts.app')
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td class="fw-semibold">SR-5001</td>
-                        <td><a class="text-decoration-none" style="color:#5347CE; font-weight:700;" href="{{ route('support.tickets') }}">TK-1002</a></td>
-                        <td>XYZ Trading</td>
-                        <td>Field Engineer A</td>
-                        <td>
-                            <div class="small text-muted mb-1">2026-07-14</div>
-                            <div>09:00–12:00</div>
-                        </td>
-                        <td><span class="badge bg-primary">Pending</span></td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceRequestScheduleModal">
-                                <i class="bi bi-calendar3 me-1"></i> Schedule
-                            </button>
-                        </td>
-                            <button class="btn btn-sm btn-outline-primary ms-1"><i class="bi bi-eye me-1"></i> View</button>
-
-
-
-
-                    </tr>
-
-                    <tr>
-                        <td class="fw-semibold">SR-5023</td>
-                        <td><a class="text-decoration-none" style="color:#5347CE; font-weight:700;" href="{{ route('support.tickets') }}">TK-1012</a></td>
-                        <td>ABC Corporation</td>
-                        <td>Field Engineer B</td>
-                        <td>
-                            <div class="small text-muted mb-1">2026-07-15</div>
-                            <div>14:00–16:30</div>
-                        </td>
-                        <td><span class="badge bg-success">Scheduled</span></td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceRequestScheduleModal">
-                                <i class="bi bi-calendar3 me-1"></i> Schedule
-                            </button>
-
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="fw-semibold">SR-5040</td>
-                        <td><a class="text-decoration-none" style="color:#5347CE; font-weight:700;" href="{{ route('support.tickets') }}">TK-1005</a></td>
-                        <td>Greenfield Industries</td>
-                        <td>Warranty Partner</td>
-                        <td>
-                            <div class="small text-muted mb-1">2026-07-16</div>
-                            <div>10:00–13:00</div>
-                        </td>
-                        <td><span class="badge bg-warning text-dark">In Progress</span></td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceRequestScheduleModal">
-                                <i class="bi bi-calendar3 me-1"></i> Schedule
-                            </button>
-
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="fw-semibold">SR-5056</td>
-                        <td><a class="text-decoration-none" style="color:#5347CE; font-weight:700;" href="{{ route('support.tickets') }}">TK-1020</a></td>
-                        <td>Northwind Retail</td>
-                        <td>Field Engineer A</td>
-                        <td>
-                            <div class="small text-muted mb-1">2026-07-13</div>
-                            <div>Completed</div>
-                        </td>
-
-                        <td><span class="badge bg-danger">Completed</span></td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceRequestScheduleModal">
-                                <i class="bi bi-calendar3 me-1"></i> Schedule
-                            </button>
-
-                        </td>
-                    </tr>
+                    @forelse($serviceRequests as $req)
+                        <tr>
+                            <td class="fw-semibold">SR-{{ $req->request_id }}</td>
+                            <td>
+                                <a class="text-decoration-none" style="color:#5347CE; font-weight:700;" href="{{ route('support.tickets') }}">
+                                    TK-{{ $req->supportTicket->ticket_id ?? '—' }}
+                                </a>
+                            </td>
+                            <td>{{ $req->supportTicket->customer->customer_name ?? '—' }}</td>
+                            <td>
+                                {{ $req->supportTicket->ticketAssignments->first()->employee->employee_name ?? '—' }}
+                            </td>
+                            <td>
+                                <div class="small text-muted mb-1">{{ $req->scheduled_date ? $req->scheduled_date->format('Y-m-d') : '—' }}</div>
+                                <div>
+                                    {{ $req->completion_date ? $req->completion_date->format('H:i') : '—' }}
+                                </div>
+                            </td>
+                            <td>
+                                @php($st = strtolower((string)($req->service_status ?? '')))
+                                @if($st === 'pending')
+                                    <span class="badge bg-primary">{{ $req->service_status }}</span>
+                                @elseif($st === 'scheduled')
+                                    <span class="badge bg-success">{{ $req->service_status }}</span>
+                                @elseif($st === 'in progress')
+                                    <span class="badge bg-warning text-dark">{{ $req->service_status }}</span>
+                                @elseif($st === 'completed')
+                                    <span class="badge bg-danger">{{ $req->service_status }}</span>
+                                @else
+                                    <span class="badge bg-secondary">{{ $req->service_status ?? '—' }}</span>
+                                @endif
+                            </td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceRequestScheduleModal">
+                                    <i class="bi bi-calendar3 me-1"></i> Schedule
+                                </button>
+                            </td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-primary ms-1"><i class="bi bi-eye me-1"></i> View</button>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">No service requests found.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -221,17 +190,15 @@ cd s@extends('layouts.app')
             <div class="text-muted small">Showing results.</div>
 
             <nav aria-label="Service request pagination">
-                <ul class="pagination pagination-sm mb-0">
-                    <li class="page-item disabled"><span class="page-link">Previous</span></li>
-                    <li class="page-item active"><span class="page-link">1</span></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                </ul>
+                {{ $serviceRequests->links() }}
             </nav>
         </div>
     </div>
 @endsection
+
+
+
+
 
 
 

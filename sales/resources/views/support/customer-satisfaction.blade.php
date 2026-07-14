@@ -39,28 +39,29 @@
             <div class="col-md-3">
                 <div class="p-3 rounded-3" style="background: rgba(22,200,199,.10);">
                     <div class="text-muted small">Average Rating</div>
-                    <div class="fw-bold fs-5">4.6 / 5</div>
+                    <div class="fw-bold fs-5">{{ $averageRating ?? 0 }} / 5</div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="p-3 rounded-3" style="background: rgba(83,71,206,.08);">
                     <div class="text-muted small">5-Star Ratings</div>
-                    <div class="fw-bold fs-5">56%</div>
+                    <div class="fw-bold fs-5">{{ $fiveStarPct ?? 0 }}%</div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="p-3 rounded-3" style="background: rgba(245,158,11,.10);">
                     <div class="text-muted small">Lowest Ratings</div>
-                    <div class="fw-bold fs-5">1–2: 8%</div>
+                    <div class="fw-bold fs-5">1–2: {{ $lowestRatingsPct ?? 0 }}%</div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="p-3 rounded-3" style="background: rgba(239,68,68,.08);">
                     <div class="text-muted small">Responses</div>
-                    <div class="fw-bold fs-5">210</div>
+                    <div class="fw-bold fs-5">{{ $responsesCount ?? 0 }}</div>
                 </div>
             </div>
         </div>
+
 
 
         <div class="row g-4">
@@ -72,63 +73,42 @@
                                 <th style="min-width: 150px;">Feedback #</th>
                                 <th>Ticket</th>
                                 <th style="min-width: 120px;">Rating</th>
-                                <th style="min-width: 200px;">Level</th>
-                                <th style="min-width: 250px;">Comment</th>
-                                <th class="text-end" style="min-width: 160px;">Actions</th>
+                                <th style="min-width: 250px;">Feedback</th>
+                                <th style="min-width: 200px;">Date Submitted</th>
                             </tr>
                         </thead>
+
                         <tbody>
-                            <tr>
-                                <td class="fw-semibold">FB-7001</td>
-                                <td><a class="text-decoration-none" style="color:#5347CE; font-weight:700;" href="{{ route('support.tickets') }}">TK-1003</a></td>
-                                <td>
-                                    <span class="text-warning">
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star-fill"></i>
-                                    </span>
-                                </td>
-                                <td><span class="badge bg-success">Very Satisfied</span></td>
+                            @forelse($satisfactions as $feedback)
+                                <tr>
+                                    <td class="fw-semibold">FB-{{ $feedback->feedback_id }}</td>
+                                    <td><a class="text-decoration-none" style="color:#5347CE; font-weight:700;" href="{{ route('support.tickets') }}">TK-{{ $feedback->supportTicket->ticket_id ?? '—' }}</a></td>
 
-                                <td class="text-muted">Quick resolution and clear communication from the support team.</td>
-                                <td class="text-end"><a class="btn btn-sm btn-outline-success" href="#">View</a></td>
-                            </tr>
-                            <tr>
-                                <td class="fw-semibold">FB-7008</td>
-                                <td><a class="text-decoration-none" style="color:#5347CE; font-weight:700;" href="{{ route('support.tickets') }}">TK-1002</a></td>
-                                <td>
-                                    <span class="text-warning">
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star"></i>
-                                    </span>
-                                </td>
-                                <td><span class="badge bg-primary">Satisfied</span></td>
-
-                                <td class="text-muted">Service was good; would like more frequent updates on scheduling.</td>
-                                <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="#">Follow up</a></td>
-                            </tr>
-                            <tr>
-                                <td class="fw-semibold">FB-7016</td>
-                                <td><a class="text-decoration-none" style="color:#5347CE; font-weight:700;" href="{{ route('support.tickets') }}">TK-1005</a></td>
-                                <td><span class="badge bg-warning text-dark">3</span></td>
-                                <td><span class="badge bg-warning text-dark">Neutral</span></td>
-                                <td class="text-muted">Expected faster parts delivery, but the final outcome was okay.</td>
-                                <td class="text-end"><a class="btn btn-sm btn-outline-warning" href="#">Improve</a></td>
-                            </tr>
-                            <tr>
-                                <td class="fw-semibold">FB-7022</td>
-                                <td><a class="text-decoration-none" style="color:#5347CE; font-weight:700;" href="{{ route('support.tickets') }}">TK-1020</a></td>
-                                <td><span class="badge bg-danger">2</span></td>
-                                <td><span class="badge bg-danger">Dissatisfied</span></td>
-                                <td class="text-muted">Repeated issues affected operations; escalation handling needs work.</td>
-                                <td class="text-end"><a class="btn btn-sm btn-outline-danger" href="{{ route('support.resolution-tracking') }}">Escalate</a></td>
-                            </tr>
+                                    <td>
+                                        @if($feedback->rating !== null)
+                                            <span class="text-warning">{{ (int) $feedback->rating }}</span>
+                                        @else
+                                            <span class="text-muted">—</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @php($lvl = $feedback->satisfaction_level ?? null)
+                                        @if($lvl)
+                                            <span class="badge bg-primary">{{ $lvl }}</span>
+                                        @else
+                                            <span class="badge bg-secondary">—</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-muted">{{ $feedback->comments ?? '—' }}</td>
+                                    <td class="text-end">{{ $feedback->submitted_at ? $feedback->submitted_at->format('Y-m-d') : '—' }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">No satisfaction feedback found.</td>
+                                </tr>
+                            @endforelse
                         </tbody>
+
                     </table>
                 </div>
             </div>
