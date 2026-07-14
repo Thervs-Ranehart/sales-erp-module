@@ -794,7 +794,7 @@ Action
 
 <td>
 
-<span class="badge bg-success">
+<span class="badge {{ isset($loyalty->enrollment_date) ? 'bg-success' : 'bg-secondary' }}">
 {{ isset($loyalty->enrollment_date) ? 'Active' : 'Inactive' }}
 </span>
 
