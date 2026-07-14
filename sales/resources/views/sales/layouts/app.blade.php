@@ -119,7 +119,54 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    @stack('scripts')
+@if (config('broadcasting.connections.pusher.key'))
+<script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
+<script>
+(function () {
+    var pusher = new Pusher('{{ config('broadcasting.connections.pusher.key') }}', {
+        cluster: '{{ config('broadcasting.connections.pusher.options.cluster') }}',
+    });
+
+    var channel = pusher.subscribe('erp-updates');
+
+    var toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:2000;'
+        + 'background:var(--primary,#5347CE);color:#fff;padding:12px 18px;border-radius:10px;'
+        + 'box-shadow:0 6px 20px rgba(0,0,0,.2);font-family:sans-serif;font-size:14px;'
+        + 'display:none;align-items:center;gap:12px;';
+    toast.innerHTML = '<span id="erp-update-text">May bagong update.</span>'
+        + '<button id="erp-update-refresh" style="background:#fff;color:var(--primary,#5347CE);border:none;'
+        + 'border-radius:6px;padding:4px 10px;cursor:pointer;font-weight:600;">I-refresh</button>';
+    document.body.appendChild(toast);
+
+    var refreshTimer = null;
+
+    channel.bind('record.changed', function (data) {
+        var text = data.label
+            ? 'May update sa ' + data.model + ': ' + data.label
+            : 'May bagong update sa ' + data.model + '.';
+        document.getElementById('erp-update-text').textContent = text;
+        toast.style.display = 'flex';
+
+        clearTimeout(refreshTimer);
+        refreshTimer = setTimeout(function () {
+            var active = document.activeElement;
+            var isTyping = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT');
+            if (!isTyping) {
+                window.location.reload();
+            }
+        }, 4000);
+    });
+
+    document.getElementById('erp-update-refresh').addEventListener('click', function () {
+        window.location.reload();
+    });
+})();
+</script>
+@endif
+
+@stack('scripts')
+
 
 </body>
 </html>
