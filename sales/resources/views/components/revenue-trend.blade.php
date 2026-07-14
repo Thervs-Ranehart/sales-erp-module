@@ -4,28 +4,19 @@
 
 <section
     aria-labelledby="revenue-trend-title"
-    class="mt-4"
+    class="mt-5"
     data-component="revenue-trend"
     data-chart-id="{{ $chartId }}"
     data-chart-initial-data="{!! e(json_encode($initialData ?? null)) !!}"
 >
 
-    <div class="max-w-full">
-        <div class="flex items-center justify-between mb-3">
-            <h3
-                id="revenue-trend-title"
-                class="text-lg font-bold text-gray-900"
-            >
-                Revenue Trend (Monthly Revenue)
-            </h3>
-        </div>
-
-        <div class="bg-white rounded-lg shadow-sm p-4">
-            <div class="w-full">
-                <div
-                    class="w-full relative"
-                    style="height: 420px;"
-                >
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-body p-3 p-md-4">
+            <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
+                <div><h2 id="revenue-trend-title" class="fs-5 fw-bold mb-1">Monthly Revenue Trend</h2><p class="small text-muted mb-0">Track revenue movement and seasonality throughout the selected year.</p></div>
+                <span class="badge rounded-pill text-bg-light border text-success px-3 py-2"><i class="bi bi-arrow-up-right me-1"></i>Year overview</span>
+            </div>
+                <div class="w-full position-relative" style="height: clamp(320px, 42vw, 440px);">
                     <canvas
                         id="{{ $chartId }}"
                         class="w-full h-full"
@@ -33,7 +24,6 @@
                         role="img"
                     ></canvas>
                 </div>
-            </div>
         </div>
     </div>
 

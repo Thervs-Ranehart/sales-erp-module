@@ -12,11 +12,12 @@
     ])
 
     @php($kpis = [
-        ['label' => 'Total Revenue', 'value' => '₱4.8M', 'icon' => 'currency-dollar', 'tone' => 'text-success', 'accent' => 'rgba(22, 200, 199, 0.12)'],
-        ['label' => 'Total Orders', 'value' => '1,248', 'icon' => 'cart-check', 'tone' => 'text-primary', 'accent' => 'rgba(83, 71, 206, 0.12)'],
-        ['label' => 'Avg. Order Value', 'value' => '₱3,850', 'icon' => 'graph-up', 'tone' => 'text-warning', 'accent' => 'rgba(245, 158, 11, 0.14)'],
-        ['label' => 'Active Customers', 'value' => '342', 'icon' => 'people-fill', 'tone' => 'text-info', 'accent' => 'rgba(72, 150, 254, 0.14)'],
-        ['label' => 'Sales Growth', 'value' => '+12.4%', 'icon' => 'bar-chart-line', 'tone' => 'text-danger', 'accent' => 'rgba(239, 68, 68, 0.13)'],
+        ['label' => 'Total Revenue', 'value' => '₱'.number_format($reportKpis['totalRevenue']), 'icon' => 'currency-dollar', 'tone' => 'text-success', 'accent' => 'rgba(22, 200, 199, 0.12)'],
+        ['label' => 'Total Orders', 'value' => number_format($reportKpis['totalOrders']), 'icon' => 'cart-check', 'tone' => 'text-primary', 'accent' => 'rgba(83, 71, 206, 0.12)'],
+        ['label' => 'Avg. Order Value', 'value' => '₱'.number_format($reportKpis['averageOrderValue']), 'icon' => 'graph-up', 'tone' => 'text-warning', 'accent' => 'rgba(245, 158, 11, 0.14)'],
+        ['label' => 'Active Customers', 'value' => number_format($reportKpis['activeCustomers']), 'icon' => 'people-fill', 'tone' => 'text-info', 'accent' => 'rgba(72, 150, 254, 0.14)'],
+        ['label' => 'Full-Year Growth', 'value' => '+'.number_format($reportKpis['salesGrowth'], 1).'%', 'icon' => 'bar-chart-line', 'tone' => 'text-success', 'accent' => 'rgba(16, 185, 129, 0.13)'],
+        ['label' => 'Best Revenue Month', 'value' => $reportKpis['bestMonth'], 'icon' => 'calendar2-check', 'tone' => 'text-primary', 'accent' => 'rgba(83, 71, 206, 0.12)'],
     ])
 
     <main class="w-full flex items-center" style="margin: -1rem -1rem 0; width: calc(100% + 2rem); padding: 32px 48px; height: 258px; max-height: 258px; background: linear-gradient(90deg, #128B99 0%, #1CE5BD 100%); border-radius: 0;">
@@ -31,13 +32,14 @@
                 </p>
             </div>
             <div>
-                <a
-                    href="{{ route('forecasting.reports') }}"
+                <button
+                    type="button"
                     class="hero-action-btn"
                     style="padding: 0.75rem 1.6rem;"
                 >
+                    <i class="bi bi-download me-2" aria-hidden="true"></i>
                     Export Reports
-                </a>
+                </button>
             </div>
         </div>
     </main>
@@ -72,7 +74,7 @@
                 @endforeach
             </div>
 
-            <button id="rf-open-filter" class="btn btn-outline-secondary btn-sm" type="button">
+            <button id="rf-open-filter" class="btn btn-outline-secondary btn-sm" type="button" aria-controls="rf-filter-drawer" aria-expanded="false">
                 <i class="bi bi-funnel me-2"></i>
                 Filter
             </button>
@@ -85,49 +87,62 @@
         @include('components.revenue-trend', ['initialData' => $monthlyRevenue])
     @endisset
 
-    {{-- Sales Analysis heading (outside card) --}}
-    <h3 id="sales-analysis-title" class="text-lg font-bold text-gray-900 mt-4">
-        Sales Analysis
-    </h3>
-
-    {{-- Sales Analysis (parent card wrapper) --}}
-    <section class="mt-3">
-        <div class="card border-0 shadow-sm rounded-4">
-            <div class="card-body px-0 px-sm-3 px-md-4 py-3">
-                <div class="row g-4">
-                    <div class="col-12">
+    <section class="mt-5" aria-labelledby="sales-analysis-title">
+        <div class="d-flex align-items-end justify-content-between gap-3 mb-3">
+            <div><h2 id="sales-analysis-title" class="text-lg font-bold text-gray-900 mb-1">Sales Analysis</h2><p class="small text-muted mb-0">Compare the strongest contributors across products, regions, and representatives.</p></div>
+        </div>
+        <div class="row gx-4 gy-5">
+                    <div class="col-12 d-flex flex-column">
                         @include('components.top-products-horizontal-bar', ['initialData' => $topProducts ?? null])
-                        <div class="d-flex justify-content-end mt-2">
-                            <a href="{{ route('forecasting.sales-analysis', ['tab' => 'product']) }}" class="text-decoration-none text-primary fw-semibold">View More &rarr;</a>
+                        <div class="d-flex justify-content-end pt-3 pb-1 position-relative" style="z-index: 2;">
+                            <a href="{{ route('forecasting.sales-analysis', ['tab' => 'product']) }}" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-2" target="_blank" rel="noopener noreferrer">View More <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
                         </div>
                     </div>
 
-                    <div class="col-12">
+                    <div class="col-12 col-xl-6 d-flex flex-column">
                         @include('components.sales-by-region-horizontal-bar', ['initialData' => $salesByRegion])
-                        <div class="d-flex justify-content-end mt-2">
-                            <a href="{{ route('forecasting.sales-analysis', ['tab' => 'region']) }}" class="text-decoration-none text-primary fw-semibold">View More &rarr;</a>
+                        <div class="d-flex justify-content-end pt-3 pb-1 position-relative" style="z-index: 2;">
+                            <a href="{{ route('forecasting.sales-analysis', ['tab' => 'region']) }}" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-2" target="_blank" rel="noopener noreferrer">View More <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
                         </div>
                     </div>
 
-                    <div class="col-12">
+                    <div class="col-12 col-xl-6 d-flex flex-column">
                         @include('components.sales-by-representative-horizontal-bar', ['initialData' => $salesByRepresentative])
-                        <div class="d-flex justify-content-end mt-2">
-                            <a href="{{ route('forecasting.sales-analysis', ['tab' => 'representative']) }}" class="text-decoration-none text-primary fw-semibold">View More &rarr;</a>
+                        <div class="d-flex justify-content-end pt-3 pb-1 position-relative" style="z-index: 2;">
+                            <a href="{{ route('forecasting.sales-analysis', ['tab' => 'representative']) }}" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-2" target="_blank" rel="noopener noreferrer">View More <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
                         </div>
                     </div>
-                </div>
+        </div>
+    </section>
+
+    <section class="mt-5" aria-labelledby="monthly-report-title">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="card-header bg-white border-0 px-3 px-md-4 pt-4 pb-3">
+                <h2 id="monthly-report-title" class="fs-5 fw-bold mb-1">Monthly Sales Detail</h2>
+                <p class="small text-muted mb-0">The underlying monthly figures used in the revenue trend.</p>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light"><tr><th class="ps-3 ps-md-4">Period</th><th>Revenue</th><th>Orders</th><th>Average Order Value</th><th class="pe-3 pe-md-4">Monthly Growth</th></tr></thead>
+                    <tbody>
+                        @foreach ($monthlyReportRows as $row)
+                            <tr><th scope="row" class="ps-3 ps-md-4">{{ $row['period'] }}</th><td class="text-nowrap fw-semibold">₱{{ number_format($row['revenue']) }}</td><td>{{ number_format($row['orders']) }}</td><td class="text-nowrap">₱{{ number_format($row['averageOrderValue']) }}</td><td class="pe-3 pe-md-4"><span class="badge rounded-pill {{ is_null($row['growth']) ? 'text-bg-secondary' : ($row['growth'] >= 0 ? 'text-bg-success' : 'text-bg-danger') }}">{{ is_null($row['growth']) ? 'Baseline' : (($row['growth'] >= 0 ? '+' : '').number_format($row['growth'], 1).'%') }}</span></td></tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
     </section>
 
+    <section class="mt-5 mb-4" aria-labelledby="report-insights-title">
+        <h2 id="report-insights-title" class="text-lg font-bold text-gray-900 mb-3">Report Insights</h2>
+        <div class="row g-3">
+            @foreach ($reportInsights as $insight)
+                <div class="col-12 col-lg-6"><div class="alert {{ $insight['type'] === 'success' ? 'alert-success' : ($insight['type'] === 'warning' ? 'alert-warning' : 'alert-info') }} h-100 mb-0 d-flex gap-3 align-items-start"><i class="bi {{ $insight['type'] === 'warning' ? 'bi-exclamation-triangle-fill' : 'bi-bar-chart-fill' }} mt-1" aria-hidden="true"></i><span>{{ $insight['text'] }}</span></div></div>
+            @endforeach
+        </div>
+    </section>
 
-
-
-
-
-
-    @include('components.report-filter')
+    @include('components.report-filter', ['filterMode' => 'reports'])
 
 @endsection
-
-

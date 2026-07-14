@@ -1,0 +1,13 @@
+<div id="ff-filter-overlay" class="ff-overlay" aria-hidden="true"><aside id="ff-filter-drawer" class="ff-drawer" role="dialog" aria-modal="true" aria-labelledby="ff-filter-title">
+    <header class="d-flex align-items-start gap-3 p-4 border-bottom"><i class="bi bi-funnel fs-4 text-primary"></i><div class="flex-grow-1"><h2 id="ff-filter-title" class="fs-5 fw-bold mb-1">Forecast Filters</h2><p class="small text-muted mb-0">Adjust the forecast view and planning scenario.</p></div><button id="ff-close-filter" type="button" class="btn-close" aria-label="Close forecast filters"></button></header>
+    <div class="p-4 overflow-auto">
+        @foreach (['historical-period' => ['Historical Period', ['Last 6 Months', 'Last 12 Months', 'Last 24 Months']], 'forecast-horizon' => ['Forecast Horizon', ['Next Month', 'Next Quarter', 'Next 6 Months', 'Next 12 Months']], 'product' => ['Product', ['All Products', 'Product A', 'Product B', 'Product C']], 'region' => ['Region', ['All Regions', 'NCR', 'CALABARZON', 'Western Visayas', 'Davao']], 'representative' => ['Sales Representative', ['All Representatives', 'Thervin', 'San Goku', 'Gojo Satoru', 'Peter Parker']], 'scenario' => ['Forecast Scenario', ['Expected', 'Optimistic', 'Conservative']]] as $id => [$label, $options])
+            <div class="mb-3"><label for="ff-{{ $id }}" class="form-label small fw-semibold">{{ $label }}</label><select id="ff-{{ $id }}" name="{{ $id }}" class="form-select">@foreach($options as $option)@php($value = \Illuminate\Support\Str::slug($option))<option value="{{ $value }}" @selected(request($id) === $value)>{{ $option }}</option>@endforeach</select></div>
+        @endforeach
+        <div class="d-flex justify-content-end gap-2 mt-4"><button id="ff-reset" type="button" class="btn btn-outline-secondary">Reset</button><button id="ff-apply" type="button" class="btn btn-primary">Apply Filters</button></div>
+    </div>
+</aside></div>
+<style>
+    .ff-overlay{position:fixed;inset:0;z-index:1050;background:rgba(15,23,42,.45);display:flex;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .3s ease}.ff-overlay.open{opacity:1;pointer-events:auto}.ff-drawer{width:min(430px,calc(100vw - 24px));height:calc(100vh - 32px);margin:16px;background:#fff;border-radius:18px;box-shadow:0 18px 45px rgba(0,0,0,.22);transform:translateX(110%);transition:transform .38s cubic-bezier(.22,1,.36,1);overflow:hidden;display:flex;flex-direction:column}.ff-overlay.open .ff-drawer{transform:translateX(0)}
+</style>
+<script src="{{ asset('js/forecast-filter.js') }}"></script>

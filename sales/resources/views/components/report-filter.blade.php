@@ -1,3 +1,4 @@
+@php($filterMode = $filterMode ?? 'reports')
 <section class="mt-4">
     <!-- Filter Drawer (Report Filters) -->
     <div id="rf-filter-overlay" class="rf-overlay" aria-hidden="true">
@@ -16,8 +17,8 @@
                 </div>
 
                 <div class="rf-drawer-header-text">
-                    <h2 id="rf-filter-title" class="rf-drawer-title">Report Filters</h2>
-                    <p class="rf-drawer-desc">Customize sales reports by selecting specific data parameters.</p>
+                    <h2 id="rf-filter-title" class="rf-drawer-title">{{ $filterMode === 'performance' ? 'Performance Filters' : 'Sales Report Filters' }}</h2>
+                    <p class="rf-drawer-desc">{{ $filterMode === 'performance' ? 'Focus target achievement by period, contributor, and status.' : 'Customize revenue reporting by period, product, region, and representative.' }}</p>
                 </div>
 
                 <button id="rf-close-filter" class="rf-close" type="button" aria-label="Close">
@@ -28,61 +29,57 @@
             <div class="rf-drawer-body">
                 <div class="rf-field">
                     <label class="rf-label" for="rf-date-range">Date Range</label>
-                    <select id="rf-date-range" class="rf-select">
-                        <option value="this-month">This month</option>
-                        <option value="last-month">Last month</option>
-                        <option value="quarter">Quarter</option>
-                        <option value="year">Year</option>
-                        <option value="custom">Custom</option>
+                    <select id="rf-date-range" name="period" class="rf-select">
+                        @foreach(['this-month' => 'This month', 'last-month' => 'Last month', 'quarter' => 'Quarter', 'year' => 'Year', 'custom' => 'Custom'] as $value => $label)<option value="{{ $value }}" @selected(request('period', 'year') === $value)>{{ $label }}</option>@endforeach
                     </select>
                 </div>
 
                 <div class="rf-field" id="rf-custom-start-wrap" style="display:none;">
                     <label class="rf-label" for="rf-start-date">Start Date</label>
-                    <input id="rf-start-date" type="date" class="rf-select" />
+                    <input id="rf-start-date" name="start_date" value="{{ request('start_date') }}" type="date" class="rf-select" />
                 </div>
 
                 <div class="rf-field" id="rf-custom-end-wrap" style="display:none;">
                     <label class="rf-label" for="rf-end-date">End Date</label>
-                    <input id="rf-end-date" type="date" class="rf-select" />
+                    <input id="rf-end-date" name="end_date" value="{{ request('end_date') }}" type="date" class="rf-select" />
                 </div>
 
                 <div class="rf-field">
                     <label class="rf-label" for="rf-region">Region</label>
-                    <select id="rf-region" class="rf-select">
-                        <option value="all">All regions</option>
-                        <option value="ncr">National Capital Region (NCR)</option>
-                        <option value="visayas">Visayas</option>
-                        <option value="mindanao">Mindanao</option>
+                    <select id="rf-region" name="region" class="rf-select">
+                        @foreach(['all' => 'All regions', 'ncr' => 'National Capital Region (NCR)', 'visayas' => 'Visayas', 'mindanao' => 'Mindanao'] as $value => $label)<option value="{{ $value }}" @selected(request('region', 'all') === $value)>{{ $label }}</option>@endforeach
                     </select>
                 </div>
 
                 <div class="rf-field">
                     <label class="rf-label" for="rf-product-category">Product Categories</label>
-                    <select id="rf-product-category" class="rf-select">
-                        <option value="all">All product categories</option>
-                        <option value="category-a">Category A</option>
-                        <option value="category-b">Category B</option>
-                        <option value="category-c">Category C</option>
+                    <select id="rf-product-category" name="product" class="rf-select">
+                        @foreach(['all' => 'All product categories', 'category-a' => 'Category A', 'category-b' => 'Category B', 'category-c' => 'Category C'] as $value => $label)<option value="{{ $value }}" @selected(request('product', 'all') === $value)>{{ $label }}</option>@endforeach
                     </select>
                 </div>
 
                 <div class="rf-field">
                     <label class="rf-label" for="rf-sales-representative">Sales Representative</label>
-                    <select id="rf-sales-representative" class="rf-select">
-                        <option value="all">All representatives</option>
-                        <option value="rep-1">Representative 1</option>
-                        <option value="rep-2">Representative 2</option>
-                        <option value="rep-3">Representative 3</option>
+                    <select id="rf-sales-representative" name="representative" class="rf-select">
+                        @foreach(['all' => 'All representatives', 'rep-1' => 'Representative 1', 'rep-2' => 'Representative 2', 'rep-3' => 'Representative 3'] as $value => $label)<option value="{{ $value }}" @selected(request('representative', 'all') === $value)>{{ $label }}</option>@endforeach
                     </select>
                 </div>
+
+                @if($filterMode === 'performance')
+                <div class="rf-field">
+                    <label class="rf-label" for="rf-performance-status">Performance Status</label>
+                    <select id="rf-performance-status" name="status" class="rf-select">
+                        @foreach(['all' => 'All', 'exceeded' => 'Exceeded', 'on-target' => 'On Target', 'below-target' => 'Below Target'] as $value => $label)<option value="{{ $value }}" @selected(request('status', 'all') === $value)>{{ $label }}</option>@endforeach
+                    </select>
+                </div>
+                @endif
 
 
 
 
                 <div class="rf-actions">
                     <button type="button" class="rf-btn-secondary" id="rf-reset">Reset</button>
-                    <button type="button" class="rf-btn-primary" id="rf-apply">Apply</button>
+                    <button type="button" class="rf-btn-primary" id="rf-apply">Apply Filters</button>
                 </div>
             </div>
         </aside>
@@ -261,8 +258,21 @@
 
             if (!openBtn || !overlay || !drawer || !closeBtn) return;
 
-            const open = () => overlay.classList.add('open');
-            const close = () => overlay.classList.remove('open');
+            let lastFocusedElement = null;
+
+            const open = () => {
+                lastFocusedElement = document.activeElement;
+                overlay.classList.add('open');
+                overlay.setAttribute('aria-hidden', 'false');
+                openBtn.setAttribute('aria-expanded', 'true');
+                closeBtn.focus();
+            };
+            const close = () => {
+                overlay.classList.remove('open');
+                overlay.setAttribute('aria-hidden', 'true');
+                openBtn.setAttribute('aria-expanded', 'false');
+                if (lastFocusedElement) lastFocusedElement.focus();
+            };
 
             openBtn.addEventListener('click', open);
             closeBtn.addEventListener('click', close);
@@ -277,25 +287,7 @@
 
             if (resetBtn) {
                 resetBtn.addEventListener('click', function () {
-                    drawer.querySelectorAll('select').forEach(function (select) {
-                        select.selectedIndex = 0;
-                    });
-
-                    const startDateInput = document.getElementById('rf-start-date');
-                    const endDateInput = document.getElementById('rf-end-date');
-                    if (startDateInput) startDateInput.value = '';
-                    if (endDateInput) endDateInput.value = '';
-
-                    // Hide custom date fields again
-                    const dateRangeSelect = document.getElementById('rf-date-range');
-                    const customStartWrapInner = document.getElementById('rf-custom-start-wrap');
-                    const customEndWrapInner = document.getElementById('rf-custom-end-wrap');
-
-                    if (dateRangeSelect && customStartWrapInner && customEndWrapInner) {
-                        const custom = dateRangeSelect.value === 'custom';
-                        customStartWrapInner.style.display = custom ? 'block' : 'none';
-                        customEndWrapInner.style.display = custom ? 'block' : 'none';
-                    }
+                    window.location.assign(window.location.pathname);
                 });
             }
 
@@ -332,7 +324,11 @@
 
             if (applyBtn) {
                 applyBtn.addEventListener('click', function () {
-                    close();
+                    const parameters = new URLSearchParams();
+                    drawer.querySelectorAll('[name]').forEach(function (field) {
+                        if (field.value && field.value !== 'all') parameters.set(field.name, field.value);
+                    });
+                    window.location.assign(window.location.pathname + (parameters.toString() ? '?' + parameters.toString() : ''));
                 });
             }
         })();

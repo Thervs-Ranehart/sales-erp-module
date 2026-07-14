@@ -40,13 +40,15 @@
             align-self: flex-start;
             overflow-y: auto;
             overflow-x: hidden;
-            transition: width .25s ease;
+            transition: width .34s cubic-bezier(.22, 1, .36, 1), flex-basis .34s cubic-bezier(.22, 1, .36, 1), box-shadow .34s ease;
+            will-change: width;
         }
 
         .sidebar:hover {
             width: 190px;
             height: 100vh;
             max-height: 100vh;
+            box-shadow: 12px 0 30px rgba(30, 27, 75, .2);
         }
 
         .sidebar .brand {
@@ -73,13 +75,12 @@
 
         .sidebar .brand-text,
         .sidebar .nav-label {
-            display: none;
-        }
-
-        .sidebar:not(:hover) .brand-text,
-        .sidebar:not(:hover) .nav-label,
-        .sidebar:not(:hover) .sub-nav-link .nav-label {
-            display: none !important;
+            display: block;
+            max-width: 0;
+            opacity: 0;
+            overflow: hidden;
+            transform: translateX(-8px);
+            transition: opacity .2s ease, transform .3s cubic-bezier(.22, 1, .36, 1), max-width .34s cubic-bezier(.22, 1, .36, 1);
         }
 
         .sidebar:not(:hover) .brand {
@@ -87,9 +88,11 @@
         }
 
         .sidebar:hover .brand-text {
-            display: inline;
+            display: block;
             font-size: 11px;
-            max-width: 100px;
+            max-width: 112px;
+            opacity: 1;
+            transform: translateX(0);
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -103,6 +106,8 @@
             word-break: break-word;
             flex: 1;
             font-size: 11px;
+            opacity: 1;
+            transform: translateX(0);
         }
 
         .sidebar a {
@@ -113,7 +118,7 @@
             padding: 6px 10px;
             color: #fff;
             text-decoration: none;
-            transition: background-color .2s ease, color .2s ease;
+            transition: background-color .2s ease, color .2s ease, padding .34s cubic-bezier(.22, 1, .36, 1), gap .34s cubic-bezier(.22, 1, .36, 1), transform .2s ease;
             white-space: nowrap;
             width: 100%;
         }
@@ -128,6 +133,10 @@
         .sidebar a:hover,
         .sidebar a.active {
             background: rgba(255,255,255,.16);
+        }
+
+        .sidebar a:hover {
+            transform: translateX(2px);
         }
 
         .sidebar .sidebar-drop-icon {
@@ -153,14 +162,19 @@
         }
 
         .sidebar .sub-nav {
-            display: none;
+            display: flex;
             flex-direction: column;
             padding-left: 8px;
             margin-bottom: 4px;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: max-height .32s cubic-bezier(.22, 1, .36, 1), opacity .2s ease, padding .32s ease;
         }
 
         .sidebar .sub-nav.open {
-            display: flex;
+            max-height: 420px;
+            opacity: 1;
         }
 
         .sidebar:hover .sub-nav.open {
@@ -220,18 +234,17 @@
 
         .sidebar .nav-label {
             min-width: 0;
-            max-width: 140px;
-            overflow: visible;
+            max-width: 0;
+            overflow: hidden;
         }
 
         .sidebar:hover .nav-label {
             max-width: 160px;
+            overflow: visible;
         }
 
         /* When collapsed, keep labels hidden but never clip icons */
-        .sidebar:not(:hover) .nav-label {
-            display: none !important;
-        }
+        .sidebar:not(:hover) .nav-label { pointer-events: none; }
 
 
         .topbar {
@@ -273,6 +286,29 @@
             color: #128B99;
             text-decoration: none !important;
         }
+
+        .hero-secondary-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: .75rem 1.6rem;
+            border: 2px solid rgba(255,255,255,.82);
+            border-radius: 14px;
+            background: rgba(15, 23, 42, .12);
+            color: #fff;
+            font-weight: 700;
+            text-decoration: none;
+            backdrop-filter: blur(8px);
+            transition: background .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease;
+        }
+
+        .hero-secondary-btn:hover,
+        .hero-secondary-btn:focus-visible {
+            background: #fff;
+            color: #128B99;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(15,23,42,.16);
+        }
     </style>
 </head>
 <body>
@@ -288,6 +324,7 @@
             </main>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 

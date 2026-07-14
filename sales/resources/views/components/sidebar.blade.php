@@ -56,6 +56,7 @@ $mainItems = [
         'icon' => 'graph-up-arrow',
         'hasDropdown' => true,
         'children' => [
+            ['label' => 'Summary', 'route' => 'forecasting.index', 'icon' => 'clipboard-data'],
             ['label' => 'Sales Reports', 'route' => 'forecasting.reports', 'icon' => 'bar-chart-line'],
             ['label' => 'Target vs. Actual Performance', 'route' => 'forecasting.performance', 'icon' => 'clipboard-data'],
             ['label' => 'Forecasting', 'route' => 'forecasting.forecast', 'icon' => 'graph-up'],
@@ -183,27 +184,57 @@ $utilityItems = [
 </div>
 
 <style>
+    /* Collapsed navigation: retain clickable links but remove all label/chevron layout space. */
+    #app-sidebar[data-sidebar-state="collapsed"] .nav-group > a,
+    #app-sidebar[data-sidebar-state="collapsed"] > .mt-auto > a {
+        justify-content: center;
+        gap: 0;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    #app-sidebar[data-sidebar-state="collapsed"] .nav-group > a > .nav-label,
+    #app-sidebar[data-sidebar-state="collapsed"] > .mt-auto > a > .nav-label,
+    #app-sidebar[data-sidebar-state="collapsed"] .sidebar-drop-icon {
+        display: none !important;
+    }
+
+    #app-sidebar[data-sidebar-state="collapsed"] .nav-group > a > i:first-child,
+    #app-sidebar[data-sidebar-state="collapsed"] > .mt-auto > a > i:first-child {
+        margin: 0;
+        flex: 0 0 auto;
+    }
+
+    #app-sidebar[data-sidebar-state="expanded"] .nav-group > a > .nav-label,
+    #app-sidebar[data-sidebar-state="expanded"] > .mt-auto > a > .nav-label {
+        display: block;
+    }
+
     /* Hide Forecasting/Sales Performance submenu icons while sidebar is collapsed */
     /* Works with the existing layout behavior where sidebar expands on hover. */
     #app-sidebar[data-sidebar-state="collapsed"] .sub-nav-link[data-submenu-icon] i[data-submenu-icon-inner] {
-        display: none;
+        opacity: 0;
+        width: 0;
+        transition: opacity .2s ease, width .3s ease;
     }
     #app-sidebar[data-sidebar-state="collapsed"] .sub-nav.open i[data-submenu-icon-inner] {
-        display: none;
+        opacity: 0;
+        width: 0;
     }
     #app-sidebar[data-sidebar-state="collapsed"] .sub-nav-link.active {
         background: transparent;
     }
     #app-sidebar[data-sidebar-state="collapsed"]:hover .sub-nav-link[data-submenu-icon] i[data-submenu-icon-inner] {
-        display: inline-block;
+        opacity: 1;
+        width: auto;
     }
 
     /* Remove dropdown chevrons entirely while collapsed and only show them when expanded */
     #app-sidebar[data-sidebar-state="collapsed"] .sidebar-drop-icon {
-        display: none;
+        display: none !important;
     }
     #app-sidebar[data-sidebar-state="collapsed"]:hover .sidebar-drop-icon {
-        display: inline-block;
+        display: none !important;
     }
 
     /* When collapsed, keep submenu indentation so it doesn't line up with the parent icon */
@@ -227,7 +258,15 @@ $utilityItems = [
 
     /* Keep active submenu visible even while collapsed */
     #app-sidebar[data-sidebar-state="collapsed"] .sub-nav.open {
-        display: flex !important;
+        max-height: 0;
+        opacity: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
+    #app-sidebar[data-sidebar-state="expanded"] .sub-nav.open {
+        max-height: 420px;
+        opacity: 1;
     }
 </style>
 
