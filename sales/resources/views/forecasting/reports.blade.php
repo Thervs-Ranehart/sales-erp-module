@@ -17,7 +17,6 @@
         ['label' => 'Avg. Order Value', 'value' => '₱3,850', 'icon' => 'graph-up', 'tone' => 'text-warning', 'accent' => 'rgba(245, 158, 11, 0.14)'],
         ['label' => 'Active Customers', 'value' => '342', 'icon' => 'people-fill', 'tone' => 'text-info', 'accent' => 'rgba(72, 150, 254, 0.14)'],
         ['label' => 'Sales Growth', 'value' => '+12.4%', 'icon' => 'bar-chart-line', 'tone' => 'text-danger', 'accent' => 'rgba(239, 68, 68, 0.13)'],
-        ['label' => 'Target Achievement', 'value' => '94%', 'icon' => 'bullseye', 'tone' => 'text-success', 'accent' => 'rgba(16, 185, 129, 0.14)'],
     ])
 
     <main class="w-full flex items-center" style="margin: -1rem -1rem 0; width: calc(100% + 2rem); padding: 32px 48px; height: 258px; max-height: 258px; background: linear-gradient(90deg, #128B99 0%, #1CE5BD 100%); border-radius: 0;">
@@ -37,7 +36,7 @@
                     class="hero-action-btn"
                     style="padding: 0.75rem 1.6rem;"
                 >
-                    View Reports
+                    Export Reports
                 </a>
             </div>
         </div>
@@ -86,21 +85,49 @@
         @include('components.revenue-trend', ['initialData' => $monthlyRevenue])
     @endisset
 
-    {{-- Sales by Product container (no content yet) --}}
-    <div class="max-w-full">
-        <div class="flex items-center justify-between mb-3">
-            <h3 id="sales-by-product-title" class="text-lg font-bold text-gray-900">Sales by Product</h3>
-            <!-- future: filters / export buttons go here -->
-        </div>
+    {{-- Sales Analysis heading (outside card) --}}
+    <h3 id="sales-analysis-title" class="text-lg font-bold text-gray-900 mt-4">
+        Sales Analysis
+    </h3>
 
-        <div class="bg-white rounded-lg shadow-sm p-4">
-            <div class="w-full" style="min-height: 500px;">
-                {{-- Horizontal bar chart: Top products (UI-only data for now) --}}
-       
+    {{-- Sales Analysis (parent card wrapper) --}}
+    <section class="mt-3">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body px-0 px-sm-3 px-md-4 py-3">
+                <div class="row g-4">
+                    <div class="col-12">
+                        @include('components.top-products-horizontal-bar', ['initialData' => $topProducts ?? null])
+                        <div class="d-flex justify-content-end mt-2">
+                            <a href="{{ route('forecasting.sales-analysis', ['tab' => 'product']) }}" class="text-decoration-none text-primary fw-semibold">View More &rarr;</a>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        @include('components.sales-by-region-horizontal-bar', ['initialData' => $salesByRegion])
+                        <div class="d-flex justify-content-end mt-2">
+                            <a href="{{ route('forecasting.sales-analysis', ['tab' => 'region']) }}" class="text-decoration-none text-primary fw-semibold">View More &rarr;</a>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        @include('components.sales-by-representative-horizontal-bar', ['initialData' => $salesByRepresentative])
+                        <div class="d-flex justify-content-end mt-2">
+                            <a href="{{ route('forecasting.sales-analysis', ['tab' => 'representative']) }}" class="text-decoration-none text-primary fw-semibold">View More &rarr;</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
+
+
+
+
+
+
 
     @include('components.report-filter')
+
 @endsection
+
 
