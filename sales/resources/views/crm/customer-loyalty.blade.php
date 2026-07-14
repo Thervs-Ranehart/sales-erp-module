@@ -229,8 +229,8 @@ Manage customer rewards, membership levels, and loyalty engagement.
 
 <div class="d-flex gap-2">
 
-<button type="button" class="btn btn-outline-primary"
-style="border-radius:8px;"
+<button type="button" class="btn text-white"
+style="background:#5347CE;border-radius:8px;"
 data-bs-toggle="modal" data-bs-target="#enrollCustomerModal">
 
 <i class="bi bi-person-plus"></i>
