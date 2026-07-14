@@ -199,6 +199,30 @@ vertical-align:middle;
 
 }
 
+.search-box{
+    position:relative;
+}
+
+.search-box .search-icon{
+    position:absolute;
+    left:14px;
+    top:50%;
+    transform:translateY(-50%);
+    color:#5347CE;
+    font-size:15px;
+}
+
+.search-box .form-control{
+    height:45px;
+    padding-left:42px;
+    border:2px solid #5347CE;
+    border-radius:10px;
+}
+
+.search-box .form-control:focus{
+    border-color:#5347CE;
+    box-shadow:0 0 0 .2rem rgba(83,71,206,.15);
+}
 
 </style>
 
@@ -661,12 +685,14 @@ Customer reward accounts and membership information.
 
 
 <form action="{{ route('crm.loyalty') }}" method="GET" class="mb-0">
-<input type="text"
-name="search"
-value="{{ $search ?? '' }}"
-class="form-control"
-style="width:250px;"
-placeholder="Search member...">
+    <div class="search-box" style="width:250px;">
+        <i class="bi bi-search search-icon"></i>
+        <input type="text"
+            name="search"
+            value="{{ $search ?? '' }}"
+            class="form-control"
+            placeholder="Search member...">
+    </div>
 </form>
 
 

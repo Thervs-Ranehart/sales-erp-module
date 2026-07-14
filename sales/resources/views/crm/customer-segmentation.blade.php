@@ -188,13 +188,13 @@ Analyze customer groups based on purchasing behavior and value.
 
 
 
-<a href="{{ route('crm.segmentation', request()->query()) }}" class="btn text-white"
-style="background:#5347CE;border-radius:8px;">
-
-<i class="bi bi-bar-chart"></i>
-Refresh Report
-
-</a>
+<form method="POST" action="{{ route('crm.segmentation.recalculate') }}" class="mb-0">
+    @csrf
+    <button type="submit" class="btn text-white" style="background:#5347CE;border-radius:8px;">
+        <i class="bi bi-bar-chart"></i>
+        Refresh Report
+    </button>
+</form>
 
 
 </div>
@@ -479,6 +479,10 @@ Weekly
 Monthly
 </option>
 
+<option value="Occasional" {{ ($frequency ?? null) === 'Occasional' ? 'selected' : '' }}>
+Occasional
+</option>
+
 
 </select>
 
@@ -635,7 +639,7 @@ Action
 
 <tr>
     <td colspan="7" class="text-center text-muted py-4">
-        No segmentation records found.
+        No segmentation records found. Click "Refresh Report" to classify customers based on their sales order history.
     </td>
 </tr>
 

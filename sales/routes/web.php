@@ -16,7 +16,6 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\SalesOrderController;
-use App\Http\Controllers\PricingRuleController;
 
 use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\AfterSalesSupportController;
@@ -75,6 +74,7 @@ Route::post('/customer-follow-ups/{log}/status', [CustomerFollowUpsController::c
 Route::delete('/customer-follow-ups/{log}', [CustomerFollowUpsController::class, 'destroy'])->name('crm.followups.destroy');
 
 Route::get('/customer-segmentation', [CustomerSegmentationController::class, 'index'])->name('crm.segmentation');
+Route::post('/customer-segmentation/recalculate', [CustomerSegmentationController::class, 'recalculate'])->name('crm.segmentation.recalculate');
 
 Route::get('/customer-loyalty', [CustomerLoyaltyController::class, 'index'])->name('crm.loyalty');
 Route::post('/customer-loyalty', [CustomerLoyaltyController::class, 'store'])->name('crm.loyalty.store');
@@ -122,6 +122,11 @@ Route::get('/sales-order-management/profile/{salesOrder}', [SalesOrderController
 Route::patch('/sales-order-management/profile/{salesOrder}/status', [SalesOrderController::class, 'updateStatus'])->name('sales.update-status');
 
 
+Route::view('/pricing-rules', 'sales.pricing-rules')
+    ->name('pricing.index');
+
+Route::view('/pricing-rules/create', 'sales.create-pricing')
+    ->name('pricing.create');
 
 Route::view('/invoices', 'sales.invoices')
     ->name('invoices.index');
@@ -133,5 +138,3 @@ Route::view('/invoices/generate', 'sales.generate-invoice')
     ->name('invoices.generate');
 
 Route::resource('quotations', QuotationController::class);
-
-Route::resource('pricing-rules', PricingRuleController::class);
