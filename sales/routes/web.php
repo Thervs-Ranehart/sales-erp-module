@@ -76,6 +76,7 @@ Route::post('/customer-follow-ups/{log}/status', [CustomerFollowUpsController::c
 Route::delete('/customer-follow-ups/{log}', [CustomerFollowUpsController::class, 'destroy'])->name('crm.followups.destroy');
 
 Route::get('/customer-segmentation', [CustomerSegmentationController::class, 'index'])->name('crm.segmentation');
+Route::post('/customer-segmentation/recalculate', [CustomerSegmentationController::class, 'recalculate'])->name('crm.segmentation.recalculate');
 
 Route::get('/customer-loyalty', [CustomerLoyaltyController::class, 'index'])->name('crm.loyalty');
 Route::post('/customer-loyalty', [CustomerLoyaltyController::class, 'store'])->name('crm.loyalty.store');
@@ -123,8 +124,7 @@ Route::get('/sales-order-management/profile/{salesOrder}', [SalesOrderController
 Route::patch('/sales-order-management/profile/{salesOrder}/status', [SalesOrderController::class, 'updateStatus'])->name('sales.update-status');
 
 
+Route::resource('pricing-rules', PricingRuleController::class);
 Route::resource('invoices', InvoiceController::class);
 
 Route::resource('quotations', QuotationController::class);
-
-Route::resource('pricing-rules', PricingRuleController::class);

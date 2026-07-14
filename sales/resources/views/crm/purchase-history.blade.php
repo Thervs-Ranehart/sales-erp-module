@@ -188,22 +188,22 @@ Average Purchase
 
             <div class="category-item">
                 <span>Top Customer</span>
-                <strong>{{ optional($invoices->first()?->order?->customer)->display_name ?? '—' }}</strong>
+                <strong>{{ $topCustomerName ?? '—' }}</strong>
             </div>
 
             <div class="category-item">
                 <span>Highest Purchase</span>
-                <strong>₱{{ number_format($invoices->max('total_amount') ?? 0, 2) }}</strong>
+                <strong>₱{{ number_format($highestPurchase ?? 0, 2) }}</strong>
             </div>
 
             <div class="category-item">
                 <span>Most Purchased</span>
-                <strong>{{ optional($invoices->first()?->items?->first()?->product)->category ?? '—' }}</strong>
+                <strong>{{ $mostPurchasedCategory ?? '—' }}</strong>
             </div>
 
             <div class="category-item">
                 <span>Purchase Frequency</span>
-                <strong>—</strong>
+                <strong>{{ number_format($purchaseFrequency ?? 0, 1) }} orders/customer</strong>
             </div>
 
         </div>
