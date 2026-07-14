@@ -259,17 +259,23 @@ Pricing
 <label>Pricing Rule</label>
 
 <select class="form-select" name="pricing_rule_id" id="pricingRuleSelect">
-<option value="">Regular Price</option>
-@foreach ($pricingRules as $rule)
-<option value="{{ $rule->pricing_rule_id }}"
-    data-discount="{{ $rule->discount_value ?? 0 }}"
-    data-tax="{{ $rule->tax_rate ?? 12 }}"
-    old('pricing_rule_id', $isEdit ? $salesOrder->pricing_rule_id : null)
-    {{ $rule->rule_name }}
-</option>
-@endforeach
-</select>
 
+    <option value="">Regular Price</option>
+
+    @foreach ($pricingRules as $rule)
+
+        <option
+            value="{{ $rule->pricing_rule_id }}"
+            data-discount="{{ $rule->discount_value ?? 0 }}"
+            data-tax="{{ $rule->tax_rate ?? 12 }}"
+            @selected(old('pricing_rule_id', $isEdit ? $salesOrder->pricing_rule_id : null) == $rule->pricing_rule_id)
+        >
+            {{ $rule->rule_name }}
+        </option>
+
+    @endforeach
+
+</select>
 </div>
 
 <div class="col-md-4">
@@ -313,14 +319,19 @@ value="{{ $taxPercent }}">
 <h5 class="card-title">
 Order Status
 </h5>
+<select class="form-select" name="order_status" required>
 
-<select class="form-select" name="status" required>
-@foreach (['pending', 'processed', 'shipped', 'delivered', 'cancelled'] as $status)
-<option value="{{ $status }}"
-   old('order_status', $isEdit ? $salesOrder->order_status : null)
-    {{ ucfirst($status) }}
-</option>
-@endforeach
+    @foreach (['pending', 'processed', 'shipped', 'delivered', 'cancelled'] as $status)
+
+        <option
+            value="{{ $status }}"
+            @selected(old('order_status', $isEdit ? $salesOrder->order_status : null) == $status)
+        >
+            {{ ucfirst($status) }}
+        </option>
+
+    @endforeach
+
 </select>
 
 </div>

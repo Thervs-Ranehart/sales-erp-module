@@ -7,9 +7,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PricingRule extends Model
 {
-    public $timestamps = false;
+    protected $table = 'pricing_rules';
 
     protected $primaryKey = 'pricing_rule_id';
+
+    public $incrementing = true;
+
+    protected $keyType = 'int';
+
+    public $timestamps = false;
 
     protected $fillable = [
         'rule_name',
@@ -28,8 +34,18 @@ class PricingRule extends Model
         'end_date' => 'date',
     ];
 
+    public function quotations(): HasMany
+    {
+        return $this->hasMany(Quotation::class, 'pricing_rule_id', 'pricing_rule_id');
+    }
+
     public function salesOrders(): HasMany
     {
         return $this->hasMany(SalesOrder::class, 'pricing_rule_id', 'pricing_rule_id');
+    }
+
+    public function isActive(): bool
+    {
+        return strtolower((string) $this->status) === 'active';
     }
 }

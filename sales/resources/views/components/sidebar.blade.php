@@ -14,7 +14,7 @@ $mainItems = [
     'children' => [
         ['label'=>'Sales Orders','route'=>'sales.index','icon'=>'cart'],
         ['label'=>'Quotations','route'=>'quotations.index','icon'=>'file-earmark-text'],
-        ['label'=>'Pricing Rules','route'=>'pricing.index','icon'=>'tags'],
+        ['label' => 'Pricing Rules','route' => 'pricing-rules.index','icon'=> 'tags',],
         ['label'=>'Invoices','route'=>'invoices.index','icon'=>'receipt'],
     ],
 ],
