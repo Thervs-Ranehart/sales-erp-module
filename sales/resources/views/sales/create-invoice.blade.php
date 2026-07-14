@@ -1,13 +1,26 @@
 @extends('layouts.app')
 
-@section('title', 'Create Invoice')
-@section('page-title', 'Sales Order Management')
+@section('title', $isEdit ? 'Edit Invoice' : 'Create Invoice')
+@section('page-title', 'Invoice')
 
 @section('content')
 
+@php
+$formAction = $isEdit
+    ? route('invoices.update', $invoice)
+    : route('invoices.store');
+@endphp
+
+<form action="{{ $formAction }}" method="POST">
+
+    @csrf
+
+    @if($isEdit)
+        @method('PUT')
+    @endif
 
 <style>
-    
+
 :root{
     --primary:#5347CE;
     --secondary:#887CFD;
@@ -18,17 +31,6 @@
     --text:#1F2937;
     --text2:#6B7280;
 }
-
-/* REMOVE THESE
-.sidebar
-.main-content
-.topbar
-body
-.logo
-.menu-title
-*/
-
-/* ONLY KEEP PAGE STYLES */
 
 .page-header{
     display:flex;
@@ -138,344 +140,411 @@ body
     padding:11px 22px;
     border-radius:8px;
 }
+
 </style>
 
+<div class="page-header">
 
+    <a href="{{ route('invoices.index') }}" class="back-btn">
+        <i class="bi bi-arrow-left"></i>
+    </a>
 
-        <!-- PAGE HEADER -->
-        <div class="page-header">
+    <div>
 
-            <a href="{{ route('invoices.index') }}" class="back-btn">
-                <i class="bi bi-arrow-left"></i>
-            </a>
+        <h2 class="page-title">
+            {{ $isEdit ? 'Edit Invoice' : 'Create New Invoice' }}
+        </h2>
 
-            <div>
-                <h2 class="page-title">Create New Invoice</h2>
-                <p class="page-subtitle">
-                    Create an invoice for a customer sales order
-                </p>
-            </div>
-
-        </div>
-
-        <form>
-
-            <!-- INVOICE INFORMATION -->
-            <div class="custom-card">
-
-                <h5 class="card-title-custom">
-                    <i class="bi bi-receipt me-2"></i>
-                    Invoice Information
-                </h5>
-
-                <div class="row g-4">
-
-                    <div class="col-md-4">
-                        <label class="form-label">Invoice ID</label>
-                        <input
-                            type="text"
-                            class="form-control"
-                            value="INV-006"
-                            readonly
-                        >
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label">Invoice Date</label>
-                        <input
-                            type="date"
-                            class="form-control"
-                            value="2026-07-12"
-                        >
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label">Due Date</label>
-                        <input
-                            type="date"
-                            class="form-control"
-                        >
-                    </div>
-
-                </div>
-
-            </div>
-
-            <!-- CUSTOMER & ORDER -->
-            <div class="custom-card">
-
-                <h5 class="card-title-custom">
-                    <i class="bi bi-person me-2"></i>
-                    Customer & Order Details
-                </h5>
-
-                <div class="row g-4">
-
-                    <div class="col-md-6">
-
-                        <label class="form-label">
-                            Customer Name
-                        </label>
-
-                        <select class="form-select">
-                            <option selected disabled>
-                                Select Customer
-                            </option>
-                            <option>Adelaide Ful</option>
-                            <option>Maria Santos</option>
-                            <option>Jose Reyes</option>
-                            <option>Juan Dela Cruz</option>
-                            <option>ABC Corporation</option>
-                        </select>
-
-                    </div>
-
-                    <div class="col-md-6">
-
-                        <label class="form-label">
-                            Sales Order
-                        </label>
-
-                        <select class="form-select">
-                            <option selected disabled>
-                                Select Sales Order
-                            </option>
-                            <option>SO-001</option>
-                            <option>SO-002</option>
-                            <option>SO-003</option>
-                            <option>SO-004</option>
-                            <option>SO-005</option>
-                        </select>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <!-- INVOICE ITEMS -->
-            <div class="custom-card">
-
-                <div class="d-flex justify-content-between align-items-center mb-4">
-
-                    <h5 class="card-title-custom mb-0">
-                        <i class="bi bi-box-seam me-2"></i>
-                        Invoice Items
-                    </h5>
-
-                    <button type="button" class="add-item-btn">
-                        <i class="bi bi-plus-circle me-1"></i>
-                        Add Item
-                    </button>
-
-                </div>
-
-                <div class="table-responsive">
-
-                    <table class="table invoice-table">
-
-                        <thead>
-                            <tr>
-                                <th>Product / Service</th>
-                                <th width="130">Quantity</th>
-                                <th width="180">Unit Price</th>
-                                <th width="180">Amount</th>
-                                <th width="70">Action</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-
-                            <tr>
-
-                                <td>
-                                    <select class="form-select">
-                                        <option selected disabled>
-                                            Select Product
-                                        </option>
-                                        <option>Desktop Computer</option>
-                                        <option>Laptop</option>
-                                        <option>Monitor</option>
-                                        <option>Keyboard</option>
-                                        <option>Mouse</option>
-                                    </select>
-                                </td>
-
-                                <td>
-                                    <input
-                                        type="number"
-                                        class="form-control"
-                                        value="1"
-                                        min="1"
-                                    >
-                                </td>
-
-                                <td>
-                                    <input
-                                        type="number"
-                                        class="form-control"
-                                        placeholder="0.00"
-                                    >
-                                </td>
-
-                                <td>
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        value="₱0.00"
-                                        readonly
-                                    >
-                                </td>
-
-                                <td>
-                                    <button
-                                        type="button"
-                                        class="delete-item-btn"
-                                    >
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-            <!-- PAYMENT AND SUMMARY -->
-            <div class="row g-4">
-
-                <!-- PAYMENT DETAILS -->
-                <div class="col-lg-7">
-
-                    <div class="custom-card h-100">
-
-                        <h5 class="card-title-custom">
-                            <i class="bi bi-credit-card me-2"></i>
-                            Payment Details
-                        </h5>
-
-                        <div class="mb-3">
-
-                            <label class="form-label">
-                                Payment Status
-                            </label>
-
-                            <select class="form-select">
-                                <option selected>Pending</option>
-                                <option>Paid</option>
-                                <option>Draft</option>
-                            </select>
-
-                        </div>
-
-                        <div class="mb-3">
-
-                            <label class="form-label">
-                                Payment Terms
-                            </label>
-
-                            <select class="form-select">
-                                <option>Due on Receipt</option>
-                                <option>Net 7 Days</option>
-                                <option selected>Net 14 Days</option>
-                                <option>Net 30 Days</option>
-                            </select>
-
-                        </div>
-
-                        <div>
-
-                            <label class="form-label">
-                                Notes
-                            </label>
-
-                            <textarea
-                                class="form-control"
-                                rows="4"
-                                placeholder="Enter invoice notes..."
-                            ></textarea>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <!-- INVOICE SUMMARY -->
-                <div class="col-lg-5">
-
-                    <div class="custom-card">
-
-                        <h5 class="card-title-custom">
-                            <i class="bi bi-calculator me-2"></i>
-                            Invoice Summary
-                        </h5>
-
-                        <div class="summary-row">
-                            <span>Subtotal</span>
-                            <strong>₱0.00</strong>
-                        </div>
-
-                        <div class="summary-row">
-                            <span>Discount</span>
-                            <strong>₱0.00</strong>
-                        </div>
-
-                        <div class="summary-row">
-                            <span>Tax (12%)</span>
-                            <strong>₱0.00</strong>
-                        </div>
-
-                        <div class="summary-total">
-
-                            <h5 class="mb-0 fw-bold">
-                                Total
-                            </h5>
-
-                            <h4>
-                                ₱0.00
-                            </h4>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <!-- ACTION BUTTONS -->
-            <div class="d-flex justify-content-end gap-3 mt-4 mb-5">
-
-                <a
-                    href="{{ route('invoices.index') }}"
-                    class="cancel-btn"
-                >
-                    Cancel
-                </a>
-
-                <button
-                    type="button"
-                    class="draft-btn"
-                >
-                    <i class="bi bi-file-earmark me-1"></i>
-                    Save as Draft
-                </button>
-
-            <a href="{{ route('invoices.generate') }}" class="create-btn text-decoration-none">
-    <i class="bi bi-check-circle me-1"></i>
-    Generate Invoice
-</a>
-            </div>
-
-        </form>
+        <p class="page-subtitle">
+            Generate an invoice from an existing Sales Order.
+        </p>
 
     </div>
 
 </div>
+
+@if($errors->any())
+
+<div class="alert alert-danger">
+
+<ul class="mb-0">
+
+@foreach($errors->all() as $error)
+
+<li>{{ $error }}</li>
+
+@endforeach
+
+</ul>
+
+</div>
+
+@endif
+<!-- ================= INVOICE INFORMATION ================= -->
+
+<div class="custom-card">
+
+    <h5 class="card-title-custom">
+        Invoice Information
+    </h5>
+
+    <div class="row g-4">
+
+        <div class="col-md-4">
+
+            <label class="form-label">
+                Invoice Number
+            </label>
+
+            <input
+                type="text"
+                class="form-control"
+                value="{{ $isEdit ? $invoice->invoice_number : 'Auto Generated' }}"
+                readonly
+            >
+
+        </div>
+
+        <div class="col-md-4">
+
+            <label class="form-label">
+                Sales Order
+            </label>
+
+            <select
+                class="form-select"
+                name="order_id"
+                id="salesOrderSelect"
+                required
+            >
+
+                <option value="">
+                    Select Sales Order
+                </option>
+
+         @foreach($salesOrders as $order)
+
+    <option
+        value="{{ $order->order_id }}"
+        data-customer="{{ $order->customer->full_name }}"
+        data-subtotal="{{ $order->subtotal }}"
+        data-discount="{{ $order->discount }}"
+        data-tax="{{ $order->tax }}"
+        data-shipping="{{ $order->shipping_fee }}"
+        data-total="{{ $order->total_amount }}"
+        @selected(
+            old(
+                'order_id',
+                $isEdit ? $invoice->order_id : null
+            ) == $order->order_id
+        )
+    >
+
+        {{ $order->order_number }} — {{ $order->customer->full_name }}
+
+    </option>
+
+@endforeach
+            </select>
+
+        </div>
+
+        <div class="col-md-4">
+
+            <label class="form-label">
+                Customer
+            </label>
+
+            <input
+                type="text"
+                class="form-control"
+                id="customer_name"
+                value="{{ old('customer_name', optional(optional($invoice->order)->customer)->full_name) }}"
+                readonly
+            >
+
+        </div>
+
+        <div class="col-md-4">
+
+            <label class="form-label">
+                Invoice Date
+            </label>
+
+            <input
+                type="date"
+                class="form-control"
+                name="invoice_date"
+
+                value="{{ old(
+                    'invoice_date',
+                    $isEdit
+                        ? optional($invoice->invoice_date)->format('Y-m-d')
+                        : now()->format('Y-m-d')
+                ) }}"
+
+                required
+            >
+
+        </div>
+
+        <div class="col-md-4">
+
+            <label class="form-label">
+                Payment Method
+            </label>
+
+            <select
+                class="form-select"
+                name="payment_method"
+                required
+            >
+
+                @foreach(['Cash','GCash','Bank Transfer','Credit Card'] as $method)
+
+                    <option
+                        value="{{ $method }}"
+                        @selected(
+                            old(
+                                'payment_method',
+                                $isEdit ? $invoice->payment_method : null
+                            ) == $method
+                        )
+                    >
+
+                        {{ $method }}
+
+                    </option>
+
+                @endforeach
+
+            </select>
+
+        </div>
+
+        <div class="col-md-4">
+
+            <label class="form-label">
+                Payment Status
+            </label>
+
+            <select
+                class="form-select"
+                name="payment_status"
+                required
+            >
+
+                @foreach(['Pending','Paid','Cancelled'] as $status)
+
+                    <option
+                        value="{{ $status }}"
+                        @selected(
+                            old(
+                                'payment_status',
+                                $isEdit ? $invoice->payment_status : 'Pending'
+                            ) == $status
+                        )
+                    >
+
+                        {{ $status }}
+
+                    </option>
+
+                @endforeach
+
+            </select>
+
+        </div>
+
+    </div>
+
+</div>
+<!-- ================= INVOICE SUMMARY ================= -->
+
+<div class="custom-card">
+
+    <h5 class="card-title-custom">
+        Invoice Summary
+    </h5>
+
+    <div class="row g-4">
+
+        <div class="col-md-6">
+
+            <label class="form-label">
+                Subtotal
+            </label>
+
+            <input
+                type="number"
+                step="0.01"
+                min="0"
+                class="form-control"
+                id="subtotal"
+                name="subtotal"
+                value="{{ old('subtotal', $isEdit ? $invoice->subtotal : 0) }}"
+                readonly
+            >
+
+        </div>
+
+        <div class="col-md-6">
+
+            <label class="form-label">
+                Discount
+            </label>
+
+            <input
+                type="number"
+                step="0.01"
+                min="0"
+                class="form-control"
+                id="discount"
+                name="discount"
+                value="{{ old('discount', $isEdit ? $invoice->discount : 0) }}"
+                readonly
+            >
+
+        </div>
+
+        <div class="col-md-6">
+
+            <label class="form-label">
+                Tax
+            </label>
+
+            <input
+                type="number"
+                step="0.01"
+                min="0"
+                class="form-control"
+                id="tax"
+                name="tax"
+                value="{{ old('tax', $isEdit ? $invoice->tax : 0) }}"
+                readonly
+            >
+
+        </div>
+
+        <div class="col-md-6">
+
+            <label class="form-label">
+                Shipping Fee
+            </label>
+
+            <input
+                type="number"
+                step="0.01"
+                min="0"
+                class="form-control"
+                id="shipping_fee"
+                name="shipping_fee"
+                value="{{ old('shipping_fee', $isEdit ? $invoice->shipping_fee : 0) }}"
+                readonly
+            >
+
+        </div>
+
+        <div class="col-12">
+
+            <label class="form-label">
+                Total Amount
+            </label>
+
+            <input
+                type="number"
+                step="0.01"
+                min="0"
+                class="form-control fw-bold fs-5"
+                id="total_amount"
+                name="total_amount"
+                value="{{ old('total_amount', $isEdit ? $invoice->total_amount : 0) }}"
+                readonly
+            >
+
+        </div>
+
+    </div>
+
+</div>
+<div class="d-flex justify-content-end gap-2 mt-4">
+
+    <a
+        href="{{ route('invoices.index') }}"
+        class="btn btn-outline-secondary"
+    >
+        Cancel
+    </a>
+
+    <button
+        type="submit"
+        class="btn btn-primary"
+    >
+        <i class="bi bi-check-circle"></i>
+
+        {{ $isEdit ? 'Update Invoice' : 'Create Invoice' }}
+
+    </button>
+
+    @if($isEdit)
+
+        <a
+            href="{{ route('crm.purchase.show', $invoice) }}"
+            class="btn btn-success"
+        >
+            <i class="bi bi-file-earmark-text"></i>
+
+            Generate Invoice
+        </a>
+
+    @endif
+
+</div>
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const orderSelect = document.getElementById('salesOrderSelect');
+
+    const subtotal = document.getElementById('subtotal');
+    const discount = document.getElementById('discount');
+    const tax = document.getElementById('tax');
+    const shipping = document.getElementById('shipping_fee');
+    const total = document.getElementById('total_amount');
+    const customer = document.getElementById('customer_name');
+
+    function loadOrderData(){
+
+        const option = orderSelect.options[orderSelect.selectedIndex];
+
+        if(!option.value){
+
+            subtotal.value = 0;
+            discount.value = 0;
+            tax.value = 0;
+            shipping.value = 0;
+            total.value = 0;
+            customer.value = '';
+
+            return;
+        }
+
+        subtotal.value = option.dataset.subtotal ?? 0;
+        discount.value = option.dataset.discount ?? 0;
+        tax.value = option.dataset.tax ?? 0;
+        shipping.value = option.dataset.shipping ?? 0;
+        total.value = option.dataset.total ?? 0;
+        customer.value = option.dataset.customer ?? '';
+    }
+
+    orderSelect.addEventListener('change', loadOrderData);
+
+    loadOrderData();
+
+});
+
+</script>
+
+</form>
+
 @endsection

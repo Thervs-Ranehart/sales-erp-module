@@ -1,330 +1,554 @@
 @extends('layouts.app')
 
-@section('title','Invoice Generated')
-@section('page-title','Sales Order Management')
+@section('title', 'Generate Invoice')
+@section('page-title', 'Generate Invoice')
 
 @section('content')
 
-<style>
+<div class="page-content">
 
-:root{
-    --primary:#5347CE;
-    --secondary:#887CFD;
-    --accent:#4896FE;
-    --success:#16C8C7;
-    --warning:#F59E0B;
-    --danger:#EF4444;
-    --border:#E5E7EB;
-    --light:#F8FAFC;
-}
+    <div class="page-header">
 
-.page-header{
-    margin-bottom:30px;
-}
+        <div>
 
-.page-title{
-    font-size:30px;
-    font-weight:700;
-}
+            <h2 class="page-title">
+                Invoice Generated
+            </h2>
 
-.page-subtitle{
-    color:#6B7280;
-}
+            <p class="page-subtitle">
+                ERP transaction summary for this invoice.
+            </p>
 
-.custom-card{
-    background:#fff;
-    border:none;
-    border-radius:16px;
-    box-shadow:0 5px 20px rgba(0,0,0,.06);
-    padding:25px;
-    margin-bottom:25px;
-}
+        </div>
 
-.info-title{
-    color:var(--primary);
-    font-size:18px;
-    font-weight:700;
-    margin-bottom:20px;
-}
+        <div class="d-flex gap-2">
 
-.status{
-    display:inline-block;
-    padding:7px 18px;
-    border-radius:20px;
-    background:#DDF8F3;
-    color:#0A7B71;
-    font-weight:600;
-}
+            <a
+                href="{{ route('invoices.index') }}"
+                class="btn btn-outline-secondary"
+            >
+                <i class="bi bi-arrow-left"></i>
+                Back
+            </a>
 
-.summary-item{
-    display:flex;
-    justify-content:space-between;
-    padding:12px 0;
-    border-bottom:1px solid #eee;
-}
+            <button
+                class="btn btn-primary"
+                onclick="window.print()"
+            >
+                <i class="bi bi-printer"></i>
+                Print Invoice
+            </button>
 
-.integration-card{
-    border:2px solid #ECEBFF;
-    border-radius:14px;
-    padding:20px;
-    height:100%;
-}
+        </div>
 
-.integration-card h5{
-    color:var(--primary);
-    margin-bottom:15px;
-}
-
-.integration-card ul{
-    padding-left:20px;
-}
-
-.integration-card li{
-    margin-bottom:8px;
-}
-
-.success-box{
-    background:#ECFFF8;
-    border-left:5px solid var(--success);
-    padding:18px;
-    border-radius:10px;
-}
-
-.success-box h5{
-    color:#128B74;
-}
-
-.action-buttons{
-    display:flex;
-    justify-content:flex-end;
-    gap:15px;
-    margin-top:30px;
-}
-
-.btn-back{
-    border:1px solid #ddd;
-    color:#6B7280;
-    padding:10px 22px;
-    border-radius:8px;
-    text-decoration:none;
-}
-
-.btn-primary-custom{
-    background:var(--primary);
-    color:white;
-    border:none;
-    padding:11px 24px;
-    border-radius:8px;
-}
-
-.btn-primary-custom:hover{
-    background:var(--secondary);
-    color:white;
-}
-
-</style>
-
-<div class="page-header">
-
-    <h2 class="page-title">
-        Invoice Generated Successfully
-    </h2>
-
-    <p class="page-subtitle">
-        The invoice has been generated and synchronized with the ERP shared modules.
-    </p>
-
-</div>
-
-
-<div class="success-box mb-4">
-
-    <h5>
-        <i class="bi bi-check-circle-fill me-2"></i>
-        Invoice Generation Complete
-    </h5>
-
-    <p class="mb-0">
-        The invoice has been successfully created. Shared transaction records
-        for Inventory and Finance have also been generated.
-    </p>
-
-</div>
-
-
-<div class="custom-card">
-
-    <div class="info-title">
-        Invoice Information
     </div>
 
-    <div class="row">
+    <div class="row g-4">
 
-        <div class="col-md-3">
-            <strong>Invoice No.</strong>
-            <p>INV-006</p>
+        <div class="col-lg-6">
+
+            <div class="custom-card">
+
+                <div class="info-title">
+
+                    Invoice Information
+
+                </div>
+
+                <div class="info-row">
+
+                    <span>Invoice Number</span>
+
+                    <strong>
+
+                        {{ $invoice->invoice_number }}
+
+                    </strong>
+
+                </div>
+
+                <div class="info-row">
+
+                    <span>Sales Order</span>
+
+                    <strong>
+
+                        {{ $invoice->salesOrder->order_number }}
+
+                    </strong>
+
+                </div>
+
+                <div class="info-row">
+
+                    <span>Customer</span>
+
+                    <strong>
+
+                        {{ $invoice->salesOrder->customer->full_name }}
+
+                    </strong>
+
+                </div>
+
+                <div class="info-row">
+
+                    <span>Invoice Date</span>
+
+                    <strong>
+
+                        {{ optional($invoice->invoice_date)->format('F d, Y') }}
+
+                    </strong>
+
+                </div>
+
+                <div class="info-row">
+
+                    <span>Payment Method</span>
+
+                    <strong>
+
+                        {{ $invoice->payment_method }}
+
+                    </strong>
+
+                </div>
+
+                <div class="info-row">
+
+                    <span>Status</span>
+
+                    <span class="status">
+
+                        {{ $invoice->payment_status }}
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+        <div class="col-lg-6">
+
+    <!-- Inventory Transaction -->
+
+    <div class="custom-card mb-4">
+
+        <div class="info-title">
+
+            Inventory Transaction
+
         </div>
 
-        <div class="col-md-3">
-            <strong>Sales Order</strong>
-            <p>SO-006</p>
+        <div class="info-row">
+
+            <span>Transaction ID</span>
+
+            <strong>
+
+                INVT-{{ str_pad($invoice->invoice_id, 4, '0', STR_PAD_LEFT) }}
+
+            </strong>
+
         </div>
 
-        <div class="col-md-3">
-            <strong>Customer</strong>
-            <p>ABC Corporation</p>
-        </div>
+        <div class="info-row">
 
-        <div class="col-md-3">
-            <strong>Status</strong><br>
-            <span class="status">
-                Generated
+            <span>Status</span>
+
+            <span class="badge bg-success">
+
+                Posted
+
             </span>
+
+        </div>
+
+        <div class="info-row">
+
+            <span>Reference</span>
+
+            <strong>
+
+                {{ $invoice->salesOrder->order_number }}
+
+            </strong>
+
+        </div>
+
+        <div class="info-row">
+
+            <span>Customer</span>
+
+            <strong>
+
+                {{ $invoice->salesOrder->customer->full_name }}
+
+            </strong>
+
+        </div>
+
+    </div>
+
+    <!-- Finance Transaction -->
+
+    <div class="custom-card">
+
+        <div class="info-title">
+
+            Finance Transaction
+
+        </div>
+
+        <div class="info-row">
+
+            <span>Journal ID</span>
+
+            <strong>
+
+                FIN-{{ str_pad($invoice->invoice_id, 4, '0', STR_PAD_LEFT) }}
+
+            </strong>
+
+        </div>
+
+        <div class="info-row">
+
+            <span>Payment Method</span>
+
+            <strong>
+
+                {{ $invoice->payment_method }}
+
+            </strong>
+
+        </div>
+
+        <div class="info-row">
+
+            <span>Payment Status</span>
+
+            <span class="badge bg-primary">
+
+                {{ $invoice->payment_status }}
+
+            </span>
+
+        </div>
+
+        <div class="info-row">
+
+            <span>Total Amount</span>
+
+            <strong class="text-primary">
+
+                ₱{{ number_format($invoice->total_amount,2) }}
+
+            </strong>
+
         </div>
 
     </div>
 
 </div>
 
-
-<div class="row">
-
-<div class="col-lg-6">
-
-<div class="integration-card">
-
-<h5>
-<i class="bi bi-box-seam me-2"></i>
-Inventory Transaction
-</h5>
-
-<div class="summary-item">
-<span>Transaction ID</span>
-<strong>INVT-0014</strong>
 </div>
+<div class="row mt-4">
 
-<div class="summary-item">
-<span>Status</span>
-<strong class="text-success">
-Ready
-</strong>
-</div>
+    <div class="col-lg-12">
 
-<ul class="mt-3">
+        <div class="custom-card">
 
-<li>Inventory transaction record created</li>
+            <div class="info-title">
 
-<li>Reserved product stock</li>
+                Invoice Summary
 
-<li>Ready for Inventory Module processing</li>
+            </div>
 
-</ul>
+            <div class="summary-item">
 
-</div>
+                <span>Subtotal</span>
 
-</div>
+                <strong>
 
+                    ₱{{ number_format($invoice->subtotal,2) }}
 
-<div class="col-lg-6">
+                </strong>
 
-<div class="integration-card">
+            </div>
 
-<h5>
-<i class="bi bi-cash-stack me-2"></i>
-Finance Transaction
-</h5>
+            <div class="summary-item">
 
-<div class="summary-item">
-<span>Transaction ID</span>
-<strong>FIN-0014</strong>
-</div>
+                <span>Discount</span>
 
-<div class="summary-item">
-<span>Status</span>
-<strong class="text-success">
-Ready
-</strong>
-</div>
+                <strong class="text-danger">
 
-<ul class="mt-3">
+                    - ₱{{ number_format($invoice->discount,2) }}
 
-<li>Accounts Receivable created</li>
+                </strong>
 
-<li>Sales revenue recorded</li>
+            </div>
 
-<li>Ready for Finance Module processing</li>
+            <div class="summary-item">
 
-</ul>
+                <span>Tax</span>
 
-</div>
+                <strong>
 
-</div>
+                    ₱{{ number_format($invoice->tax,2) }}
 
-</div>
+                </strong>
 
+            </div>
 
-<div class="custom-card mt-4">
+            <div class="summary-item">
 
-<div class="info-title">
-ERP Synchronization Summary
-</div>
+                <span>Shipping Fee</span>
 
-<div class="summary-item">
-<span>Invoice Record</span>
+                <strong>
 
-<strong class="text-success">
-<i class="bi bi-check-circle-fill"></i>
-Completed
-</strong>
-</div>
+                    ₱{{ number_format($invoice->shipping_fee,2) }}
 
-<div class="summary-item">
-<span>Invoice Items</span>
+                </strong>
 
-<strong class="text-success">
-<i class="bi bi-check-circle-fill"></i>
-Completed
-</strong>
-</div>
+            </div>
 
-<div class="summary-item">
-<span>Inventory Transaction</span>
+            <hr>
 
-<strong class="text-success">
-<i class="bi bi-check-circle-fill"></i>
-Created
-</strong>
-</div>
+            <div class="summary-item">
 
-<div class="summary-item">
-<span>Finance Transaction</span>
+                <span
+                    style="
+                        font-size:18px;
+                        font-weight:700;
+                    "
+                >
+                    Grand Total
+                </span>
 
-<strong class="text-success">
-<i class="bi bi-check-circle-fill"></i>
-Created
-</strong>
-</div>
+                <strong
+                    style="
+                        font-size:26px;
+                        color:#5347CE;
+                    "
+                >
 
-<div class="summary-item">
-<span>ERP Status</span>
+                    ₱{{ number_format($invoice->total_amount,2) }}
 
-<strong style="color:#16C8C7;">
-Ready for Processing
-</strong>
-</div>
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
+<div class="row mt-4">
 
+    <div class="col-lg-12">
 
-<div class="action-buttons">
+        <div class="custom-card">
 
-<a href="{{ route('invoices.index') }}" class="btn-back">
-Back to Invoices
-</a>
+            <div class="info-title">
 
-<a href="{{ route('invoices.create') }}" class="btn-primary-custom text-decoration-none">
-Generate Another Invoice
-</a>
+                ERP Synchronization Summary
+
+            </div>
+
+            <table class="table align-middle">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Module</th>
+
+                        <th>Reference</th>
+
+                        <th>Status</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <tr>
+
+                        <td>
+
+                            Sales Order
+
+                        </td>
+
+                        <td>
+
+                            {{ $invoice->salesOrder->order_number }}
+
+                        </td>
+
+                        <td>
+
+                            <span class="badge bg-success">
+
+                                Linked
+
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>
+
+                            Customer
+
+                        </td>
+
+                        <td>
+
+                            {{ $invoice->salesOrder->customer->full_name }}
+
+                        </td>
+
+                        <td>
+
+                            <span class="badge bg-success">
+
+                                Verified
+
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>
+
+                            Inventory
+
+                        </td>
+
+                        <td>
+
+                            INVT-{{ str_pad($invoice->invoice_id,4,'0',STR_PAD_LEFT) }}
+
+                        </td>
+
+                        <td>
+
+                            <span class="badge bg-primary">
+
+                                Posted
+
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>
+
+                            Finance
+
+                        </td>
+
+                        <td>
+
+                            FIN-{{ str_pad($invoice->invoice_id,4,'0',STR_PAD_LEFT) }}
+
+                        </td>
+
+                        <td>
+
+                            <span class="badge bg-primary">
+
+                                Posted
+
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>
+
+                            Invoice
+
+                        </td>
+
+                        <td>
+
+                            {{ $invoice->invoice_number }}
+
+                        </td>
+
+                        <td>
+
+                            <span class="badge bg-success">
+
+                                Generated
+
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+<div class="mt-4 d-flex justify-content-end gap-2">
+
+    <a
+        href="{{ route('invoices.edit',$invoice) }}"
+        class="btn btn-warning"
+    >
+
+        <i class="bi bi-pencil-square"></i>
+
+        Edit Invoice
+
+    </a>
+
+    <a
+        href="{{ route('invoices.index') }}"
+        class="btn btn-secondary"
+    >
+
+        <i class="bi bi-arrow-left"></i>
+
+        Back to Invoices
+
+    </a>
+
+    <button
+        onclick="window.print()"
+        class="btn btn-primary"
+    >
+
+        <i class="bi bi-printer"></i>
+
+        Print
+
+    </button>
 
 </div>
 

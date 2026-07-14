@@ -11,12 +11,14 @@ use App\Http\Controllers\Crm\CustomerLoyaltyController;
 use App\Http\Controllers\Crm\RewardController;
 
 use App\Http\Controllers\DashboardController;
-
 use App\Http\Controllers\ForecastingController;
 use App\Http\Controllers\NotificationController;
+
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\SalesOrderController;
+use App\Http\Controllers\PricingRuleController;
+use App\Http\Controllers\InvoiceController;
 
 use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\AfterSalesSupportController;
@@ -117,19 +119,7 @@ Route::get('/sales-order-management/profile/{salesOrder}', [SalesOrderController
 Route::patch('/sales-order-management/profile/{salesOrder}/status', [SalesOrderController::class, 'updateStatus'])->name('sales.update-status');
 
 
-Route::view('/pricing-rules', 'sales.pricing-rules')
-    ->name('pricing.index');
-
-Route::view('/pricing-rules/create', 'sales.create-pricing')
-    ->name('pricing.create');
-
-Route::view('/invoices', 'sales.invoices')
-    ->name('invoices.index');
-
-Route::view('/invoices/create', 'sales.create-invoice')
-    ->name('invoices.create');
-
-Route::view('/invoices/generate', 'sales.generate-invoice')
-    ->name('invoices.generate');
+Route::resource('pricing-rules', PricingRuleController::class);
+Route::resource('invoices', InvoiceController::class);
 
 Route::resource('quotations', QuotationController::class);
