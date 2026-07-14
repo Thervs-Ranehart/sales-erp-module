@@ -143,6 +143,7 @@ font-size:13px;
 }
 
 
+
 .table td {
 
 padding:14px;
@@ -946,13 +947,55 @@ Recent Purchases
 
 
 
-
-
-
-
 <div class="col-md-6">
 
 
+<div class="card profile-card p-4">
+
+
+<div class="section-title">
+Recent Communications
+</div>
+
+
+
+<table class="table">
+
+@forelse(($communications ?? []) as $log)
+
+<tr>
+
+<td>
+<span class="badge bg-light text-dark border">{{ $log['channel'] ?? '' }}</span>
+</td>
+
+
+<td>
+{{ $log['subject'] ?? '' }}
+</td>
+
+
+<td class="text-muted">
+{{ $log['date'] ?? '' }}
+</td>
+
+</tr>
+
+@empty
+
+<tr>
+
+<td colspan="3" class="text-muted">No communication logs found.</td>
+
+</tr>
+
+@endforelse
+
+
+</table>
+
+
+</div>
 
 
 </div>

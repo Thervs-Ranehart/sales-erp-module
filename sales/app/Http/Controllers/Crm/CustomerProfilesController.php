@@ -30,6 +30,7 @@ class CustomerProfilesController extends Controller
         $selectedCustomer = null;
 $customer = null;
 $purchases = collect();
+$communications = collect();
 $editMode = $request->boolean('edit');
 
 /*
@@ -65,6 +66,7 @@ if ($customerId) {
 if ($selectedCustomer) {
     $customer = $this->formatCustomerProfile($selectedCustomer);
     $purchases = $this->formatRecentPurchases($selectedCustomer);
+    $communications = $this->formatRecentCommunications($selectedCustomer);
 }
 
         return view('crm.customer-profiles', [
@@ -73,13 +75,14 @@ if ($selectedCustomer) {
             'search' => $search,
             'customer' => $customer,
             'purchases' => $purchases,
+            'communications' => $communications,
             'editMode' => $editMode,
         ]);
     }
 
     public function edit(Customer $customer)
     {
-        $customer->load(['profile', 'loyaltyProgram', 'segments', 'salesOrders.items.product']);
+        $customer->load(['profile', 'loyaltyProgram', 'segments', 'salesOrders.items.product', 'communicationLogs']);
 
         return view('crm.customer-profiles', [
             'customers' => Customer::orderByDesc('customer_id')->paginate(10),
@@ -87,6 +90,7 @@ if ($selectedCustomer) {
             'search' => '',
             'customer' => $this->formatCustomerProfile($customer),
             'purchases' => $this->formatRecentPurchases($customer),
+            'communications' => $this->formatRecentCommunications($customer),
             'editMode' => true,
         ]);
     }
@@ -218,5 +222,21 @@ if ($selectedCustomer) {
             ->sortByDesc('order_date')
             ->values()
             ->take(5);
+    }
+
+    private function formatRecentCommunications(Customer $selectedCustomer)
+    {
+        return $selectedCustomer->communicationLogs
+            ->sortByDesc('communication_date')
+            ->values()
+            ->take(5)
+            ->map(function ($log) {
+                return [
+                    'channel' => $log->communication_channel ?? '—',
+                    'subject' => $log->subject ?? '—',
+                    'date' => optional($log->communication_date)->format('M d, Y'),
+                    'status' => $log->communication_status ?? '—',
+                ];
+            });
     }
 }

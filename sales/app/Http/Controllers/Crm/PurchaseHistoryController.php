@@ -11,41 +11,7 @@ class PurchaseHistoryController extends Controller
 {
     public function index(Request $request)
     {
-        $search = trim((string) $request->query('search', ''));
-        $category = $request->query('category');
-        $paymentStatus = $request->query('status');
-        $query = $this->filteredInvoices($request);
-
-        $invoices = $query->orderByDesc('invoice_date')->paginate(10)->withQueryString();
-
-        $totalTransactions = Invoice::count();
-        $totalSales = Invoice::sum('total_amount');
-        $monthlyOrders = Invoice::whereYear('invoice_date', now()->year)
-            ->whereMonth('invoice_date', now()->month)
-            ->count();
-        $averagePurchase = $totalTransactions > 0 ? ($totalSales / $totalTransactions) : 0;
-
-        $categoryTotals = Invoice::with('items.product')
-            ->get()
-            ->flatMap(fn ($invoice) => $invoice->items)
-            ->groupBy(fn ($item) => $item->product?->category ?? 'Other')
-            ->map(fn ($items) => $items->sum('subtotal'))
-            ->sortDesc();
-
-        $grandTotal = max(1, $categoryTotals->sum());
-
-        return view('crm.purchase-history', [
-            'invoices' => $invoices,
-            'totalTransactions' => $totalTransactions,
-            'totalSales' => $totalSales,
-            'monthlyOrders' => $monthlyOrders,
-            'averagePurchase' => $averagePurchase,
-            'search' => $search,
-            'category' => $category,
-            'paymentStatus' => $paymentStatus,
-            'categoryTotals' => $categoryTotals,
-            'grandTotal' => $grandTotal,
-        ]);
+        return view('crm.purchase-history', $this->indexData($request));
     }
 
     public function show(Invoice $invoice)
@@ -119,14 +85,32 @@ class PurchaseHistoryController extends Controller
             ->count();
         $averagePurchase = $totalTransactions > 0 ? ($totalSales / $totalTransactions) : 0;
 
-        $categoryTotals = Invoice::with('items.product')
-            ->get()
+        // Pulled once and reused for both the category breakdown and the
+        // "Customer Insights" box below — these must look at ALL invoices,
+        // not just the current paginated page, or the numbers are wrong.
+        $allInvoices = Invoice::with(['items.product', 'order.customer'])->get();
+
+        $categoryTotals = $allInvoices
             ->flatMap(fn ($invoice) => $invoice->items)
             ->groupBy(fn ($item) => $item->product?->category ?? 'Other')
             ->map(fn ($items) => $items->sum('subtotal'))
             ->sortDesc();
 
         $grandTotal = max(1, $categoryTotals->sum());
+
+        $customerTotals = $allInvoices
+            ->filter(fn ($invoice) => $invoice->order?->customer_id)
+            ->groupBy(fn ($invoice) => $invoice->order->customer_id)
+            ->map(function ($group) {
+                return [
+                    'customer' => $group->first()->order->customer,
+                    'total' => $group->sum('total_amount'),
+                ];
+            })
+            ->sortByDesc('total');
+
+        $topCustomer = $customerTotals->first();
+        $distinctPurchasingCustomers = $customerTotals->count();
 
         return [
             'invoices' => $invoices,
@@ -139,6 +123,13 @@ class PurchaseHistoryController extends Controller
             'paymentStatus' => $paymentStatus,
             'categoryTotals' => $categoryTotals,
             'grandTotal' => $grandTotal,
+            'topCustomerName' => optional($topCustomer['customer'] ?? null)->display_name,
+            'topCustomerSpend' => $topCustomer['total'] ?? 0,
+            'highestPurchase' => $allInvoices->max('total_amount') ?? 0,
+            'mostPurchasedCategory' => $categoryTotals->keys()->first(),
+            'purchaseFrequency' => $distinctPurchasingCustomers > 0
+                ? round($totalTransactions / $distinctPurchasingCustomers, 1)
+                : 0,
         ];
     }
 
