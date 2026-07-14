@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Invoice extends Model
 {
@@ -10,9 +12,9 @@ class Invoice extends Model
 
     protected $primaryKey = 'invoice_id';
 
-    protected $keyType = 'int';
-
     public $incrementing = true;
+
+    protected $keyType = 'int';
 
     protected $fillable = [
         'invoice_number',
@@ -37,14 +39,45 @@ class Invoice extends Model
         'total_amount' => 'decimal:2',
     ];
 
-    public function order()
+    public function salesOrder(): BelongsTo
     {
-        return $this->belongsTo(SalesOrder::class, 'order_id', 'order_id');
+        return $this->belongsTo(
+            SalesOrder::class,
+            'order_id',
+            'order_id'
+        );
     }
 
-    public function items()
+    /**
+     * Alias for salesOrder(), since some controllers/views reference
+     * 'order' instead of 'salesOrder'. Keeping both avoids breaking
+     * either naming convention.
+     */
+    public function order(): BelongsTo
     {
-        return $this->hasMany(InvoiceItem::class, 'invoice_id', 'invoice_id');
+        return $this->salesOrder();
+    }
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(
+            InvoiceItem::class,
+            'invoice_id',
+            'invoice_id'
+        );
+    }
+
+    public function employee(): BelongsTo
+    {
+        return $this->belongsTo(
+            Employee::class,
+            'employee_id',
+            'employee_id'
+        );
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'invoice_id';
     }
 }
-

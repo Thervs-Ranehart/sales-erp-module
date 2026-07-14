@@ -6,7 +6,62 @@
 @section('content')
 
     <style>
-         
+         .action-buttons{
+
+    display:flex;
+    gap:8px;
+}
+
+.action-btn{
+
+    width:36px;
+    height:36px;
+
+    border-radius:8px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    text-decoration:none;
+
+    border:1px solid #dcdcdc;
+
+    background:white;
+
+    transition:.2s;
+}
+
+.view-btn:hover{
+
+    background:#4896FE;
+    color:white;
+
+}
+
+.edit-btn:hover{
+
+    background:#16C8C7;
+    color:white;
+
+}
+
+.delete-btn:hover{
+
+    background:#dc3545;
+    color:white;
+
+}
+
+.filter-btn.active{
+
+    background:#5347CE;
+
+    color:white;
+
+}
         :root{
             --primary:#5347CE;
             --secondary:#887CFD;
@@ -265,257 +320,151 @@
 <body>
 
     <!-- PAGE CONTENT -->
+<div class="page-content">
 
-    <div class="page-content">
+    <div class="page-header">
 
-        <div class="page-header">
+        <div>
 
-            <div>
-                <h2 class="page-title">Invoices</h2>
-                <p class="page-subtitle">
-                    Manage and track customer invoices
-                </p>
+            <h2 class="page-title">
+                Invoices
+            </h2>
+
+            <p class="page-subtitle">
+                Manage all customer invoices.
+            </p>
+
+        </div>
+
+        <a
+            href="{{ route('invoices.create') }}"
+            class="new-btn"
+        >
+            <i class="bi bi-plus-circle"></i>
+            New Invoice
+        </a>
+
+    </div>
+
+    <!-- KPI -->
+
+    <div class="row g-4">
+
+        <div class="col-lg-3">
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <div>
+
+                        <div class="stat-label">
+                            Total Invoices
+                        </div>
+
+                        <div class="stat-number">
+                            {{ $statusCounts['all'] }}
+                        </div>
+
+                    </div>
+
+                    <div class="stat-icon icon-purple">
+
+                        <i class="bi bi-receipt"></i>
+
+                    </div>
+
+                </div>
+
             </div>
-            
-            <a href="{{ route('invoices.create') }}" class="new-btn">
-    <i class="bi bi-plus-circle"></i>
-    Create New Invoice
-</a>
 
         </div>
 
-        <!-- SEARCH -->
+        <div class="col-lg-3">
 
-        <div class="toolbar">
+            <div class="stat-card">
 
-            <div class="search-box">
-                <i class="bi bi-search"></i>
+                <div class="stat-top">
 
-                <input
-                    type="text"
-                    placeholder="Search Invoice ID or Customer Name"
-                >
+                    <div>
+
+                        <div class="stat-label">
+                            Paid
+                        </div>
+
+                        <div class="stat-number">
+                            {{ $statusCounts['paid'] }}
+                        </div>
+
+                    </div>
+
+                    <div class="stat-icon icon-green">
+
+                        <i class="bi bi-check-circle"></i>
+
+                    </div>
+
+                </div>
+
             </div>
 
         </div>
 
-        <!-- FILTER BUTTONS -->
+        <div class="col-lg-3">
 
-        <div class="filter-buttons">
+            <div class="stat-card">
 
-            <button class="filter-btn active">
-                All (5)
-            </button>
+                <div class="stat-top">
 
-            <button class="filter-btn">
-                Paid (2)
-            </button>
+                    <div>
 
-            <button class="filter-btn">
-                Pending (1)
-            </button>
+                        <div class="stat-label">
+                            Pending
+                        </div>
 
-            <button class="filter-btn">
-                Overdue (1)
-            </button>
+                        <div class="stat-number">
+                            {{ $statusCounts['pending'] }}
+                        </div>
 
-            <button class="filter-btn">
-                Draft (1)
-            </button>
+                    </div>
+
+                    <div class="stat-icon icon-yellow">
+
+                        <i class="bi bi-hourglass"></i>
+
+                    </div>
+
+                </div>
+
+            </div>
 
         </div>
 
-        <!-- INVOICE TABLE -->
+        <div class="col-lg-3">
 
-        <div class="table-card">
+            <div class="stat-card">
 
-            <div class="table-responsive">
+                <div class="stat-top">
 
-                <table class="table">
+                    <div>
 
-                    <thead>
-                        <tr>
-                            <th>Invoice ID</th>
-                            <th>Order ID</th>
-                            <th>Customer</th>
-                            <th>Invoice Date</th>
-                            <th>Due Date</th>
-                            <th>Total Amount</th>
-                            <th>Payment Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
+                        <div class="stat-label">
+                            Cancelled
+                        </div>
 
-                    <tbody>
+                        <div class="stat-number">
+                            {{ $statusCounts['cancelled'] }}
+                        </div>
 
-                        <tr>
-                            <td>INV-001</td>
-                            <td>SO-001</td>
-                            <td>Adelaide Ful</td>
-                            <td>09-07-2026</td>
-                            <td>09-21-2026</td>
-                            <td><strong>₱48,160.00</strong></td>
+                    </div>
 
-                            <td>
-                                <span class="status status-paid">
-                                    Paid
-                                </span>
-                            </td>
+                    <div class="stat-icon icon-red">
 
-                            <td>
-                                <a href="#" class="action-btn view-btn">
-                                    <i class="bi bi-eye"></i>
-                                </a>
+                        <i class="bi bi-x-circle"></i>
 
-                                <a href="#" class="action-btn edit-btn">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
+                    </div>
 
-                                <a href="#" class="action-btn download-btn">
-                                    <i class="bi bi-download"></i>
-                                </a>
-
-                                <button class="action-btn delete-btn">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>INV-002</td>
-                            <td>SO-002</td>
-                            <td>Maria Santos</td>
-                            <td>09-10-2026</td>
-                            <td>09-24-2026</td>
-                            <td><strong>₱34,720.00</strong></td>
-
-                            <td>
-                                <span class="status status-pending">
-                                    Pending
-                                </span>
-                            </td>
-
-                            <td>
-                                <a href="#" class="action-btn view-btn">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-
-                                <a href="#" class="action-btn edit-btn">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-
-                                <a href="#" class="action-btn download-btn">
-                                    <i class="bi bi-download"></i>
-                                </a>
-
-                                <button class="action-btn delete-btn">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>INV-003</td>
-                            <td>SO-003</td>
-                            <td>Jose Reyes</td>
-                            <td>08-15-2026</td>
-                            <td>08-30-2026</td>
-                            <td><strong>₱61,600.00</strong></td>
-
-                            <td>
-                                <span class="status status-overdue">
-                                    Overdue
-                                </span>
-                            </td>
-
-                            <td>
-                                <a href="#" class="action-btn view-btn">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-
-                                <a href="#" class="action-btn edit-btn">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-
-                                <a href="#" class="action-btn download-btn">
-                                    <i class="bi bi-download"></i>
-                                </a>
-
-                                <button class="action-btn delete-btn">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>INV-004</td>
-                            <td>SO-004</td>
-                            <td>Juan Dela Cruz</td>
-                            <td>09-15-2026</td>
-                            <td>09-29-2026</td>
-                            <td><strong>₱29,120.00</strong></td>
-
-                            <td>
-                                <span class="status status-draft">
-                                    Draft
-                                </span>
-                            </td>
-
-                            <td>
-                                <a href="#" class="action-btn view-btn">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-
-                                <a href="#" class="action-btn edit-btn">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-
-                                <a href="#" class="action-btn download-btn">
-                                    <i class="bi bi-download"></i>
-                                </a>
-
-                                <button class="action-btn delete-btn">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>INV-005</td>
-                            <td>SO-005</td>
-                            <td>ABC Corporation</td>
-                            <td>09-18-2026</td>
-                            <td>10-02-2026</td>
-                            <td><strong>₱75,500.00</strong></td>
-
-                            <td>
-                                <span class="status status-paid">
-                                    Paid
-                                </span>
-                            </td>
-
-                            <td>
-                                <a href="#" class="action-btn view-btn">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-
-                                <a href="#" class="action-btn edit-btn">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-
-                                <a href="#" class="action-btn download-btn">
-                                    <i class="bi bi-download"></i>
-                                </a>
-
-                                <button class="action-btn delete-btn">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-
-                    </tbody>
-
-                </table>
+                </div>
 
             </div>
 
@@ -523,8 +472,288 @@
 
     </div>
 
+    <!-- Search -->
+
+    <div class="filter-card mt-4">
+
+        <div class="search-box">
+
+            <i class="bi bi-search"></i>
+
+            <input
+                type="text"
+                class="form-control"
+                id="invoiceSearch"
+                placeholder="Search Invoice..."
+                onkeyup="searchInvoice()"
+            >
+
+        </div>
+
+    </div>
+
+    <!-- Status Buttons -->
+
+    <div class="filter-buttons mt-4">
+
+        <button
+            class="filter-btn active"
+            onclick="filterInvoice('all',this)"
+        >
+            All ({{ $statusCounts['all'] }})
+        </button>
+
+        <button
+            class="filter-btn"
+            onclick="filterInvoice('paid',this)"
+        >
+            Paid ({{ $statusCounts['paid'] }})
+        </button>
+
+        <button
+            class="filter-btn"
+            onclick="filterInvoice('pending',this)"
+        >
+            Pending ({{ $statusCounts['pending'] }})
+        </button>
+
+        <button
+            class="filter-btn"
+            onclick="filterInvoice('cancelled',this)"
+        >
+            Cancelled ({{ $statusCounts['cancelled'] }})
+        </button>
+
+    </div>
+
+    <!-- Table -->
+
+    <div class="table-card mt-4">
+
+        <div class="table-header">
+
+            <h5>
+                Invoice List
+            </h5>
+
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table pricing-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Invoice No.</th>
+
+                        <th>Customer</th>
+
+                        <th>Date</th>
+
+                        <th>Total</th>
+
+                        <th>Status</th>
+
+                        <th>Actions</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+@forelse($invoices as $invoice)
+
+<tr
+    data-status="{{ strtolower($invoice->payment_status) }}"
+>
+
+    <td>
+
+        <strong>
+            {{ $invoice->invoice_number }}
+        </strong>
+
+    </td>
+
+    <td>
+
+        {{ optional($invoice->salesOrder->customer)->full_name }}
+
+    </td>
+
+    <td>
+
+        {{ optional($invoice->invoice_date)->format('M d, Y') }}
+
+    </td>
+
+    <td>
+
+        ₱{{ number_format($invoice->total_amount,2) }}
+
+    </td>
+
+    <td>
+
+        @php
+
+            $status = strtolower($invoice->payment_status);
+
+            $badge = match($status){
+
+                'paid' => 'success',
+
+                'pending' => 'warning',
+
+                'cancelled' => 'danger',
+
+                default => 'secondary'
+
+            };
+
+        @endphp
+
+        <span class="badge bg-{{ $badge }}">
+
+            {{ ucfirst($invoice->payment_status) }}
+
+        </span>
+
+    </td>
+
+    <td>
+
+        <div class="action-buttons">
+
+            <a
+                href="{{ route('invoices.show',$invoice) }}"
+                class="action-btn view-btn"
+                title="View"
+            >
+
+                <i class="bi bi-eye"></i>
+
+            </a>
+
+            <a
+                href="{{ route('invoices.edit',$invoice) }}"
+                class="action-btn edit-btn"
+                title="Edit"
+            >
+
+                <i class="bi bi-pencil"></i>
+
+            </a>
+
+            <form
+                action="{{ route('invoices.destroy',$invoice) }}"
+                method="POST"
+                style="display:inline;"
+            >
+
+                @csrf
+                @method('DELETE')
+
+                <button
+                    class="action-btn delete-btn"
+                    onclick="return confirm('Delete this invoice?')"
+                >
+
+                    <i class="bi bi-trash"></i>
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </td>
+
+</tr>
+
+@empty
+
+<tr>
+
+    <td colspan="6" class="text-center py-5">
+
+        No invoices found.
+
+    </td>
+
+</tr>
+
+@endforelse
+
+</tbody>
+
+</table>
+
 </div>
 
-</body>
-</html>
+</div>
+
+
+<script>
+
+function searchInvoice() {
+
+    let input = document
+        .getElementById("invoiceSearch")
+        .value
+        .toLowerCase();
+
+    let rows = document.querySelectorAll("tbody tr");
+
+    rows.forEach(function(row){
+
+        let text = row.innerText.toLowerCase();
+
+        row.style.display =
+            text.includes(input)
+                ? ""
+                : "none";
+
+    });
+
+}
+
+function filterInvoice(status, button){
+
+    document.querySelectorAll(".filter-btn")
+        .forEach(btn => btn.classList.remove("active"));
+
+    button.classList.add("active");
+
+    let rows = document.querySelectorAll("tbody tr");
+
+    rows.forEach(function(row){
+
+        if(status === "all"){
+
+            row.style.display = "";
+
+            return;
+
+        }
+
+        if(row.dataset.status === status){
+
+            row.style.display = "";
+
+        }
+
+        else{
+
+            row.style.display = "none";
+
+        }
+
+    });
+
+}
+
+</script>
 @endsection
