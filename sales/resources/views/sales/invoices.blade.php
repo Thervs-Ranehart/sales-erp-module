@@ -185,6 +185,74 @@
             font-weight:600;
         }
 
+        /* KPI STAT CARDS */
+
+        .stat-card{
+            background:white;
+            border-radius:16px;
+            padding:20px;
+            box-shadow:0 5px 20px rgba(0,0,0,.06);
+            height:100%;
+        }
+
+        .stat-top{
+            display:flex;
+            justify-content:space-between;
+            align-items:flex-start;
+        }
+
+        .stat-label{
+            color:var(--text2);
+            font-size:14px;
+            margin-bottom:6px;
+        }
+
+        .stat-number{
+            font-size:28px;
+            font-weight:700;
+            color:var(--text);
+        }
+
+        .stat-icon{
+            width:46px;
+            height:46px;
+            border-radius:12px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:20px;
+            flex-shrink:0;
+        }
+
+        .icon-purple{
+            background:var(--light-purple);
+            color:var(--primary);
+        }
+
+        .icon-green{
+            background:#D1F7E7;
+            color:#198754;
+        }
+
+        .icon-yellow{
+            background:#FFF3CD;
+            color:#B8860B;
+        }
+
+        .icon-red{
+            background:#F8D7DA;
+            color:#DC3545;
+        }
+
+        /* FILTER / SEARCH CARD */
+
+        .filter-card{
+            background:white;
+            border-radius:16px;
+            padding:20px;
+            box-shadow:0 5px 20px rgba(0,0,0,.06);
+        }
+
         /* TABLE */
 
         .table-card{
@@ -240,7 +308,8 @@
 }
 
 .status-overdue,
-.status-rejected{
+.status-rejected,
+.status-cancelled{
     background:#DC3545;   /* Red */
 }
 
@@ -601,21 +670,9 @@
 
             $status = strtolower($invoice->payment_status);
 
-            $badge = match($status){
-
-                'paid' => 'success',
-
-                'pending' => 'warning',
-
-                'cancelled' => 'danger',
-
-                default => 'secondary'
-
-            };
-
         @endphp
 
-        <span class="badge bg-{{ $badge }}">
+        <span class="status status-{{ $status }}">
 
             {{ ucfirst($invoice->payment_status) }}
 
