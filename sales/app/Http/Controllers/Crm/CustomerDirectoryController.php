@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Crm;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Models\CustomerBehaviorAnalysis;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -151,6 +152,8 @@ class CustomerDirectoryController extends Controller
             'search' => '',
             'customer' => $this->formatCustomerProfile($customer),
             'purchases' => $this->formatRecentPurchases($customer),
+            'communications' => collect(),
+            'behaviorAnalysis' => CustomerBehaviorAnalysis::generateFor($customer),
             'editMode' => false,
         ]);
     }

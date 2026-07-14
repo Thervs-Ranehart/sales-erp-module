@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Crm;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Models\CustomerBehaviorAnalysis;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -31,6 +32,7 @@ class CustomerProfilesController extends Controller
 $customer = null;
 $purchases = collect();
 $communications = collect();
+$behaviorAnalysis = null;
 $editMode = $request->boolean('edit');
 
 /*
@@ -67,6 +69,7 @@ if ($selectedCustomer) {
     $customer = $this->formatCustomerProfile($selectedCustomer);
     $purchases = $this->formatRecentPurchases($selectedCustomer);
     $communications = $this->formatRecentCommunications($selectedCustomer);
+    $behaviorAnalysis = CustomerBehaviorAnalysis::generateFor($selectedCustomer);
 }
 
         return view('crm.customer-profiles', [
@@ -76,6 +79,7 @@ if ($selectedCustomer) {
             'customer' => $customer,
             'purchases' => $purchases,
             'communications' => $communications,
+            'behaviorAnalysis' => $behaviorAnalysis,
             'editMode' => $editMode,
         ]);
     }
@@ -91,6 +95,7 @@ if ($selectedCustomer) {
             'customer' => $this->formatCustomerProfile($customer),
             'purchases' => $this->formatRecentPurchases($customer),
             'communications' => $this->formatRecentCommunications($customer),
+            'behaviorAnalysis' => CustomerBehaviorAnalysis::generateFor($customer),
             'editMode' => true,
         ]);
     }

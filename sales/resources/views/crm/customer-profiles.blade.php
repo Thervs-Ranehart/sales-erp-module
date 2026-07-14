@@ -1004,6 +1004,106 @@ Recent Communications
 
 </div>
 
+{{-- Customer Behavior Analysis --}}
+@if(!empty($behaviorAnalysis))
+<div class="row g-4 mt-1">
+
+<div class="col-12">
+
+<div class="card profile-card p-4">
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <div class="section-title mb-0">Customer Behavior Analysis</div>
+    <span class="badge bg-light text-dark border">
+        Ranking: {{ $behaviorAnalysis['rank'] ? '#' . $behaviorAnalysis['rank'] . ' of ' . $behaviorAnalysis['ranked_customer_count'] : 'Not ranked yet' }}
+    </span>
+</div>
+
+<div class="row g-3">
+
+<div class="col-md-3 col-sm-6">
+<div class="stat-mini">
+<small>Purchase Frequency</small>
+<h5>{{ $behaviorAnalysis['purchase_frequency'] }}</h5>
+</div>
+</div>
+
+<div class="col-md-3 col-sm-6">
+<div class="stat-mini">
+<small>Average Order Value</small>
+<h5>₱{{ number_format($behaviorAnalysis['average_order_value'], 2) }}</h5>
+</div>
+</div>
+
+<div class="col-md-3 col-sm-6">
+<div class="stat-mini">
+<small>Activity Status</small>
+<h5>
+@php
+    $activityBadge = match($behaviorAnalysis['activity_status']) {
+        'Active' => 'success',
+        'Slowing Down' => 'warning',
+        'At-Risk' => 'danger',
+        default => 'secondary',
+    };
+@endphp
+<span class="badge bg-{{ $activityBadge }}">{{ $behaviorAnalysis['activity_status'] }}</span>
+</h5>
+</div>
+</div>
+
+<div class="col-md-3 col-sm-6">
+<div class="stat-mini">
+<small>Favorite Category</small>
+<h5>{{ $behaviorAnalysis['favorite_category'] }}</h5>
+</div>
+</div>
+
+</div>
+
+<div class="row g-3 mt-1">
+
+<div class="col-md-4 col-sm-6">
+<div class="stat-mini">
+<small>Total Orders</small>
+<h5>{{ $behaviorAnalysis['total_orders'] }}</h5>
+</div>
+</div>
+
+<div class="col-md-4 col-sm-6">
+<div class="stat-mini">
+<small>Total Spending</small>
+<h5>₱{{ number_format($behaviorAnalysis['total_spent'], 2) }}</h5>
+</div>
+</div>
+
+<div class="col-md-4 col-sm-6">
+<div class="stat-mini">
+<small>Customer Lifetime Value</small>
+<h5>₱{{ number_format($behaviorAnalysis['lifetime_value'], 2) }}</h5>
+</div>
+</div>
+
+</div>
+
+<div class="row g-3 mt-1">
+
+<div class="col-12">
+<div class="info-box">
+<div class="label mb-2">Buying Trend — Monthly Spend (Last 6 Months)</div>
+<canvas id="behaviorTrendChart" height="90" aria-label="Monthly spending trend chart" role="img"></canvas>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+@endif
+
 @endif
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -1021,6 +1121,48 @@ document.querySelectorAll('.tag').forEach(tag => {
 });
 
 </script>
+
+@if(!empty($behaviorAnalysis))
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+    var trend = @json($behaviorAnalysis['trend']);
+    var canvas = document.getElementById('behaviorTrendChart');
+
+    if (!canvas || !window.Chart) {
+        return;
+    }
+
+    new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: trend.map(function (row) { return row.label; }),
+            datasets: [{
+                label: 'Spend (₱)',
+                data: trend.map(function (row) { return row.total; }),
+                backgroundColor: '#5347CE',
+                borderRadius: 6,
+                maxBarThickness: 48,
+            }],
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function (value) { return '₱' + value.toLocaleString(); },
+                    },
+                },
+            },
+        },
+    });
+})();
+</script>
+@endif
 
 
 
