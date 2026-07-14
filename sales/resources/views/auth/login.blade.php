@@ -163,6 +163,38 @@
                             <h2 class="fw-bold mb-2" style="color:#1F2937;">Welcome Back</h2>
                             <p class="text-muted mb-4">Sign in to continue.</p>
 
+                            @if ($errors->any())
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+
+    {{ $errors->first() }}
+
+    {{-- Remaining login attempts --}}
+    @if(session('remaining_attempts'))
+        <br>
+        <small class="fw-semibold">
+            {{ session('remaining_attempts') }}
+            login attempt{{ session('remaining_attempts') > 1 ? 's' : '' }}
+            remaining before your account is temporarily locked.
+        </small>
+    @endif
+
+    {{-- Lockout countdown --}}
+    @if(session('lockout_seconds'))
+        <br>
+        Please try again in
+        <strong id="lockoutTimer"></strong>.
+    @endif
+
+    <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="alert"
+        aria-label="Close">
+    </button>
+
+</div>
+@endif
+
                             <form action="{{ url('/login') }}" method="POST">
                                 @csrf
 
@@ -170,8 +202,9 @@
                                     <label class="form-label">Username</label>
                                     <input
                                         type="text"
-                                        class="form-control"
+                                        class="form-control @error('username') is-invalid @enderror"
                                         name="username"
+                                        value="{{ old('username') }}"
                                         placeholder="Enter Username"
                                         required>
                                 </div>
@@ -200,7 +233,7 @@
                                     <a href="#">Forgot Password?</a>
                                 </div>
 
-                                <button type="submit" class="btn btn-login w-100">
+                                <button type="submit" class="btn btn-login w-100" id="loginSubmitBtn">
                                     <i class="bi bi-box-arrow-in-right"></i>
                                     Login
                                 </button>
@@ -229,7 +262,50 @@
                 togglePassword.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
             });
         }
+
+        @if (session('lockout_seconds'))
+        (function () {
+            let secondsLeft = {{ (int) session('lockout_seconds') }};
+            const timerEl = document.getElementById('lockoutTimer');
+            const submitBtn = document.getElementById('loginSubmitBtn');
+
+            function formatTime(totalSeconds) {
+                const m = Math.floor(totalSeconds / 60);
+                const s = totalSeconds % 60;
+                return m + ':' + String(s).padStart(2, '0');
+            }
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+            }
+
+            if (timerEl) {
+                timerEl.textContent = formatTime(secondsLeft);
+            }
+
+            const interval = setInterval(function () {
+                secondsLeft -= 1;
+
+                if (secondsLeft <= 0) {
+                    clearInterval(interval);
+                    if (timerEl) {
+                        timerEl.textContent = '0:00';
+                    }
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                    }
+                    return;
+                }
+
+                if (timerEl) {
+                    timerEl.textContent = formatTime(secondsLeft);
+                }
+            }, 1000);
+        })();
+        @endif
     </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-

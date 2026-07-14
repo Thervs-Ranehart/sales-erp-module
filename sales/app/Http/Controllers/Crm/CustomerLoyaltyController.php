@@ -43,7 +43,7 @@ class CustomerLoyaltyController extends Controller
             ->orderBy('last_name')
             ->get();
 
-        return view('crm.customer-loyalty', [
+        return view('crm.customer-loyalty', array_merge([
             'loyalties' => $programs,
             'activeMembers' => $activeMembers,
             'availablePoints' => $availablePoints,
@@ -52,14 +52,14 @@ class CustomerLoyaltyController extends Controller
             'search' => $search,
             'rewards' => $rewards,
             'unenrolledCustomers' => $unenrolledCustomers,
-        ]);
+        ], $this->tierCounts()));
     }
 
     public function show(LoyaltyProgram $loyalty)
     {
         $loyalty->load('customer');
 
-        return view('crm.customer-loyalty', [
+        return view('crm.customer-loyalty', array_merge([
             'loyalties' => LoyaltyProgram::with('customer')->orderByDesc('available_points')->paginate(10),
             'activeMembers' => LoyaltyProgram::whereNotNull('enrollment_date')->count(),
             'availablePoints' => LoyaltyProgram::sum('available_points'),
@@ -72,7 +72,21 @@ class CustomerLoyaltyController extends Controller
                 ->orderBy('first_name')
                 ->orderBy('last_name')
                 ->get(),
-        ]);
+        ], $this->tierCounts()));
+    }
+
+    /**
+     * Member counts per membership tier, computed against the whole table
+     * (not just the current paginated page) so the "Membership Levels"
+     * panel always reflects reality regardless of which page you're on.
+     */
+    protected function tierCounts(): array
+    {
+        return [
+            'goldCount' => LoyaltyProgram::where('membership_level', 'Gold')->count(),
+            'silverCount' => LoyaltyProgram::where('membership_level', 'Silver')->count(),
+            'bronzeCount' => LoyaltyProgram::where('membership_level', 'Bronze')->count(),
+        ];
     }
 
     /**

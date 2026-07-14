@@ -78,21 +78,21 @@
 
 .gold {
 
-background:linear-gradient(135deg,#5347CE,#7c73ff);
+background:linear-gradient(135deg,#C9A227,#F2D06B);
 
 }
 
 
 .silver {
 
-background:linear-gradient(135deg,#16C8C7,#5be1df);
+background:linear-gradient(135deg,#8E96A3,#D9DEE4);
 
 }
 
 
 .bronze {
 
-background:linear-gradient(135deg,#6c757d,#9aa0a6);
+background:linear-gradient(135deg,#8C5A2B,#CD7F32);
 
 }
 
@@ -409,7 +409,7 @@ Gold Tier
 </h6>
 
 <small>
-{{ number_format(collect($loyalties ?? collect())->where('membership_level', 'Gold')->count()) }} Members
+{{ number_format($goldCount ?? 0) }} Members
 </small>
 
 
@@ -437,7 +437,7 @@ Silver Tier
 </h6>
 
 <small>
-{{ number_format(collect($loyalties ?? collect())->where('membership_level', 'Silver')->count()) }} Members
+{{ number_format($silverCount ?? 0) }} Members
 </small>
 
 
@@ -465,7 +465,7 @@ Bronze Tier
 </h6>
 
 <small>
-{{ number_format(collect($loyalties ?? collect())->where('membership_level', 'Bronze')->count()) }} Members
+{{ number_format($bronzeCount ?? 0) }} Members
 </small>
 
 
@@ -766,7 +766,7 @@ Action
 
 <td>
 
-<span class="badge"@php $level = $loyalty->membership_level ?? ''; @endphp style="background:{{ $level === 'Gold' ? '#5347CE' : ($level === 'Silver' ? '#16C8C7' : ($level === 'Bronze' ? '#6c757d' : '#adb5bd')) }};">
+<span class="badge"@php $level = $loyalty->membership_level ?? ''; @endphp style="background:{{ $level === 'Gold' ? '#C9A227' : ($level === 'Silver' ? '#8E96A3' : ($level === 'Bronze' ? '#8C5A2B' : ($level === 'VIP' ? '#5347CE' : '#adb5bd'))) }};">
 {{ $loyalty->membership_level ?? 'Unknown' }}
 </span>
 

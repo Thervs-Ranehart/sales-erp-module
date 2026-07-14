@@ -18,6 +18,12 @@ class Employee extends Model
         'role',
         'hierarchy_level',
         'employee_status',
+        'failed_login_attempts',
+        'locked_until',
+    ];
+
+    protected $casts = [
+        'locked_until' => 'datetime',
     ];
 
     public function salesOrders(): HasMany
@@ -28,5 +34,13 @@ class Employee extends Model
     public function getFullNameAttribute(): string
     {
         return trim("{$this->first_name} {$this->last_name}");
+    }
+
+    /**
+     * Whether the account is currently under a failed-attempt lockout.
+     */
+    public function isLocked(): bool
+    {
+        return $this->locked_until !== null && $this->locked_until->isFuture();
     }
 }

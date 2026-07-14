@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Crm\CustomerDirectoryController;
 use App\Http\Controllers\Crm\CustomerProfilesController;
 use App\Http\Controllers\Crm\PurchaseHistoryController;
@@ -24,17 +25,11 @@ use Illuminate\Support\Facades\Route;
 
 
 
-Route::get('/', function () {
-    return view('auth.login');
-});
+Route::get('/', [LoginController::class, 'show']);
 
-Route::post('/login', function () {
-    return redirect('/dashboard');
-})->name('login');
+Route::post('/login', [LoginController::class, 'login'])->name('login');
 
-Route::get('/logout', function () {
-    return redirect('/');
-})->name('logout');
+Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
