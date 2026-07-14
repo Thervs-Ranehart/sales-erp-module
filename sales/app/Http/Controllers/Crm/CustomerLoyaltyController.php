@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Crm;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Models\LoyaltyProgram;
 use App\Models\Reward;
 use Illuminate\Http\Request;
@@ -35,6 +36,13 @@ class CustomerLoyaltyController extends Controller
 
         $rewards = Reward::orderByDesc('created_at')->get();
 
+        // Customers who don't have a loyalty_programs row yet — used to
+        // populate the "Enroll Customer" dropdown.
+        $unenrolledCustomers = Customer::whereDoesntHave('loyaltyProgram')
+            ->orderBy('first_name')
+            ->orderBy('last_name')
+            ->get();
+
         return view('crm.customer-loyalty', [
             'loyalties' => $programs,
             'activeMembers' => $activeMembers,
@@ -43,6 +51,7 @@ class CustomerLoyaltyController extends Controller
             'expiringPoints' => $expiringPoints,
             'search' => $search,
             'rewards' => $rewards,
+            'unenrolledCustomers' => $unenrolledCustomers,
         ]);
     }
 
@@ -59,7 +68,36 @@ class CustomerLoyaltyController extends Controller
             'search' => '',
             'selectedLoyalty' => $loyalty,
             'rewards' => Reward::orderByDesc('created_at')->get(),
+            'unenrolledCustomers' => Customer::whereDoesntHave('loyaltyProgram')
+                ->orderBy('first_name')
+                ->orderBy('last_name')
+                ->get(),
         ]);
+    }
+
+    /**
+     * Enroll a customer into the loyalty program (creates their loyalty_programs row).
+     */
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'customer_id' => ['required', 'integer', 'exists:customers,customer_id', 'unique:loyalty_programs,customer_id'],
+            'membership_level' => ['required', 'string', 'max:100'],
+            'available_points' => ['nullable', 'integer', 'min:0'],
+        ]);
+
+        $startingPoints = $data['available_points'] ?? 0;
+
+        LoyaltyProgram::create([
+            'customer_id' => $data['customer_id'],
+            'membership_level' => $data['membership_level'],
+            'available_points' => $startingPoints,
+            'points_earned' => $startingPoints,
+            'points_redeemed' => 0,
+            'enrollment_date' => now()->toDateString(),
+        ]);
+
+        return redirect()->route('crm.loyalty')->with('success', 'Customer enrolled in the loyalty program successfully.');
     }
 
     public function update(Request $request, LoyaltyProgram $loyalty)

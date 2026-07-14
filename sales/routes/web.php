@@ -76,6 +76,7 @@ Route::delete('/customer-follow-ups/{log}', [CustomerFollowUpsController::class,
 Route::get('/customer-segmentation', [CustomerSegmentationController::class, 'index'])->name('crm.segmentation');
 
 Route::get('/customer-loyalty', [CustomerLoyaltyController::class, 'index'])->name('crm.loyalty');
+Route::post('/customer-loyalty', [CustomerLoyaltyController::class, 'store'])->name('crm.loyalty.store');
 Route::get('/customer-loyalty/{loyalty}', [CustomerLoyaltyController::class, 'show'])->name('crm.loyalty.show');
 Route::put('/customer-loyalty/{loyalty}', [CustomerLoyaltyController::class, 'update'])->name('crm.loyalty.update');
 
