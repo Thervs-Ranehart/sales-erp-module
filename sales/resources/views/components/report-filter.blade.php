@@ -29,42 +29,56 @@
                 <div class="rf-field">
                     <label class="rf-label" for="rf-date-range">Date Range</label>
                     <select id="rf-date-range" class="rf-select">
-                        <option value="last-30">Last 30 days</option>
-                        <option value="last-90">Last 90 days</option>
-                        <option value="this-year">This year</option>
-                        <option value="custom-range">Custom range</option>
+                        <option value="this-month">This month</option>
+                        <option value="last-month">Last month</option>
+                        <option value="quarter">Quarter</option>
+                        <option value="year">Year</option>
+                        <option value="custom">Custom</option>
                     </select>
                 </div>
 
-                <div class="rf-field">
+                <div class="rf-field" id="rf-custom-start-wrap" style="display:none;">
                     <label class="rf-label" for="rf-start-date">Start Date</label>
-                    <input id="rf-start-date" type="date" class="rf-select" disabled />
+                    <input id="rf-start-date" type="date" class="rf-select" />
                 </div>
 
-                <div class="rf-field">
+                <div class="rf-field" id="rf-custom-end-wrap" style="display:none;">
                     <label class="rf-label" for="rf-end-date">End Date</label>
-                    <input id="rf-end-date" type="date" class="rf-select" disabled />
+                    <input id="rf-end-date" type="date" class="rf-select" />
                 </div>
 
                 <div class="rf-field">
                     <label class="rf-label" for="rf-region">Region</label>
                     <select id="rf-region" class="rf-select">
-                        <option>All regions</option>
-                        <option>National Capital Region (NCR)</option>
-                        <option>Visayas</option>
-                        <option>Mindanao</option>
+                        <option value="all">All regions</option>
+                        <option value="ncr">National Capital Region (NCR)</option>
+                        <option value="visayas">Visayas</option>
+                        <option value="mindanao">Mindanao</option>
                     </select>
                 </div>
 
                 <div class="rf-field">
-                    <label class="rf-label" for="rf-status">Report Type</label>
-                    <select id="rf-status" class="rf-select">
-                        <option>Sales Reports</option>
-                        <option>Target vs. Actual</option>
-                        <option>Forecasting</option>
-                        <option>Recommendations</option>
+                    <label class="rf-label" for="rf-product-category">Product Categories</label>
+                    <select id="rf-product-category" class="rf-select">
+                        <option value="all">All product categories</option>
+                        <option value="category-a">Category A</option>
+                        <option value="category-b">Category B</option>
+                        <option value="category-c">Category C</option>
                     </select>
                 </div>
+
+                <div class="rf-field">
+                    <label class="rf-label" for="rf-sales-representative">Sales Representative</label>
+                    <select id="rf-sales-representative" class="rf-select">
+                        <option value="all">All representatives</option>
+                        <option value="rep-1">Representative 1</option>
+                        <option value="rep-2">Representative 2</option>
+                        <option value="rep-3">Representative 3</option>
+                    </select>
+                </div>
+
+
+
 
                 <div class="rf-actions">
                     <button type="button" class="rf-btn-secondary" id="rf-reset">Reset</button>
@@ -271,22 +285,50 @@
                     const endDateInput = document.getElementById('rf-end-date');
                     if (startDateInput) startDateInput.value = '';
                     if (endDateInput) endDateInput.value = '';
+
+                    // Hide custom date fields again
+                    const dateRangeSelect = document.getElementById('rf-date-range');
+                    const customStartWrapInner = document.getElementById('rf-custom-start-wrap');
+                    const customEndWrapInner = document.getElementById('rf-custom-end-wrap');
+
+                    if (dateRangeSelect && customStartWrapInner && customEndWrapInner) {
+                        const custom = dateRangeSelect.value === 'custom';
+                        customStartWrapInner.style.display = custom ? 'block' : 'none';
+                        customEndWrapInner.style.display = custom ? 'block' : 'none';
+                    }
                 });
             }
+
+
 
             const dateRangeSelect = document.getElementById('rf-date-range');
             const startDateInput = document.getElementById('rf-start-date');
             const endDateInput = document.getElementById('rf-end-date');
+            const customStartWrap = document.getElementById('rf-custom-start-wrap');
+            const customEndWrap = document.getElementById('rf-custom-end-wrap');
 
-            if (dateRangeSelect && startDateInput && endDateInput) {
-                dateRangeSelect.addEventListener('change', function () {
-                    const custom = dateRangeSelect.value === 'custom-range';
+            if (dateRangeSelect && startDateInput && endDateInput && customStartWrap && customEndWrap) {
+
+                const syncCustomRangeVisibility = function () {
+                    const custom = dateRangeSelect.value === 'custom';
+
+                    if (customStartWrap) customStartWrap.style.display = custom ? 'block' : 'none';
+                    if (customEndWrap) customEndWrap.style.display = custom ? 'block' : 'none';
+
                     startDateInput.disabled = !custom;
                     endDateInput.disabled = !custom;
-                });
 
-                dateRangeSelect.dispatchEvent(new Event('change'));
+                    // Keep values only when custom is selected
+                    if (!custom) {
+                        startDateInput.value = '';
+                        endDateInput.value = '';
+                    }
+                };
+
+                dateRangeSelect.addEventListener('change', syncCustomRangeVisibility);
+                syncCustomRangeVisibility();
             }
+
 
             if (applyBtn) {
                 applyBtn.addEventListener('click', function () {

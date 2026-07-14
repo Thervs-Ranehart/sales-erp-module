@@ -62,6 +62,7 @@ Route::get('/forecasting/reports', [ForecastingController::class, 'reports'])->n
 Route::get('/forecasting/performance', [ForecastingController::class, 'performance'])->name('forecasting.performance');
 Route::get('/forecasting/forecast', [ForecastingController::class, 'forecast'])->name('forecasting.forecast');
 Route::get('/forecasting/recommendations', [ForecastingController::class, 'recommendations'])->name('forecasting.recommendations');
+Route::get('/forecasting/sales-analysis', [ForecastingController::class, 'salesAnalysis'])->name('forecasting.sales-analysis');
 
 Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
 

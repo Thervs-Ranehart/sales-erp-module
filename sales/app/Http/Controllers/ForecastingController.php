@@ -115,4 +115,16 @@ class ForecastingController extends Controller
     {
         return view('forecasting.recommendations');
     }
+
+    /**
+     * UI-only expanded sales analysis page.
+     * Uses hard-coded placeholder content for now.
+     */
+    public function salesAnalysis(Request $request)
+    {
+        $tab = $request->query('tab', 'product');
+        $tab = in_array($tab, ['product', 'region', 'representative']) ? $tab : 'product';
+
+        return view('forecasting.sales-analysis', ['activeTab' => $tab]);
+    }
 }
