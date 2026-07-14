@@ -76,6 +76,24 @@ class Invoice extends Model
         );
     }
 
+    public function inventoryTransactions(): HasMany
+    {
+        return $this->hasMany(
+            InventoryTransaction::class,
+            'invoice_id',
+            'invoice_id'
+        );
+    }
+
+    public function financeTransactions(): HasMany
+    {
+        return $this->hasMany(
+            FinanceTransaction::class,
+            'invoice_id',
+            'invoice_id'
+        );
+    }
+
     public function getRouteKeyName(): string
     {
         return 'invoice_id';

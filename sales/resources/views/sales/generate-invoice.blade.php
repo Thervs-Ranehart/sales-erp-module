@@ -5,6 +5,92 @@
 
 @section('content')
 
+<style>
+
+:root{
+    --primary:#5347CE;
+    --secondary:#887CFD;
+    --accent:#4896FE;
+    --success:#16C8C7;
+    --border:#E5E7EB;
+    --light-purple:#EEECFF;
+    --text:#1F2937;
+    --text2:#6B7280;
+}
+
+.page-content{
+    padding:28px;
+}
+
+.page-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:22px;
+}
+
+.page-title{
+    margin:0;
+    font-size:28px;
+    font-weight:700;
+}
+
+.page-subtitle{
+    margin:5px 0 0;
+    color:var(--text2);
+}
+
+.custom-card{
+    border:none;
+    border-radius:16px;
+    padding:25px;
+    box-shadow:0 5px 20px rgba(0,0,0,.06);
+    background:#fff;
+    margin-bottom:24px;
+}
+
+.info-title{
+    color:var(--primary);
+    font-weight:700;
+    font-size:17px;
+    margin-bottom:18px;
+}
+
+.info-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px 0;
+    border-bottom:1px solid var(--border);
+}
+
+.info-row:last-of-type{
+    border-bottom:none;
+}
+
+.info-row span{
+    color:var(--text2);
+}
+
+.status{
+    display:inline-block;
+    padding:4px 12px;
+    border-radius:20px;
+    background:var(--light-purple);
+    color:var(--primary);
+    font-weight:600;
+    font-size:13px;
+}
+
+.summary-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:8px 0;
+}
+
+</style>
+
 <div class="page-content">
 
     <div class="page-header">
@@ -142,13 +228,51 @@
 
         </div>
 
+        @forelse ($invoice->inventoryTransactions as $inventoryTransaction)
+
         <div class="info-row">
 
             <span>Transaction ID</span>
 
             <strong>
 
-                INVT-{{ str_pad($invoice->invoice_id, 4, '0', STR_PAD_LEFT) }}
+                INVT-{{ str_pad($inventoryTransaction->inventory_transaction_id, 4, '0', STR_PAD_LEFT) }}
+
+            </strong>
+
+        </div>
+
+        <div class="info-row">
+
+            <span>Product</span>
+
+            <strong>
+
+                {{ optional($inventoryTransaction->product)->product_name ?? '—' }}
+
+            </strong>
+
+        </div>
+
+        <div class="info-row">
+
+            <span>Quantity Out</span>
+
+            <strong>
+
+                {{ $inventoryTransaction->quantity_out }}
+
+            </strong>
+
+        </div>
+
+        <div class="info-row">
+
+            <span>Transaction Date</span>
+
+            <strong>
+
+                {{ optional($inventoryTransaction->transaction_date)->format('F d, Y') }}
 
             </strong>
 
@@ -166,29 +290,17 @@
 
         </div>
 
-        <div class="info-row">
+        <hr>
 
-            <span>Reference</span>
-
-            <strong>
-
-                {{ $invoice->salesOrder->order_number }}
-
-            </strong>
-
-        </div>
+        @empty
 
         <div class="info-row">
 
-            <span>Customer</span>
-
-            <strong>
-
-                {{ $invoice->salesOrder->customer->full_name }}
-
-            </strong>
+            <span class="text-muted">No inventory transactions recorded for this invoice.</span>
 
         </div>
+
+        @endforelse
 
     </div>
 
@@ -202,13 +314,15 @@
 
         </div>
 
+        @forelse ($invoice->financeTransactions as $financeTransaction)
+
         <div class="info-row">
 
             <span>Journal ID</span>
 
             <strong>
 
-                FIN-{{ str_pad($invoice->invoice_id, 4, '0', STR_PAD_LEFT) }}
+                FIN-{{ str_pad($financeTransaction->finance_transaction_id, 4, '0', STR_PAD_LEFT) }}
 
             </strong>
 
@@ -220,7 +334,7 @@
 
             <strong>
 
-                {{ $invoice->payment_method }}
+                {{ $financeTransaction->payment_method }}
 
             </strong>
 
@@ -228,27 +342,37 @@
 
         <div class="info-row">
 
-            <span>Payment Status</span>
+            <span>Transaction Date</span>
 
-            <span class="badge bg-primary">
+            <strong>
 
-                {{ $invoice->payment_status }}
+                {{ optional($financeTransaction->transaction_date)->format('F d, Y') }}
 
-            </span>
+            </strong>
 
         </div>
 
         <div class="info-row">
 
-            <span>Total Amount</span>
+            <span>Amount</span>
 
             <strong class="text-primary">
 
-                ₱{{ number_format($invoice->total_amount,2) }}
+                ₱{{ number_format($financeTransaction->amount, 2) }}
 
             </strong>
 
         </div>
+
+        @empty
+
+        <div class="info-row">
+
+            <span class="text-muted">No finance transaction recorded for this invoice.</span>
+
+        </div>
+
+        @endforelse
 
     </div>
 
@@ -438,17 +562,29 @@
 
                         <td>
 
-                            INVT-{{ str_pad($invoice->invoice_id,4,'0',STR_PAD_LEFT) }}
+                            @forelse ($invoice->inventoryTransactions as $inventoryTransaction)
+                                INVT-{{ str_pad($inventoryTransaction->inventory_transaction_id, 4, '0', STR_PAD_LEFT) }}@if (!$loop->last), @endif
+                            @empty
+                                —
+                            @endforelse
 
                         </td>
 
                         <td>
 
+                            @if ($invoice->inventoryTransactions->isNotEmpty())
                             <span class="badge bg-primary">
 
                                 Posted
 
                             </span>
+                            @else
+                            <span class="badge bg-secondary">
+
+                                None
+
+                            </span>
+                            @endif
 
                         </td>
 
@@ -464,17 +600,29 @@
 
                         <td>
 
-                            FIN-{{ str_pad($invoice->invoice_id,4,'0',STR_PAD_LEFT) }}
+                            @forelse ($invoice->financeTransactions as $financeTransaction)
+                                FIN-{{ str_pad($financeTransaction->finance_transaction_id, 4, '0', STR_PAD_LEFT) }}
+                            @empty
+                                —
+                            @endforelse
 
                         </td>
 
                         <td>
 
+                            @if ($invoice->financeTransactions->isNotEmpty())
                             <span class="badge bg-primary">
 
                                 Posted
 
                             </span>
+                            @else
+                            <span class="badge bg-secondary">
+
+                                None
+
+                            </span>
+                            @endif
 
                         </td>
 

@@ -38,4 +38,9 @@ class Product extends Model
     {
         return $this->hasMany(InvoiceItem::class, 'product_id', 'product_id');
     }
+
+    public function inventoryTransactions(): HasMany
+    {
+        return $this->hasMany(InventoryTransaction::class, 'product_id', 'product_id');
+    }
 }
