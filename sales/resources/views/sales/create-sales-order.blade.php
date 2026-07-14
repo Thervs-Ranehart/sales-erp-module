@@ -319,13 +319,13 @@ value="{{ $taxPercent }}">
 <h5 class="card-title">
 Order Status
 </h5>
-<select class="form-select" name="order_status" required>
+<select class="form-select" name="status" required>
 
     @foreach (['pending', 'processed', 'shipped', 'delivered', 'cancelled'] as $status)
 
         <option
             value="{{ $status }}"
-            @selected(old('order_status', $isEdit ? $salesOrder->order_status : null) == $status)
+            @selected(old('status', $isEdit ? $salesOrder->order_status : null) == $status)
         >
             {{ ucfirst($status) }}
         </option>

@@ -14,6 +14,8 @@ class InvoiceItem extends Model
 
     public $incrementing = true;
 
+    public $timestamps = false;
+
     protected $fillable = [
         'invoice_id',
         'product_id',
@@ -38,4 +40,3 @@ class InvoiceItem extends Model
         return $this->belongsTo(Product::class, 'product_id', 'product_id');
     }
 }
-
