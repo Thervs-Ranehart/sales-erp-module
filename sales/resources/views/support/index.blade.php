@@ -9,100 +9,96 @@
     {{-- Summary Cards --}}
     <div class="row g-4">
         <div class="col-md-4 col-lg-3">
-            <div class="card h-100 p-3">
+            <a href="{{ route('support.tickets', ['status' => 'Pending']) }}" class="card h-100 p-3 text-decoration-none" style="color:inherit;">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-semibold">Open Tickets</div>
-                        <div class="display-6 fw-bold">{{ $ticketCount ?? 0 }}</div>
-
+                        <div class="display-6 fw-bold">{{ $openTicketsCount ?? $ticketCount ?? 0 }}</div>
                     </div>
                     <div class="rounded-3" style="background:rgba(83,71,206,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
                         <i class="bi bi-ticket-perforated" style="color:#5347CE; font-size:20px;"></i>
                     </div>
                 </div>
                 <div class="mt-2"><span class="badge bg-primary">Awaiting response</span></div>
-            </div>
+            </a>
         </div>
 
         <div class="col-md-4 col-lg-3">
-            <div class="card h-100 p-3">
+            <a href="{{ route('support.tickets', ['status' => 'Pending']) }}" class="card h-100 p-3 text-decoration-none" style="color:inherit;">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-
+                        <div class="text-muted small fw-semibold">Pending Tickets</div>
+                        <div class="display-6 fw-bold">{{ $pendingTicketsCount ?? 0 }}</div>
                     </div>
                     <div class="rounded-3" style="background:rgba(245,158,11,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
                         <i class="bi bi-shield-check" style="color:#F59E0B; font-size:20px;"></i>
                     </div>
                 </div>
                 <div class="mt-2"><span class="badge bg-warning text-dark">Pending review</span></div>
-            </div>
+            </a>
         </div>
 
+
         <div class="col-md-4 col-lg-3">
-            <div class="card h-100 p-3">
+            <a href="{{ route('support.warranty-records', ['status' => 'active']) }}" class="card h-100 p-3 text-decoration-none" style="color:inherit;">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-semibold">Active Warranties</div>
                         <div class="display-6 fw-bold">{{ $activeWarrantyCount ?? 0 }}</div>
-
                     </div>
                     <div class="rounded-3" style="background:rgba(22,200,199,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
                         <i class="bi bi-clipboard-check" style="color:#16C8C7; font-size:20px;"></i>
                     </div>
                 </div>
                 <div class="mt-2"><span class="badge bg-success">Coverage active</span></div>
-            </div>
+            </a>
         </div>
 
-
-
         <div class="col-md-4 col-lg-3">
-            <div class="card h-100 p-3">
+            <a href="{{ route('support.customer-satisfaction', ['rating' => 'all']) }}" class="card h-100 p-3 text-decoration-none" style="color:inherit;">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-semibold">Customer Satisfaction</div>
-                        <div class="display-6 fw-bold">{{ $fiveStarPct ?? 0 }}%</div>
-
+                        <div class="display-6 fw-bold">{{ $customerSatisfactionPct ?? $fiveStarPct ?? 0 }}%</div>
                     </div>
                     <div class="rounded-3" style="background:rgba(239,68,68,.10); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
                         <i class="bi bi-star" style="color:#EF4444; font-size:20px;"></i>
                     </div>
                 </div>
                 <div class="mt-2"><span class="badge bg-danger">CSAT target met</span></div>
-            </div>
+            </a>
         </div>
 
         <div class="col-md-4 col-lg-3">
-            <div class="card h-100 p-3">
+            <a href="{{ route('notifications.index') }}" class="card h-100 p-3 text-decoration-none" style="color:inherit;">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-semibold">Notifications</div>
                         <div class="display-6 fw-bold">{{ $notificationsCount ?? 0 }}</div>
-
                     </div>
                     <div class="rounded-3" style="background:rgba(83,71,206,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
                         <i class="bi bi-bell" style="color:#5347CE; font-size:20px;"></i>
                     </div>
                 </div>
                 <div class="mt-2"><span class="badge bg-primary">Action required</span></div>
-            </div>
+            </a>
         </div>
 
         <div class="col-md-4 col-lg-3">
-            <div class="card h-100 p-3">
+            <a href="{{ route('support.tickets', ['status' => 'Resolved']) }}" class="card h-100 p-3 text-decoration-none" style="color:inherit;">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-semibold">Resolved Cases</div>
                         <div class="display-6 fw-bold">{{ $resolvedCaseCount ?? 0 }}</div>
-
                     </div>
                     <div class="rounded-3" style="background:rgba(245,158,11,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
                         <i class="bi bi-check2-circle" style="color:#F59E0B; font-size:20px;"></i>
                     </div>
                 </div>
                 <div class="mt-2"><span class="badge bg-warning text-dark">Completed this month</span></div>
-            </div>
+            </a>
         </div>
+
     </div>
 
     {{-- Action Buttons --}}
@@ -303,11 +299,16 @@
                         <span class="badge bg-primary"><i class="bi bi-chat-dots me-1"></i> Communication</span>
                     </div>
 
+                    @php($csatPctForProgress = (int)($customerSatisfactionPct ?? $fiveStarPct ?? 0))
+
                     <div class="progress" style="height: 10px;">
-                        <div class="progress-bar bg-success" role="progressbar" style="width: 72%" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100"></div>
+
+
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ $csatPctForProgress }}%" aria-valuenow="{{ $csatPctForProgress }}" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                     <div class="text-muted small mt-2">Insight summary based on recent feedback.</div>
                 </div>
+
 
 
                 <div class="list-group">
@@ -352,33 +353,51 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td class="text-muted">2026-07-12 10:15</td>
-                                <td><span class="badge bg-primary"><i class="bi bi-ticket me-1"></i> Ticket</span></td>
-                                <td class="fw-semibold">TK-1020</td>
-                                <td><span class="badge bg-danger">Escalation needed</span></td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted">2026-07-12 09:02</td>
-                                <td><span class="badge bg-warning text-dark"><i class="bi bi-shield-check me-1"></i> Claim</span></td>
-                                <td class="fw-semibold">WC-3001</td>
-                                <td><span class="badge bg-warning text-dark">Pending verification</span></td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted">2026-07-11 16:40</td>
-                                <td><span class="badge bg-success"><i class="bi bi-tools me-1"></i> Service</span></td>
-                                <td class="fw-semibold">SR-5001</td>
-                                <td><span class="badge bg-success">Scheduled visit</span></td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted">2026-07-10 13:20</td>
-                                <td><span class="badge bg-secondary"><i class="bi bi-person-workspace me-1"></i> QC</span></td>
-                                <td class="fw-semibold">RS-6001</td>
-                                <td><span class="badge bg-secondary">QC passed</span></td>
-                            </tr>
+                            @forelse($recentNotifications as $notification)
+                                @php($createdAt = $notification->created_at ?? null)
+                                @php($type = strtolower((string)($notification->type ?? '')))
+                                @php($statusText = (string)($notification->status ?? ''))
+                                @php($reference = (string)($notification->reference ?? ''))
+                                <tr>
+                                    <td class="text-muted">{{ $createdAt ? 
+                                        (is_object($createdAt) && method_exists($createdAt,'format')) ? $createdAt->format('Y-m-d H:i') : $createdAt : '—' 
+                                    }}</td>
+                                    <td>
+                                        @if($type === 'ticket')
+                                            <span class="badge bg-primary"><i class="bi bi-ticket me-1"></i> Ticket</span>
+                                        @elseif($type === 'warranty' || $type === 'claim')
+                                            <span class="badge bg-warning text-dark"><i class="bi bi-shield-check me-1"></i> Claim</span>
+                                        @elseif($type === 'service' || $type === 'service_request')
+                                            <span class="badge bg-success"><i class="bi bi-tools me-1"></i> Service</span>
+                                        @else
+                                            <span class="badge bg-secondary"><i class="bi bi-person-workspace me-1"></i> Notification</span>
+                                        @endif
+                                    </td>
+                                    <td class="fw-semibold">{{ $reference !== '' ? $reference : '—' }}</td>
+                                    <td>
+                                        @php($statusLower = strtolower($statusText))
+                                        @if(str_contains($statusLower, 'unread'))
+                                            <span class="badge bg-warning text-dark">{{ $statusText }}</span>
+                                        @elseif(str_contains($statusLower, 'pending'))
+                                            <span class="badge bg-warning text-dark">{{ $statusText }}</span>
+                                        @elseif(str_contains($statusLower, 'resolved') || str_contains($statusLower, 'completed') || str_contains($statusLower, 'success'))
+                                            <span class="badge bg-success">{{ $statusText }}</span>
+                                        @elseif($statusText !== '')
+                                            <span class="badge bg-secondary">{{ $statusText }}</span>
+                                        @else
+                                            <span class="badge bg-secondary">—</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-4">No notifications.</td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
+
             </div>
         </div>
     </div>

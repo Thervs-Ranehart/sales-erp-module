@@ -8,7 +8,7 @@ use App\Models\ServiceContract;
 use App\Models\SupportTicket;
 use App\Models\WarrantyRecord;
 use App\Models\Notification;
-use Illuminate\Support\Facades\DB;
+
 
 class SupportTicketController extends Controller
 {
@@ -46,9 +46,12 @@ class SupportTicketController extends Controller
         $minRatingCount = (int) $satisfactionQuery->whereIn('rating', [1, 2])->count();
         $minRatingPct = $totalSatisfaction > 0 ? round(($minRatingCount / $totalSatisfaction) * 100, 0) : 0;
 
-        $ticketCount = (int) SupportTicket::query()->count();
+        $openTicketsCount = (int) SupportTicket::query()->whereRaw('lower(status) = ?', ['pending'])->count();
+        $pendingTicketsCount = (int) SupportTicket::query()->whereRaw('lower(status) = ?', ['pending'])->count();
+
         $activeWarrantyCount = (int) WarrantyRecord::query()->whereRaw('lower(warranty_status) = ?', ['active'])->count();
         $resolvedCaseCount = (int) SupportTicket::query()->whereRaw('lower(status) = ?', ['resolved'])->count();
+
 
         $recentNotifications = Notification::query()
             ->orderByDesc('created_at')
@@ -66,12 +69,18 @@ class SupportTicketController extends Controller
             ->get();
 
 
+        // Customer Satisfaction KPI: CSAT percentage
+        $customerSatisfactionPct = $fiveStarPct;
+
         return view('support.index', [
-            'ticketCount' => $ticketCount,
+            'ticketCount' => $openTicketsCount,
+            'openTicketsCount' => $openTicketsCount,
+            'pendingTicketsCount' => $pendingTicketsCount,
             'activeWarrantyCount' => $activeWarrantyCount,
             'satisfactionAvg' => $totalSatisfaction > 0 ? round($avgRating, 1) : 0,
             'fiveStarPct' => $fiveStarPct,
             'minRatingPct' => $minRatingPct,
+            'customerSatisfactionPct' => $customerSatisfactionPct,
             'notificationsCount' => $notificationsCount,
             'resolvedCaseCount' => $resolvedCaseCount,
             'totalSatisfaction' => $totalSatisfaction,
@@ -80,7 +89,9 @@ class SupportTicketController extends Controller
             'recentServiceRequests' => $recentServiceRequests,
             'recentResolutionTrackings' => $recentResolutionTrackings,
             'recentSatisfaction' => $recentSatisfaction,
+            'recentNotifications' => $recentNotifications,
         ]);
+
     }
 }
 
