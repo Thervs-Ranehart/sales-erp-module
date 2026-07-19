@@ -5,41 +5,63 @@
             <div class="modal-header" style="background: rgba(83,71,206,.08); border-bottom: 1px solid rgba(0,0,0,.06);">
                 <div>
                     <h5 class="modal-title fw-bold" id="serviceContractModalLabel">Service Contract Details</h5>
-                    <div class="text-muted small" id="serviceContractModalSubtitle">SC-4007 • ABC Corporation</div>
+                    <div class="text-muted small" id="serviceContractModalSubtitle">—</div>
+
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <div class="modal-body">
+
+                <script>
+                    // Populated on demand via /support/service-contracts/{id}/show
+                    window.__serviceContractModalIds = {
+
+                        serviceType: 'serviceContractServiceType',
+                        startDate: 'serviceContractStartDate',
+                        endDate: 'serviceContractEndDate',
+                        owner: 'serviceContractOwner',
+                        sla: 'serviceContractSla',
+                        dispatch: 'serviceContractDispatchFrequency',
+                        statusBadge: 'serviceContractStatusBadge',
+                    };
+                </script>
+
                 <div class="row g-4">
                     <div class="col-lg-7">
                         <div class="card p-3" style="box-shadow:none; border: 1px solid rgba(0,0,0,.06);">
                             <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
                                 <div>
                                     <div class="text-muted small">Service Type</div>
-                                    <div class="fw-bold fs-5">Premium Maintenance</div>
-                                    <div class="text-muted small">Dispatch frequency: Quarterly on-site visits (placeholder)</div>
+                                    <div class="fw-bold fs-5" id="serviceContractServiceType">—</div>
+                                <div class="text-muted small">Dispatch frequency: <span id="serviceContractDispatchFrequency">—</span></div>
+
                                 </div>
-                                <span class="badge bg-warning text-dark">Expiring</span>
+                                <span class="badge bg-warning text-dark" id="serviceContractStatusBadge">—</span>
+
                             </div>
+
 
                             <div class="row g-3">
                                 <div class="col-sm-6">
                                     <div class="text-muted small">Start Date</div>
-                                    <div class="fw-semibold">2025-10-15</div>
+                                    <div class="fw-semibold" id="serviceContractStartDate">—</div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="text-muted small">End Date</div>
-                                    <div class="fw-semibold">2026-11-03</div>
+                                    <div class="fw-semibold" id="serviceContractEndDate">—</div>
                                 </div>
+
                                 <div class="col-sm-6">
                                     <div class="text-muted small">Assigned Account Owner</div>
-                                    <div class="fw-semibold">Service Ops • Account Manager</div>
+                                    <div class="fw-semibold" id="serviceContractOwner">—</div>
                                 </div>
                                 <div class="col-sm-6">
+
                                     <div class="text-muted small">Response SLA Tier</div>
-                                    <div class="fw-semibold">Tier 2 (4h)</div>
+                                    <div class="fw-semibold" id="serviceContractSla">—</div>
                                 </div>
+
                             </div>
 
                             <div class="mt-3">

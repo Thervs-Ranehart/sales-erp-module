@@ -23,15 +23,7 @@
 
                                 </div>
 
-                                <div class="col-12 col-md-6">
-                                    <label class="form-label small text-muted">Department</label>
-                                    <select class="form-select" aria-label="Department">
-                                        <option selected>Support Team</option>
-                                        <option>Warranty Desk</option>
-                                        <option>Engineering</option>
-                                        <option>Field Services</option>
-                                    </select>
-                                </div>
+
 
                                 <div class="col-12 col-md-6">
                                     <label class="form-label small text-muted">Assigned Employee</label>
@@ -108,7 +100,11 @@
 
             <div class="modal-footer" style="border-top: 1px solid rgba(0,0,0,.06);">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn" id="ticketsAssignSaveBtn" style="background:#5347CE;color:#fff;border:1px solid rgba(255,255,255,.25);">
+                    Save
+                </button>
             </div>
+
 
         </div>
     </div>

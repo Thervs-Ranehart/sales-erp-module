@@ -34,6 +34,42 @@
             </div>
         </div>
 
+        {{-- Search + Filters --}}
+        <div class="card p-3 mb-4" style="background: rgba(255,255,255,.7); border: 1px solid rgba(0,0,0,.06); box-shadow: none;">
+            <form method="GET" action="{{ route('support.customer-satisfaction') }}">
+                <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+                    <div class="input-group input-group-sm" style="min-width: 260px;">
+                        <span class="input-group-text" style="background: rgba(83,71,206,.08); border-color: rgba(83,71,206,.2);">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input
+                            type="text"
+                            name="search"
+                            class="form-control"
+                            value="{{ $search ?? '' }}"
+                            placeholder="Search feedback (e.g., FB-7001)"
+                            aria-label="Search feedback"
+                        />
+                    </div>
+
+                    <div class="d-flex gap-2 flex-wrap">
+                        <select class="form-select form-select-sm" style="min-width: 190px;" aria-label="Filter by rating" name="rating">
+                            <option value="all" {{ ($rating ?? 'all') === 'all' ? 'selected' : '' }}>Rating: All</option>
+                            <option value="5" {{ ($rating ?? '') === 5 || ($rating ?? '') === '5' ? 'selected' : '' }}>Rating: 5</option>
+                            <option value="4" {{ ($rating ?? '') === 4 || ($rating ?? '') === '4' ? 'selected' : '' }}>Rating: 4</option>
+                            <option value="3" {{ ($rating ?? '') === 3 || ($rating ?? '') === '3' ? 'selected' : '' }}>Rating: 3</option>
+                            <option value="1" {{ ($rating ?? '') === 1 || ($rating ?? '') === '1' ? 'selected' : '' }}>Rating: 1</option>
+                            <option value="2" {{ ($rating ?? '') === 2 || ($rating ?? '') === '2' ? 'selected' : '' }}>Rating: 2</option>
+                        </select>
+
+                        <button class="btn btn-sm" type="submit" style="background:#5347CE;color:#fff;border:1px solid rgba(255,255,255,.25);">
+                            <i class="bi bi-chat-left-dots me-1"></i> Analyze
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
         {{-- Summary cards --}}
         <div class="row g-3 mb-4">
             <div class="col-md-3">
@@ -67,7 +103,7 @@
         <div class="row g-4">
             <div class="col-lg-8">
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
+                    <table class="table table-hover align-middle mb-0" style="min-width: 650px;">
                         <thead>
                             <tr>
                                 <th style="min-width: 150px;">Feedback #</th>
@@ -150,13 +186,7 @@ Insight summary based on recent feedback.
             <div class="text-muted small">Showing results.</div>
 
             <nav aria-label="Feedback pagination">
-                <ul class="pagination pagination-sm mb-0">
-                    <li class="page-item disabled"><span class="page-link">Previous</span></li>
-                    <li class="page-item active"><span class="page-link">1</span></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                </ul>
+                {{ $satisfactions->links() }}
             </nav>
         </div>
     </div>

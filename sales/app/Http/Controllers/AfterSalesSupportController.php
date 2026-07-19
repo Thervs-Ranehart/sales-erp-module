@@ -13,72 +13,7 @@ use Illuminate\Http\Request;
 
 class AfterSalesSupportController extends Controller
 {
-    public function index(Request $request)
-    {
-        $recentTickets = SupportTicket::query()
-            ->with(['customer', 'product'])
-            ->orderByDesc('created_at')
-            ->take(3)
-            ->get();
 
-        $recentWarrantyRecords = WarrantyRecord::query()
-            ->with(['product', 'order', 'order.customer'])
-            ->orderByDesc('created_at')
-            ->take(3)
-            ->get();
-
-        $recentServiceRequests = ServiceContract::query()
-            ->with(['customer', 'product'])
-            ->orderByDesc('created_at')
-            ->take(3)
-            ->get();
-
-        $recentResolutionTrackings = ResolutionTracking::query()
-            ->with(['supportTicket', 'employee'])
-            ->orderByDesc('resolved_at')
-            ->take(3)
-            ->get();
-
-        $satisfactionQuery = SatisfactionMonitoring::query();
-        $avgRating = (float) $satisfactionQuery->avg('rating');
-        $totalSatisfaction = (int) $satisfactionQuery->count();
-        $fiveStarCount = (int) $satisfactionQuery->where('rating', 5)->count();
-        $fiveStarPct = $totalSatisfaction > 0 ? round(($fiveStarCount / $totalSatisfaction) * 100, 0) : 0;
-
-        $minRatingCount = (int) $satisfactionQuery->whereIn('rating', [1, 2])->count();
-        $minRatingPct = $totalSatisfaction > 0 ? round(($minRatingCount / $totalSatisfaction) * 100, 0) : 0;
-
-        $ticketCount = (int) SupportTicket::query()->count();
-        $activeWarrantyCount = (int) WarrantyRecord::query()->whereRaw('lower(warranty_status) = ?', ['active'])->count();
-        $resolvedCaseCount = (int) SupportTicket::query()->whereRaw('lower(status) = ?', ['resolved'])->count();
-
-        $notificationsCount = class_exists(\App\Models\Notification::class)
-            ? (int) Notification::query()->count()
-            : 0;
-
-        $recentSatisfaction = SatisfactionMonitoring::query()
-            ->with(['supportTicket'])
-            ->orderByDesc('submitted_at')
-            ->take(4)
-            ->get();
-
-        return view('support.index', [
-            'ticketCount' => $ticketCount,
-            'activeWarrantyCount' => $activeWarrantyCount,
-            'satisfactionAvg' => $totalSatisfaction > 0 ? round($avgRating, 1) : 0,
-            'fiveStarPct' => $fiveStarPct,
-            'minRatingPct' => $minRatingPct,
-            'notificationsCount' => $notificationsCount,
-            'resolvedCaseCount' => $resolvedCaseCount,
-            'totalSatisfaction' => $totalSatisfaction,
-            'recentTickets' => $recentTickets,
-            'recentWarrantyRecords' => $recentWarrantyRecords,
-            'recentServiceRequests' => $recentServiceRequests,
-            'recentResolutionTrackings' => $recentResolutionTrackings,
-            'recentSatisfaction' => $recentSatisfaction,
-        ]);
-
-    }
 
     public function ticketsIndex(Request $request)
 
@@ -261,9 +196,34 @@ class AfterSalesSupportController extends Controller
         ]);
     }
 
+    public function serviceContractShow(Request $request, $contract)
+    {
+        $serviceContract = ServiceContract::query()
+            ->with(['customer', 'product'])
+            ->findOrFail($contract);
+
+        return response()->json([
+            'contract' => [
+                'contract_id' => $serviceContract->contract_id,
+                'contract_number' => $serviceContract->contract_number,
+                'service_type' => $serviceContract->service_type,
+                'service_start' => optional($serviceContract->service_start)->format('Y-m-d'),
+                'service_end' => optional($serviceContract->service_end)->format('Y-m-d'),
+                'contract_status' => $serviceContract->contract_status,
+                'customer' => [
+                    'customer_name' => optional($serviceContract->customer)->customer_name,
+                ],
+                'product' => [
+                    'product_name' => optional($serviceContract->product)->product_name,
+                ],
+            ],
+        ]);
+    }
+
     public function serviceContractsIndex(Request $request)
 
     {
+
         $search = $request->query('search');
         $status = $request->query('status');
         $customer = $request->query('customer');
@@ -332,6 +292,7 @@ class AfterSalesSupportController extends Controller
     {
         $search = $request->query('search');
         $status = $request->query('status');
+
         $perPage = (int) $request->query('per_page', 10);
         $perPage = $perPage > 0 ? $perPage : 10;
 
@@ -450,9 +411,132 @@ class AfterSalesSupportController extends Controller
     }
 
 
+    public function serviceRequestShow(Request $request, $requestId)
+    {
+
+
+        $serviceRequest = \App\Models\ServiceRequest::query()
+            ->with(['supportTicket.customer', 'supportTicket.ticketAssignments.employee'])
+            ->findOrFail($requestId);
+
+        $ticket = $serviceRequest->supportTicket;
+
+        return response()->json([
+            'request' => [
+                'request_id' => $serviceRequest->request_id,
+                'request_type' => $serviceRequest->request_type,
+                'scheduled_date' => optional($serviceRequest->scheduled_date)->format('Y-m-d'),
+                'completion_date' => optional($serviceRequest->completion_date)->format('H:i'),
+                'service_status' => $serviceRequest->service_status,
+                // fields the UI can safely consume (optional, may not exist)
+                'notes' => null,
+                'technicians' => [],
+            ],
+            'ticket' => [
+                'ticket_id' => $ticket?->ticket_id,
+                'customer_name' => optional($ticket?->customer)->customer_name,
+                // schema does not include contract coverage here; keep as placeholder
+                'coverage' => '—',
+            ],
+        ]);
+    }
+
+    public function resolutionShow(Request $request, $resolutionId)
+    {
+        $resolution = ResolutionTracking::query()
+            ->with([
+                'supportTicket.customer',
+                'supportTicket.product',
+                'supportTicket.ticketAssignments.employee',
+                'employee',
+            ])
+            ->findOrFail($resolutionId);
+
+        $ticket = $resolution->supportTicket;
+        $assignedEmployee = $resolution->employee ?? optional($ticket?->ticketAssignments->first())->employee;
+
+        $resolvedDate = $resolution->resolved_at ? $resolution->resolved_at->format('Y-m-d') : null;
+        $resolutionTimeHours = $resolution->resolution_time_hours;
+        $resolutionTimeText = $resolutionTimeHours !== null
+            ? rtrim(rtrim(number_format((float) $resolutionTimeHours, 2, '.', ''), '0'), '.') . 'h'
+            : null;
+
+        $qcStatus = null;
+        $workflowOutcome = null;
+        $resolvedOutcome = null;
+
+        $correctiveActionLower = strtolower((string) $resolution->corrective_action);
+        if (strpos($correctiveActionLower, 'pass') !== false) {
+            $qcStatus = 'Passed';
+            $workflowOutcome = 'Closed';
+        } elseif (strpos($correctiveActionLower, 'pending') !== false) {
+            $qcStatus = 'Pending QC';
+            $workflowOutcome = 'In Review';
+        } else {
+            $qcStatus = '—';
+            $workflowOutcome = '—';
+        }
+
+        $resolvedOutcome = $resolution->resolved_at ? 'Closed' : 'In Review';
+
+        return response()->json([
+            'resolution' => [
+                'resolution_id' => $resolution->resolution_id,
+                'ticket_id' => $resolution->ticket_id,
+                'resolved_by' => $resolution->resolved_by,
+                'resolution_summary' => $resolution->resolution_summary,
+                'root_cause' => $resolution->root_cause,
+                'corrective_action' => $resolution->corrective_action,
+                'resolution_time_hours' => $resolutionTimeHours !== null ? (float) $resolutionTimeHours : null,
+                'resolved_at' => $resolution->resolved_at ? $resolution->resolved_at->format('Y-m-d H:i:s') : null,
+                'resolved_date' => $resolvedDate,
+                'outcome' => $resolvedOutcome,
+                'quality_notes' => null,
+            ],
+            'ticket' => [
+                'ticket_id' => $ticket?->ticket_id,
+                'ticket_number' => $ticket?->ticket_id ? ('TK-' . $ticket->ticket_id) : null,
+                'subject' => $ticket?->subject,
+                'status' => $ticket?->status,
+                'customer' => [
+                    'customer_name' => optional($ticket?->customer)->customer_name,
+                    'email' => optional($ticket?->customer)->email,
+                ],
+                'product' => [
+                    'product_name' => optional($ticket?->product)->product_name,
+                    'sku' => optional($ticket?->product)->sku,
+                ],
+            ],
+            'assignedEmployee' => [
+                'employee_id' => $assignedEmployee?->employee_id,
+                'employee_name' => $assignedEmployee?->getFullNameAttribute(),
+                'department' => $assignedEmployee?->department,
+                'role' => $assignedEmployee?->role,
+            ],
+            'modal' => [
+                // IDs used by resolution-details-modal.blade.php
+                'resolutionRootCauseText' => $resolution->root_cause ?? '—',
+                'resolutionRootCauseNarrativeText' => '—',
+                'resolutionOutcomeBadge' => $resolvedOutcome ?? '—',
+                'resolutionCorrectiveActionText' => $resolution->corrective_action ?? '—',
+                'resolutionResolvedByText' => $assignedEmployee?->getFullNameAttribute() ?? '—',
+                'resolutionTimeHoursText' => $resolutionTimeText ?? '—',
+                'resolutionResolvedDateText' => $resolvedDate ?? '—',
+                'resolutionTicketNumberText' => $ticket?->ticket_id ? ('TK-' . $ticket->ticket_id) : '—',
+                'resolutionQualityNotesText' => '—',
+                'resolutionEvidenceSummaryText' => '—',
+                'resolutionEvidenceCountBadge' => '—',
+                'resolutionWorkflowStatusText' => $qcStatus ?? '—',
+                'resolutionWorkflowOutcomeBadge' => $workflowOutcome ?? '—',
+            ],
+        ]);
+    }
+
     public function customerSatisfactionIndex(Request $request)
     {
+
         $search = $request->query('search');
+
         $rating = $request->query('rating');
 
         $perPage = (int) $request->query('per_page', 10);
@@ -460,6 +544,7 @@ class AfterSalesSupportController extends Controller
 
         $query = \App\Models\SatisfactionMonitoring::query()
             ->with(['supportTicket']);
+
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {

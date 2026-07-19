@@ -2,85 +2,129 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ResolutionTracking;
-use App\Models\SatisfactionMonitoring;
-use App\Models\ServiceContract;
+use App\Models\Employee;
 use App\Models\SupportTicket;
-use App\Models\WarrantyRecord;
-use App\Models\Notification;
-use Illuminate\Support\Facades\DB;
+use App\Models\TicketAssignment;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class SupportTicketController extends Controller
 {
-    public function index()
+    public function show(Request $request, $ticketId)
     {
-        $recentTickets = SupportTicket::query()
-            ->with(['customer', 'product'])
-            ->orderByDesc('created_at')
-            ->take(3)
-            ->get();
+        $ticket = SupportTicket::with([
+            'customer',
+            'product',
+            'ticketAssignments.employee',
+        ])->findOrFail($ticketId);
 
-        $recentWarrantyRecords = WarrantyRecord::query()
-            ->with(['product', 'order', 'order.customer'])
-            ->orderByDesc('created_at')
-            ->take(3)
-            ->get();
+        $assignedEmployee = optional($ticket->ticketAssignments->first())->employee;
 
-        $recentServiceRequests = ServiceContract::query()
-            ->with(['customer', 'product'])
-            ->orderByDesc('created_at')
-            ->take(3)
-            ->get();
+        return response()->json([
+            'ticket' => [
+                'ticket_id' => $ticket->ticket_id,
+                'ticket_type' => $ticket->ticket_type,
+                'subject' => $ticket->subject,
+                'description' => $ticket->description,
+                'priority' => $ticket->priority,
+                'status' => $ticket->status,
+                'due_date' => optional($ticket->due_date)->format('Y-m-d H:i'),
+                'customer' => [
+                    'customer_name' => optional($ticket->customer)->customer_name,
+                    'email' => optional($ticket->customer)->email,
+                ],
+                'product' => [
+                    'product_name' => optional($ticket->product)->product_name,
+                    'sku' => optional($ticket->product)->sku,
+                ],
+                'order_id' => $ticket->order_id,
+            ],
+            'assignedEmployee' => [
+                'employee_id' => optional($assignedEmployee)->employee_id,
+                'employee_name' => optional($assignedEmployee)->employee_name,
+            ],
+        ]);
+    }
 
-        $recentResolutionTrackings = ResolutionTracking::query()
-            ->with(['supportTicket', 'employee'])
-            ->orderByDesc('resolved_at')
-            ->take(3)
-            ->get();
+    public function assignForm(Request $request, $ticketId)
+    {
+        $ticket = SupportTicket::with(['ticketAssignments.employee'])->findOrFail($ticketId);
 
-        $satisfactionQuery = SatisfactionMonitoring::query();
-        $totalSatisfaction = (int) $satisfactionQuery->count();
-        $avgRating = (float) $satisfactionQuery->avg('rating');
-        $fiveStarCount = (int) $satisfactionQuery->where('rating', 5)->count();
-        $fiveStarPct = $totalSatisfaction > 0 ? round(($fiveStarCount / $totalSatisfaction) * 100, 0) : 0;
-        $minRatingCount = (int) $satisfactionQuery->whereIn('rating', [1, 2])->count();
-        $minRatingPct = $totalSatisfaction > 0 ? round(($minRatingCount / $totalSatisfaction) * 100, 0) : 0;
+        $employees = Employee::query()
+            ->orderBy('first_name')
+            ->get(['employee_id', 'first_name', 'last_name']);
 
-        $ticketCount = (int) SupportTicket::query()->count();
-        $activeWarrantyCount = (int) WarrantyRecord::query()->whereRaw('lower(warranty_status) = ?', ['active'])->count();
-        $resolvedCaseCount = (int) SupportTicket::query()->whereRaw('lower(status) = ?', ['resolved'])->count();
+        $currentEmployee = optional($ticket->ticketAssignments->first())->employee;
 
-        $recentNotifications = Notification::query()
-            ->orderByDesc('created_at')
-            ->with([])
-            ->take(4)
-            ->get();
+        return response()->json([
+            'ticket' => [
+                'ticket_id' => $ticket->ticket_id,
+                'priority' => $ticket->priority,
+                'status' => $ticket->status,
+                'due_date' => optional($ticket->due_date)->format('Y-m-d'),
+            ],
+            'employees' => $employees->map(function (Employee $e) {
+                return [
+                    'employee_id' => $e->employee_id,
+                    'employee_name' => $e->getFullNameAttribute(),
+                ];
+            })->values(),
+            'currentEmployeeId' => optional($currentEmployee)->employee_id,
+        ]);
+    }
 
-        $notificationsCount = (int) (clone $recentNotifications)->count();
+    public function assign(Request $request, $ticketId)
+    {
+        $validator = Validator::make($request->all(), [
+            'employee_id' => ['required', 'integer', 'exists:employees,employee_id'],
+        ]);
 
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+            ], 422);
+        }
 
-        $recentSatisfaction = SatisfactionMonitoring::query()
-            ->with(['supportTicket'])
-            ->orderByDesc('submitted_at')
-            ->take(4)
-            ->get();
+        TicketAssignment::create([
+            'ticket_id' => (int) $ticketId,
+            'employee_id' => (int) $request->input('employee_id'),
+            'assigned_at' => now(),
+            'assignment_status' => 'assigned',
+        ]);
 
+        $employee = Employee::find($request->input('employee_id'));
 
-        return view('support.index', [
-            'ticketCount' => $ticketCount,
-            'activeWarrantyCount' => $activeWarrantyCount,
-            'satisfactionAvg' => $totalSatisfaction > 0 ? round($avgRating, 1) : 0,
-            'fiveStarPct' => $fiveStarPct,
-            'minRatingPct' => $minRatingPct,
-            'notificationsCount' => $notificationsCount,
-            'resolvedCaseCount' => $resolvedCaseCount,
-            'totalSatisfaction' => $totalSatisfaction,
-            'recentTickets' => $recentTickets,
-            'recentWarrantyRecords' => $recentWarrantyRecords,
-            'recentServiceRequests' => $recentServiceRequests,
-            'recentResolutionTrackings' => $recentResolutionTrackings,
-            'recentSatisfaction' => $recentSatisfaction,
+        return response()->json([
+            'message' => 'Ticket assigned successfully.',
+            'assignedEmployee' => [
+                'employee_id' => $employee?->employee_id,
+                'employee_name' => $employee?->getFullNameAttribute(),
+            ],
+        ]);
+    }
+
+    public function updateStatus(Request $request, $ticketId)
+    {
+        $validator = Validator::make($request->all(), [
+            'status' => ['required', 'string', 'max:255'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $ticket = SupportTicket::query()->findOrFail($ticketId);
+        $ticket->status = $request->input('status');
+        $ticket->save();
+
+        return response()->json([
+            'message' => 'Status updated successfully.',
+            'status' => $ticket->status,
         ]);
     }
 }
+
+
 

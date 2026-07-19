@@ -6,19 +6,117 @@
 
     @include('components.page-header', ['title' => $title, 'subtitle' => $subtitle])
 
-    @include('support.warranty-view-modal')
+@include('support.warranty-view-modal')
 
     <div class="card p-4">
+
+
+    <script>
+        (function () {
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+            function setText(id, value) {
+                const el = document.getElementById(id);
+                if (el) el.textContent = value ?? '—';
+            }
+
+            function badgeClassForStatus(status) {
+                const s = (status || '').toString().toLowerCase();
+                if (s === 'active') return 'bg-success';
+                if (s === 'expiring soon') return 'bg-warning text-dark';
+                if (s === 'expired') return 'bg-danger';
+                return 'bg-secondary';
+            }
+
+            document.querySelectorAll('.js-warranty-view').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const warrantyId = e.currentTarget.getAttribute('data-warranty-id');
+                    if (!warrantyId) return;
+
+                    try {
+                        const res = await fetch(`{{ url('/support/warranty-records') }}/${warrantyId}/show`, {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                ...(csrf ? { 'X-CSRF-TOKEN': csrf } : {})
+                            }
+                        });
+
+                        if (!res.ok) throw new Error('Failed to load warranty');
+                        const data = await res.json();
+
+                        const w = data.warranty || {};
+
+                        // Modal header subtitle
+                        setText('warrantyViewModalSubtitle', `${w.warranty_number || '—'} • ${w.customer?.customer_name || '—'}`);
+
+                        // Modal product/title
+                        const productNameEl = document.querySelector('#warrantyViewModal .fw-bold.fs-5');
+                        if (productNameEl) productNameEl.textContent = w.product?.product_name || '—';
+
+                        const serialEl = document.querySelector('#warrantyViewModal .text-muted small');
+                        // The modal has "Serial: ..." line as text-muted small; update the whole line via closest element
+                        // Update product line (Serial + Qty) inside the modal
+                        const serialLine = root.querySelector('#warrantyViewModalSerial');
+                        if (serialLine) {
+                            serialLine.textContent = `Serial: ${w.serial_number ?? w.product?.sku ?? '—'} • Qty: ${w.quantity ?? '—'}`;
+                        }
+
+                        const quantityLine = root.querySelector('#warrantyViewModalQuantity');
+                        if (quantityLine) {
+                            quantityLine.textContent = w.quantity ?? '—';
+                        }
+
+                        // Order
+                        const orderValue = document.querySelector('#warrantyViewModal .text-muted.small:nth-of-type(1)');
+                        // Instead of fragile nth-of-type, use label neighbor search
+                        const root = document.getElementById('warrantyViewModal');
+                        if (root) {
+                            const findValueByLabel = (labelText) => {
+                                const label = Array.from(root.querySelectorAll('.text-muted.small')).find(el => el.textContent.trim() === labelText);
+                                if (!label) return null;
+                                const container = label.closest('.col-sm-6');
+                                return container ? container.querySelector('.fw-semibold') : null;
+                            };
+
+                            const order = findValueByLabel('Order');
+                            if (order) order.textContent = w.order?.order_number || '—';
+
+                            const start = findValueByLabel('Warranty Start');
+                            if (start) start.textContent = w.warranty_start || '—';
+
+                            const end = findValueByLabel('Warranty End');
+                            if (end) end.textContent = w.warranty_end || '—';
+
+                            const coverage = findValueByLabel('Coverage Type');
+                            if (coverage) coverage.textContent = w.warranty_status || '—';
+                        }
+
+                        // Badge
+                        const badge = document.getElementById('warrantyBadge');
+                        if (badge) {
+                            badge.className = `badge ${badgeClassForStatus(w.warranty_status)}`;
+                            badge.textContent = w.warranty_status || '—';
+                        }
+
+                    } catch (err) {
+                        console.error(err);
+                    }
+                });
+            });
+        })();
+    </script>
+
         {{-- Header + Actions --}}
+
         <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3 mb-4">
             <div>
                 <h5 class="fw-bold mb-1">Warranty Registry</h5>
                 <div class="text-muted small">Manage warranties, eligibility windows, and status.</div>
                 <nav aria-label="Breadcrumb">
                     <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('support.index') }}" class="text-decoration-none">Support</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Warranty Records</li>
                     </ol>
+
                 </nav>
             </div>
 
@@ -29,7 +127,28 @@
         {{-- Filters --}}
         <form method="GET">
         <div class="card p-3 mb-4" style="background: rgba(255,255,255,.7); border: 1px solid rgba(0,0,0,.06); box-shadow: none;">
-            <div class="row g-3">
+            <div class="row g-3" id="warrantyFilters">
+
+                <style>
+                    @media (max-width: 575.98px) {
+                        /* Stack filter inputs vertically on mobile without altering desktop */
+                        #warrantyFilters .col-6,
+                        #warrantyFilters .col-12 {
+                            flex: 0 0 100%;
+                            max-width: 100%;
+                        }
+                        #warrantyFilters .form-control,
+                        #warrantyFilters .form-select {
+                            width: 100% !important;
+                        }
+                        #warrantyFilters .input-group {
+                            width: 100% !important;
+                        }
+                        #warrantyFilters .btn {
+                            width: 100%;
+                        }
+                    }
+                </style>
 
                 <div class="col-12 col-lg-4">
                     <label class="form-label small text-muted">Search</label>
@@ -78,7 +197,7 @@
 
         <div class="table-responsive">
 
-            <table class="table table-hover align-middle mb-0">
+            <table class="table table-hover align-middle mb-0" style="width:100%;">
                 <thead>
                     <tr>
                         <th style="min-width: 150px;">Warranty Number</th>
@@ -114,9 +233,17 @@
                             </td>
 
                             <td class="text-end">
-                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#warrantyViewModal">
+                                <button
+                                    class="btn btn-sm btn-outline-primary js-warranty-view"
+                                    type="button"
+                                    data-warranty-id="{{ $warranty->warranty_id }}"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#warrantyViewModal"
+                                    aria-label="View warranty"
+                                >
                                     <i class="bi bi-eye me-1"></i> View
                                 </button>
+
                             </td>
                         </tr>
                     @empty

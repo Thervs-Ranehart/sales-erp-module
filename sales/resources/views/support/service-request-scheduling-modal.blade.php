@@ -5,7 +5,7 @@
             <div class="modal-header" style="background: rgba(83,71,206,.08); border-bottom: 1px solid rgba(0,0,0,.06);">
                 <div>
                     <h5 class="modal-title fw-bold" id="serviceRequestScheduleModalLabel">Schedule Service Request</h5>
-                    <div class="text-muted small" id="serviceRequestScheduleModalSubtitle">SR-5001 • TK-1002 • On-site Repair</div>
+                    <div class="text-muted small" id="serviceRequestScheduleModalSubtitle">—</div>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -19,20 +19,18 @@
                             <div class="row g-3">
                                 <div class="col-sm-6">
                                     <label class="form-label small text-muted">Technician</label>
-                                    <select class="form-select" aria-label="Technician">
-                                        <option selected>Field Engineer A</option>
-                                        <option>Field Engineer B</option>
-                                        <option>Warranty Partner (Tier-2)</option>
+                                    <select class="form-select" aria-label="Technician" id="serviceRequestScheduleTechnicianSelect">
+                                        <option selected value="">—</option>
                                     </select>
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small text-muted">Schedule Date</label>
-                                    <input type="date" class="form-control" value="2026-07-14" aria-label="Schedule date" />
+                                    <input type="date" class="form-control" aria-label="Schedule date" id="serviceRequestScheduleDateInput" />
                                 </div>
 
                                 <div class="col-sm-6">
                                     <label class="form-label small text-muted">Time Window</label>
-                                    <select class="form-select" aria-label="Time window">
+                                    <select class="form-select" aria-label="Time window" id="serviceRequestScheduleTimeWindowSelect">
                                         <option selected>09:00–12:00</option>
                                         <option>13:00–16:00</option>
                                         <option>16:00–18:00</option>
@@ -40,7 +38,7 @@
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small text-muted">Priority</label>
-                                    <select class="form-select" aria-label="Priority">
+                                    <select class="form-select" aria-label="Priority" id="serviceRequestSchedulePrioritySelect">
                                         <option selected>High</option>
                                         <option>Medium</option>
                                         <option>Low</option>
@@ -49,12 +47,12 @@
 
                                 <div class="col-12">
                                     <label class="form-label small text-muted">Dispatch Notes</label>
-                                    <textarea class="form-control" rows="3" aria-label="Dispatch notes">Customer requested confirmation call 1 hour before arrival. Bring diagnostic kit and spare seals (placeholder).</textarea>
+                                    <textarea class="form-control" rows="3" aria-label="Dispatch notes" id="serviceRequestScheduleNotesTextarea"></textarea>
                                 </div>
                             </div>
 
-                            <div class="alert alert-info mt-3 mb-0" role="alert">
-                                UI-only placeholder: scheduling actions will connect to backend later.
+                            <div class="alert alert-info mt-3 mb-0" role="alert" id="serviceRequestSchedulePlaceholderAlert">
+                                UI-only: scheduling actions will connect to backend later.
                             </div>
                         </div>
                     </div>
@@ -65,19 +63,19 @@
                             <div class="list-group list-group-flush">
                                 <div class="list-group-item">
                                     <div class="text-muted small">Request Number</div>
-                                    <div class="fw-semibold">SR-5001</div>
+                                    <div class="fw-semibold" id="serviceRequestScheduleRequestNumber">—</div>
                                 </div>
                                 <div class="list-group-item">
                                     <div class="text-muted small">Ticket</div>
-                                    <div class="fw-semibold">TK-1002</div>
+                                    <div class="fw-semibold" id="serviceRequestScheduleTicketNumber">—</div>
                                 </div>
                                 <div class="list-group-item">
                                     <div class="text-muted small">Customer</div>
-                                    <div class="fw-semibold">XYZ Trading</div>
+                                    <div class="fw-semibold" id="serviceRequestScheduleCustomerName">—</div>
                                 </div>
                                 <div class="list-group-item">
                                     <div class="text-muted small">Coverage</div>
-                                    <div class="fw-semibold">Under active service contract (placeholder)</div>
+                                    <div class="fw-semibold" id="serviceRequestScheduleCoverage">—</div>
                                 </div>
                             </div>
 

@@ -76,7 +76,7 @@
     {{-- Search + Filters (read-only) --}}
     <form method="GET">
         <div class="card p-3 mt-4" style="background: rgba(255,255,255,.7); border: 1px solid rgba(0,0,0,.06); box-shadow: none;">
-        <div class="row g-3">
+        <div class="row g-3" id="serviceContractsFilters">
 
             <div class="col-12 col-lg-4">
                 <label class="form-label small text-muted">Search</label>
@@ -109,7 +109,26 @@
                 </select>
             </div>
 
-            <div class="col-12 col-lg-4 d-flex align-items-end">
+        <div class="col-12 col-lg-4 d-flex align-items-end" style="margin-top:0;">
+                <style>
+                    @media (max-width: 575.98px) {
+                        #serviceContractsFilters .col-6,
+                        #serviceContractsFilters .col-12 {
+                            flex: 0 0 100%;
+                            max-width: 100%;
+                        }
+                        #serviceContractsFilters .form-control,
+                        #serviceContractsFilters .form-select {
+                            width: 100% !important;
+                        }
+                        #serviceContractsFilters .input-group {
+                            width: 100% !important;
+                        }
+                        #serviceContractsFilters .btn {
+                            width: 100%;
+                        }
+                    }
+                </style>
                 <button class="btn btn-sm" type="submit" style="background:#5347CE;color:#fff;border:1px solid rgba(255,255,255,.25);">
                     <i class="bi bi-funnel me-1"></i> Apply Filters
                 </button>
@@ -127,7 +146,7 @@
         </div>
 
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+            <table class="table table-hover align-middle mb-0" style="min-width: 650px;">
                 <thead>
                     <tr>
                         <th style="min-width: 160px;">Contract Number</th>
@@ -162,9 +181,11 @@
                                 @endif
                             </td>
                             <td class="text-end">
-                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceContractModal">
+                                <button class="btn btn-sm btn-outline-primary js-service-contract-view" type="button" data-contract-id="{{ $contract->contract_id }}" data-bs-toggle="modal" data-bs-target="#serviceContractModal">
                                     <i class="bi bi-eye me-1"></i> View Coverage
                                 </button>
+
+
                             </td>
                         </tr>
                     @empty
@@ -184,6 +205,55 @@
             </nav>
         </div>
     </div>
+
+<script>
+(function(){
+  const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+  const modalEl = document.getElementById('serviceContractModal');
+  if(!modalEl) return;
+
+  document.querySelectorAll('.js-service-contract-view').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const contractId = btn.getAttribute('data-contract-id');
+      if(!contractId) return;
+
+      try {
+        const res = await fetch(`/support/service-contracts/${contractId}/show`, {
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            ...(csrf ? {'X-CSRF-TOKEN': csrf} : {})
+          }
+        });
+        if(!res.ok) throw new Error('Failed to load service contract');
+        const data = await res.json();
+
+        const c = data.contract || {};
+        document.getElementById('serviceContractModalSubtitle').textContent = c.contract_number ? `${c.contract_number} • ${c.customer_name ?? c.customer?.customer_name ?? '—'}` : '—';
+
+        document.getElementById('serviceContractServiceType').textContent = c.service_type ?? '—';
+        document.getElementById('serviceContractStartDate').textContent = c.service_start ?? '—';
+        document.getElementById('serviceContractEndDate').textContent = c.service_end ?? '—';
+        document.getElementById('serviceContractOwner').textContent = '—';
+        document.getElementById('serviceContractSla').textContent = '—';
+        document.getElementById('serviceContractDispatchFrequency').textContent = '—';
+
+        const badge = document.getElementById('serviceContractStatusBadge');
+        badge.textContent = c.contract_status ?? '—';
+
+        const status = (c.contract_status ?? '').toString().toLowerCase();
+        let cls = 'badge bg-secondary';
+        if(status === 'active') cls = 'badge bg-success';
+        else if(status === 'expiring') cls = 'badge bg-warning text-dark';
+        else if(status === 'expired') cls = 'badge bg-danger';
+        badge.className = cls;
+      } catch (err) {
+        console.error(err);
+      }
+    });
+  });
+})();
+</script>
 @endsection
+
 
 

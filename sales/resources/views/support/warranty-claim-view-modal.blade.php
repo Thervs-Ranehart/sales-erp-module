@@ -17,28 +17,29 @@
                             <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
                                 <div>
                                     <div class="text-muted small">Claim Reason</div>
-                                    <div class="fw-bold fs-5">Battery Failure</div>
+                                    <div class="fw-bold fs-5" id="warrantyClaimModalReasonHeading">Battery Failure</div>
                                     <div class="text-muted small">Warranty eligibility: serial matches coverage window (placeholder).</div>
                                 </div>
                                 <span class="badge bg-success" id="warrantyClaimModalStatus">Approved</span>
                             </div>
 
+
                             <div class="row g-3">
                                 <div class="col-sm-6">
                                     <div class="text-muted small">Warranty Number</div>
-                                    <div class="fw-semibold">WR-2001</div>
+                                    <div class="fw-semibold" id="warrantyClaimModalWarrantyNumber">WR-2001</div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="text-muted small">Claim Date</div>
-                                    <div class="fw-semibold">2026-07-10</div>
+                                    <div class="fw-semibold" id="warrantyClaimModalClaimDate">2026-07-10</div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="text-muted small">Product</div>
-                                    <div class="fw-semibold">Widget A</div>
+                                    <div class="fw-semibold" id="warrantyClaimModalProduct">Widget A</div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="text-muted small">Assigned Staff</div>
-                                    <div class="fw-semibold">Warranty Desk • Senior Agent</div>
+                                    <div class="fw-semibold" id="warrantyClaimModalAssignedStaff">Warranty Desk • Senior Agent</div>
                                 </div>
                             </div>
 
@@ -52,10 +53,9 @@
 
                             <div class="mt-3">
                                 <div class="text-muted small mb-2">Outcome / Notes</div>
-                                <div class="alert alert-success mb-0" role="alert">
-                                    Claim approved. Replacement/repair steps can proceed (placeholder).
-                                </div>
+                                <textarea class="form-control" id="warrantyClaimModalNotes" rows="3" placeholder="Add review notes / update claim details if applicable..."></textarea>
                             </div>
+
                         </div>
                     </div>
 

@@ -607,6 +607,8 @@
     </style>
 </head>
 <body>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <div class="d-flex">
         <x-sidebar current-route="{{ Route::currentRouteName() }}" />
 
