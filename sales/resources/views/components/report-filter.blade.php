@@ -47,21 +47,24 @@
                 <div class="rf-field">
                     <label class="rf-label" for="rf-region">Region</label>
                     <select id="rf-region" name="region" class="rf-select">
-                        @foreach(['all' => 'All regions', 'ncr' => 'National Capital Region (NCR)', 'visayas' => 'Visayas', 'mindanao' => 'Mindanao'] as $value => $label)<option value="{{ $value }}" @selected(request('region', 'all') === $value)>{{ $label }}</option>@endforeach
+                        <option value="all">All regions</option>
+                        @foreach(($filterOptions['regions'] ?? []) as $region)<option value="{{ $region }}" @selected(request('region') === $region)>{{ $region }}</option>@endforeach
                     </select>
                 </div>
 
                 <div class="rf-field">
                     <label class="rf-label" for="rf-product-category">Product Categories</label>
                     <select id="rf-product-category" name="product" class="rf-select">
-                        @foreach(['all' => 'All product categories', 'category-a' => 'Category A', 'category-b' => 'Category B', 'category-c' => 'Category C'] as $value => $label)<option value="{{ $value }}" @selected(request('product', 'all') === $value)>{{ $label }}</option>@endforeach
+                        <option value="all">All products</option>
+                        @foreach(($filterOptions['products'] ?? []) as $product)<option value="{{ $product->product_id }}" @selected((string) request('product') === (string) $product->product_id)>{{ $product->product_name }}</option>@endforeach
                     </select>
                 </div>
 
                 <div class="rf-field">
                     <label class="rf-label" for="rf-sales-representative">Sales Representative</label>
                     <select id="rf-sales-representative" name="representative" class="rf-select">
-                        @foreach(['all' => 'All representatives', 'rep-1' => 'Representative 1', 'rep-2' => 'Representative 2', 'rep-3' => 'Representative 3'] as $value => $label)<option value="{{ $value }}" @selected(request('representative', 'all') === $value)>{{ $label }}</option>@endforeach
+                        <option value="all">All representatives</option>
+                        @foreach(($filterOptions['representatives'] ?? []) as $representative)<option value="{{ $representative->employee_id }}" @selected((string) request('representative') === (string) $representative->employee_id)>{{ $representative->full_name }}</option>@endforeach
                     </select>
                 </div>
 

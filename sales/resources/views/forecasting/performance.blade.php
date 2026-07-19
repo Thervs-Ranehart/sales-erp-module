@@ -310,20 +310,22 @@
         </div>
     </section>
 
-    <section class="mt-5 mb-4" aria-labelledby="recommended-actions-heading">
+    <section class="mt-5 mb-4" aria-labelledby="sales-targets-heading">
         <div class="card border-0 shadow-sm rounded-4">
             <div class="card-body p-4">
-                <h2 id="recommended-actions-heading" class="fs-5 fw-bold mb-3">Recommended Actions</h2>
-                <div class="row g-3">
-                    @foreach (['Increase inventory for products consistently exceeding targets.', 'Review regions with low achievement and coordinate with marketing.', 'Provide coaching to underperforming sales representatives.', 'Adjust future targets using recent performance trends.'] as $action)
-                        <div class="col-12 col-lg-6">
-                            <div class="d-flex gap-3 align-items-start">
-                                <i class="bi bi-arrow-right-circle-fill text-primary mt-1" aria-hidden="true"></i>
-                                <span class="text-muted">{{ $action }}</span>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
+                <h2 id="sales-targets-heading" class="fs-5 fw-bold mb-1">Manage Sales Targets</h2>
+                <p class="small text-muted">Saving the same representative, month, and year updates the existing target.</p>
+                @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
+                <form method="POST" action="{{ route('forecasting.targets.store') }}" class="row g-3 align-items-end">
+                    @csrf
+                    <div class="col-md-4"><label class="form-label" for="target-employee">Representative</label><select class="form-select" id="target-employee" name="employee_id" required>@foreach($employees as $employee)<option value="{{ $employee->employee_id }}">{{ $employee->full_name }}</option>@endforeach</select></div>
+                    <div class="col-6 col-md-2"><label class="form-label" for="target-month">Month</label><select class="form-select" id="target-month" name="target_month" required>@foreach(range(1, 12) as $month)<option value="{{ $month }}" @selected($month === now()->month)>{{ now()->setMonth($month)->format('F') }}</option>@endforeach</select></div>
+                    <div class="col-6 col-md-2"><label class="form-label" for="target-year">Year</label><input class="form-control" id="target-year" name="target_year" type="number" min="2020" max="2100" value="{{ request('year', now()->year) }}" required></div>
+                    <div class="col-6 col-md-2"><label class="form-label" for="sales-target">Order target</label><input class="form-control" id="sales-target" name="sales_target" type="number" min="0" value="0" required></div>
+                    <div class="col-6 col-md-2"><label class="form-label" for="revenue-target">Revenue target</label><input class="form-control" id="revenue-target" name="revenue_target" type="number" min="0" step="0.01" required></div>
+                    <div class="col-12"><button class="btn btn-primary" type="submit"><i class="bi bi-bullseye me-2"></i>Save Target</button></div>
+                </form>
+                <div class="table-responsive mt-4"><table class="table table-sm align-middle"><thead><tr><th>Representative</th><th>Period</th><th>Orders</th><th>Revenue</th><th></th></tr></thead><tbody>@forelse($salesTargets as $target)<tr><td>{{ $target->employee?->full_name }}</td><td>{{ now()->setMonth($target->target_month)->format('M') }} {{ $target->target_year }}</td><td>{{ number_format($target->sales_target) }}</td><td>₱{{ number_format($target->revenue_target, 2) }}</td><td><form method="POST" action="{{ route('forecasting.targets.destroy', $target) }}" onsubmit="return confirm('Delete this target?')">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger" type="submit">Delete</button></form></td></tr>@empty<tr><td colspan="5" class="text-center text-muted py-3">No targets have been created.</td></tr>@endforelse</tbody></table></div>
             </div>
         </div>
     </section>

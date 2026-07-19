@@ -18,6 +18,7 @@ use App\Http\Controllers\PricingRuleController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\SalesOrderController;
+use App\Http\Controllers\SalesTargetController;
 use App\Http\Controllers\SupportTicketController;
 use Illuminate\Support\Facades\Route;
 
@@ -94,6 +95,8 @@ Route::get('/forecasting/sales-analysis', [ForecastingController::class, 'salesA
 Route::get('/forecasting/performance', [ForecastingController::class, 'performance'])->name('forecasting.performance');
 Route::get('/forecasting/forecast', [ForecastingController::class, 'forecast'])->name('forecasting.forecast');
 Route::get('/forecasting/recommendations', [ForecastingController::class, 'recommendations'])->name('forecasting.recommendations');
+Route::post('/forecasting/targets', [SalesTargetController::class, 'store'])->name('forecasting.targets.store');
+Route::delete('/forecasting/targets/{salesTarget}', [SalesTargetController::class, 'destroy'])->name('forecasting.targets.destroy');
 
 Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
 

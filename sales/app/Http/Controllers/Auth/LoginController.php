@@ -7,6 +7,7 @@ use App\Models\Employee;
 use App\Models\LoginAttempt;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 
 class LoginController extends Controller
 {
@@ -107,7 +108,7 @@ class LoginController extends Controller
 
                     return back()
                         ->withErrors([
-                            'username' => 'Too many failed login attempts. Your account has been locked for 15 minutes.'
+                            'username' => 'Too many failed login attempts. Your account has been locked for 15 minutes.',
                         ])
                         ->with('lockout_seconds', self::LOCKOUT_MINUTES * 60)
                         ->onlyInput('username');
@@ -115,7 +116,7 @@ class LoginController extends Controller
 
                 return back()
                     ->withErrors([
-                        'username' => self::GENERIC_ERROR
+                        'username' => self::GENERIC_ERROR,
                     ])
                     ->with('remaining_attempts', $remainingAttempts)
                     ->onlyInput('username');
@@ -124,11 +125,10 @@ class LoginController extends Controller
             // Username does not exist
             return back()
                 ->withErrors([
-                    'username' => self::GENERIC_ERROR
+                    'username' => self::GENERIC_ERROR,
                 ])
                 ->onlyInput('username');
         }
-
 
         // Successful login — clear any prior failed-attempt count and log it.
         $employee->forceFill([
@@ -171,6 +171,12 @@ class LoginController extends Controller
      */
     protected function logAttempt(string $usernameAttempted, ?int $employeeId, ?string $ipAddress, ?string $userAgent, bool $successful): void
     {
+        // Keep authentication available if the audit migration has not yet
+        // been applied. Logging resumes automatically once the table exists.
+        if (! Schema::hasTable('login_attempts')) {
+            return;
+        }
+
         LoginAttempt::create([
             'username_attempted' => $usernameAttempted,
             'employee_id' => $employeeId,
