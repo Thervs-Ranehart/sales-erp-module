@@ -86,70 +86,80 @@
 
     {{-- Search + Filters --}}
     <div class="card p-3 mt-4" style="background: rgba(255,255,255,.7); border: 1px solid rgba(0,0,0,.06); box-shadow: none;">
-        <div class="row g-3" id="serviceRequestsFilters">
+        <form method="GET" action="{{ route('support.service-requests') }}">
+            <div class="row g-3" id="serviceRequestsFilters">
 
-            <style>
-                @media (max-width: 575.98px) {
-                    #serviceRequestsFilters .col-6,
-                    #serviceRequestsFilters .col-12 {
-                        flex: 0 0 100%;
-                        max-width: 100%;
+                <style>
+                    @media (max-width: 575.98px) {
+                        #serviceRequestsFilters .col-6,
+                        #serviceRequestsFilters .col-12 {
+                            flex: 0 0 100%;
+                            max-width: 100%;
+                        }
+                        #serviceRequestsFilters .form-control,
+                        #serviceRequestsFilters .form-select {
+                            width: 100% !important;
+                        }
+                        #serviceRequestsFilters .input-group {
+                            width: 100% !important;
+                        }
+                        #serviceRequestsFilters .btn {
+                            width: 100%;
+                        }
                     }
-                    #serviceRequestsFilters .form-control,
-                    #serviceRequestsFilters .form-select {
-                        width: 100% !important;
-                    }
-                    #serviceRequestsFilters .input-group {
-                        width: 100% !important;
-                    }
-                    #serviceRequestsFilters .btn {
-                        width: 100%;
-                    }
-                }
-            </style>
-            <div class="col-12 col-lg-4">
-                <label class="form-label small text-muted">Search</label>
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text" style="background: rgba(83,71,206,.08); border-color: rgba(83,71,206,.2);">
-                        <i class="bi bi-search"></i>
-                    </span>
-                    <input type="text" class="form-control" placeholder="Request number, ticket, customer..." aria-label="Search service requests" />
+                </style>
+                <div class="col-12 col-lg-4">
+                    <label class="form-label small text-muted">Search</label>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text" style="background: rgba(83,71,206,.08); border-color: rgba(83,71,206,.2);">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input
+                            type="text"
+                            name="search"
+                            class="form-control"
+                            placeholder="Request number, ticket, customer..."
+                            aria-label="Search service requests"
+                            value="{{ $search ?? '' }}"
+                        />
+                    </div>
+                </div>
+
+                <div class="col-6 col-lg-2">
+                    <label class="form-label small text-muted">Status</label>
+                    <select name="status" class="form-select form-select-sm" aria-label="Status filter">
+                        <option value="all" {{ ($status ?? 'all') === 'all' ? 'selected' : '' }}>Status: All</option>
+                        <option value="pending" {{ ($status ?? '') === 'pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="scheduled" {{ ($status ?? '') === 'scheduled' ? 'selected' : '' }}>Scheduled</option>
+                        <option value="in progress" {{ ($status ?? '') === 'in progress' ? 'selected' : '' }}>In Progress</option>
+                        <option value="completed" {{ ($status ?? '') === 'completed' ? 'selected' : '' }}>Completed</option>
+                    </select>
+                </div>
+
+                <div class="col-6 col-lg-2">
+                    <label class="form-label small text-muted">Technician</label>
+                    <select class="form-select form-select-sm" aria-label="Technician filter" disabled>
+                        <option selected>All technicians</option>
+                        <option>Field Engineer A</option>
+                        <option>Field Engineer B</option>
+                        <option>Warranty Partner</option>
+                    </select>
+                </div>
+
+                <div class="col-6 col-lg-2">
+                    <label class="form-label small text-muted">Date</label>
+                    <input type="date" class="form-control form-control-sm" aria-label="Request date" disabled />
+                </div>
+
+                <div class="col-12 col-lg-2 d-flex align-items-end justify-content-lg-end">
+                    <button type="submit" class="btn btn-sm" style="background:#5347CE;color:#fff;border:1px solid rgba(255,255,255,.25);">
+                        <i class="bi bi-funnel me-1"></i> Apply
+                    </button>
                 </div>
             </div>
-
-            <div class="col-6 col-lg-2">
-                <label class="form-label small text-muted">Status</label>
-                <select class="form-select form-select-sm" aria-label="Status filter">
-                    <option selected>Status: All</option>
-                    <option>Pending</option>
-                    <option>Scheduled</option>
-                    <option>In Progress</option>
-                    <option>Completed</option>
-                </select>
-            </div>
-
-            <div class="col-6 col-lg-2">
-                <label class="form-label small text-muted">Technician</label>
-                <select class="form-select form-select-sm" aria-label="Technician filter">
-                    <option selected>All technicians</option>
-                    <option>Field Engineer A</option>
-                    <option>Field Engineer B</option>
-                    <option>Warranty Partner</option>
-                </select>
-            </div>
-
-            <div class="col-6 col-lg-2">
-                <label class="form-label small text-muted">Date</label>
-                <input type="date" class="form-control form-control-sm" aria-label="Request date" />
-            </div>
-
-            <div class="col-12 col-lg-2 d-flex align-items-end justify-content-lg-end">
-                <button class="btn btn-sm" style="background:#5347CE;color:#fff;border:1px solid rgba(255,255,255,.25);">
-                    <i class="bi bi-funnel me-1"></i> Apply
-                </button>
-            </div>
-        </div>
+        </form>
     </div>
+
 
     {{-- Table --}}
     <div class="card p-4 mt-4">
@@ -209,7 +219,8 @@
                                         type="button"
                                         data-request-id="{{ $req->request_id }}"
                                         data-bs-toggle="modal"
-                                        data-bs-target="#serviceRequestScheduleModal">
+                                        data-bs-target="#serviceRequestScheduleModal"
+                                        data-mode="schedule">
                                     <i class="bi bi-calendar3 me-1"></i> Schedule
                                 </button>
                             </td>
@@ -218,10 +229,12 @@
                                         type="button"
                                         data-request-id="{{ $req->request_id }}"
                                         data-bs-toggle="modal"
-                                        data-bs-target="#serviceRequestScheduleModal">
+                                        data-bs-target="#serviceRequestScheduleModal"
+                                        data-mode="view">
                                     <i class="bi bi-eye me-1"></i> View
                                 </button>
                             </td>
+
                         </tr>
                     @empty
                         <tr>
@@ -273,6 +286,62 @@
                         const tkNo = ticket.ticket_id ? `TK-${ticket.ticket_id}` : '—';
                         subtitle.textContent = `SR-${r.request_id ?? requestId} • ${tkNo} • ${r.request_type ?? '—'}`;
                     }
+
+                    // Mode-specific UI
+                    const mode = btn.getAttribute('data-mode') || mode;
+                    const modalTitle = document.getElementById('serviceRequestScheduleModalLabel');
+                    if (modalTitle) {
+                        modalTitle.textContent = mode === 'view' ? 'Service Request Details' : 'Schedule Service Request';
+                    }
+
+                    // Footer primary action (mode-specific)
+                    const primaryActionBtn = document.getElementById('serviceRequestScheduleModalPrimaryAction');
+                    if (primaryActionBtn) {
+                        if (mode === 'view') {
+                            // View mode should not show the scheduling action.
+                            primaryActionBtn.style.display = 'none';
+                        } else {
+                            primaryActionBtn.style.display = '';
+                            primaryActionBtn.textContent = 'Schedule (placeholder)';
+                        }
+                    }
+
+                    // If view mode, disable inputs (view should be read-only)
+
+                    const technicianSelect = document.getElementById('serviceRequestScheduleTechnicianSelect');
+                    if (technicianSelect) {
+                        technicianSelect.disabled = mode === 'view';
+                    }
+
+                    const dateEl = document.getElementById('serviceRequestScheduleDateInput');
+                    if (dateEl) {
+                        dateEl.disabled = mode === 'view';
+                    }
+
+                    const timeWindowSelect = document.getElementById('serviceRequestScheduleTimeWindowSelect');
+                    if (timeWindowSelect) {
+                        timeWindowSelect.disabled = mode === 'view';
+                    }
+
+                    const prioritySelect = document.getElementById('serviceRequestSchedulePrioritySelect');
+                    if (prioritySelect) {
+                        prioritySelect.disabled = mode === 'view';
+                    }
+
+                    const notesEl = document.getElementById('serviceRequestScheduleNotesTextarea');
+                    if (notesEl) {
+                        notesEl.disabled = mode === 'view';
+                    }
+
+                    // Replace footer button action via bootstrap dismiss if needed
+                    const footerButtons = document.querySelectorAll('#serviceRequestScheduleModal .modal-footer button');
+                    footerButtons.forEach(b => {
+                        // keep Close button always
+                        if (mode === 'view' && b.getAttribute('data-bs-dismiss') !== 'modal') {
+                            b.setAttribute('data-bs-dismiss', 'modal');
+                        }
+                    });
+
 
                     const reqNoEl = document.getElementById('serviceRequestScheduleRequestNumber');
                     if (reqNoEl) reqNoEl.textContent = `SR-${r.request_id ?? requestId}`;

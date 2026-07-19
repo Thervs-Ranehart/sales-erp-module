@@ -43,6 +43,7 @@ $mainItems = [
             ['label' => 'Support Tickets', 'route' => 'support.tickets', 'icon' => 'ticket'],
             ['label' => 'Warranty Records', 'route' => 'support.warranty-records', 'icon' => 'clipboard2-check'],
             ['label' => 'Warranty Claims', 'route' => 'support.warranty-claims', 'icon' => 'file-earmark-text'],
+            ['label' => 'Service Requests', 'route' => 'support.service-requests', 'icon' => 'calendar3-range'],
             ['label' => 'Service Contracts', 'route' => 'support.service-contracts', 'icon' => 'file-earmark'],
 
             ['label' => 'Resolution Tracking', 'route' => 'support.resolution-tracking', 'icon' => 'diagram-3'],

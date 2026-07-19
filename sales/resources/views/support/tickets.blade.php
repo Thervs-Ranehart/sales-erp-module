@@ -65,14 +65,14 @@
 
                 </div>
 
-                <div class="col-12 col-lg-2">
+                    <div class="col-12 col-lg-2">
                     <label class="form-label small text-muted">Customer</label>
-                    <select class="form-select form-select-sm" aria-label="Customer filter" disabled>
-                        <option selected>All Customers</option>
-                        <option>ABC Corporation</option>
-                        <option>XYZ Trading</option>
-                        <option>Northwind Retail</option>
-                        <option>Greenfield Industries</option>
+                    <select class="form-select form-select-sm" aria-label="Customer filter" name="customer">
+                        <option value="all" {{ ($customer ?? 'all') === 'all' ? 'selected' : '' }}>All Customers</option>
+                        <option value="ABC Corporation" {{ ($customer ?? 'all') === 'ABC Corporation' ? 'selected' : '' }}>ABC Corporation</option>
+                        <option value="XYZ Trading" {{ ($customer ?? 'all') === 'XYZ Trading' ? 'selected' : '' }}>XYZ Trading</option>
+                        <option value="Northwind Retail" {{ ($customer ?? 'all') === 'Northwind Retail' ? 'selected' : '' }}>Northwind Retail</option>
+                        <option value="Greenfield Industries" {{ ($customer ?? 'all') === 'Greenfield Industries' ? 'selected' : '' }}>Greenfield Industries</option>
                     </select>
 
                 </div>
@@ -180,6 +180,7 @@
                                     <span class="badge bg-primary px-2 py-1 fs-6">{{ $ticket->status }}</span>
                                 @elseif(strtolower((string)$statusBadge) === 'resolved')
                                     <span class="badge bg-success px-2 py-1 fs-6">{{ $ticket->status }}</span>
+
                                 @elseif(strtolower((string)$statusBadge) === 'escalated')
                                     <span class="badge bg-danger px-2 py-1 fs-6">{{ $ticket->status }}</span>
                                 @else

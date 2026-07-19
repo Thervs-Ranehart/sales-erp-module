@@ -88,7 +88,10 @@
                             if (end) end.textContent = w.warranty_end || '—';
 
                             const coverage = findValueByLabel('Coverage Type');
-                            if (coverage) coverage.textContent = w.warranty_status || '—';
+                            if (coverage) coverage.textContent = w.coverage_type || '—';
+
+
+
                         }
 
                         // Badge

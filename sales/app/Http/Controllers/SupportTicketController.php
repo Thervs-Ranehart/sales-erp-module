@@ -18,7 +18,13 @@ class SupportTicketController extends Controller
             'ticketAssignments.employee',
         ])->findOrFail($ticketId);
 
-        $assignedEmployee = optional($ticket->ticketAssignments->first())->employee;
+        // Ensure we always return the latest assignment (newest assigned_at)
+        // so reassignment doesn't show a previously assigned employee after reload.
+        $latestAssignment = $ticket->ticketAssignments
+            ->sortByDesc('assigned_at')
+            ->first();
+        $assignedEmployee = optional($latestAssignment)->employee;
+
 
         return response()->json([
             'ticket' => [
@@ -54,7 +60,12 @@ class SupportTicketController extends Controller
             ->orderBy('first_name')
             ->get(['employee_id', 'first_name', 'last_name']);
 
-        $currentEmployee = optional($ticket->ticketAssignments->first())->employee;
+        // Use latest assignment to pre-select the currently assigned employee.
+        $latestAssignment = $ticket->ticketAssignments
+            ->sortByDesc('assigned_at')
+            ->first();
+        $currentEmployee = optional($latestAssignment)->employee;
+
 
         return response()->json([
             'ticket' => [

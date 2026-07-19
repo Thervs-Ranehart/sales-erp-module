@@ -206,16 +206,17 @@ class AfterSalesSupportController extends Controller
             'contract' => [
                 'contract_id' => $serviceContract->contract_id,
                 'contract_number' => $serviceContract->contract_number,
-                'service_type' => $serviceContract->service_type,
-                'service_start' => optional($serviceContract->service_start)->format('Y-m-d'),
-                'service_end' => optional($serviceContract->service_end)->format('Y-m-d'),
-                'contract_status' => $serviceContract->contract_status,
+                'service_type' => $serviceContract->service_type ?: null,
+                'service_start' => $serviceContract->service_start ? optional($serviceContract->service_start)->format('Y-m-d') : null,
+                'service_end' => $serviceContract->service_end ? optional($serviceContract->service_end)->format('Y-m-d') : null,
+                'contract_status' => $serviceContract->contract_status ?: null,
                 'customer' => [
-                    'customer_name' => optional($serviceContract->customer)->customer_name,
+                    'customer_name' => optional($serviceContract->customer)->customer_name ?: null,
                 ],
                 'product' => [
-                    'product_name' => optional($serviceContract->product)->product_name,
+                    'product_name' => optional($serviceContract->product)->product_name ?: null,
                 ],
+
             ],
         ]);
     }

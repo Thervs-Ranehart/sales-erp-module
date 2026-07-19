@@ -33,11 +33,13 @@
                             <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
                                 <div>
                                     <div class="text-muted small">Service Type</div>
-                                    <div class="fw-bold fs-5" id="serviceContractServiceType">—</div>
-                                <div class="text-muted small">Dispatch frequency: <span id="serviceContractDispatchFrequency">—</span></div>
+                                    <div class="fw-bold fs-5" id="serviceContractServiceType">Coming Soon</div>
+                                    <div class="text-muted small">Dispatch frequency: <span id="serviceContractDispatchFrequency">Coming Soon</span></div>
 
                                 </div>
-                                <span class="badge bg-warning text-dark" id="serviceContractStatusBadge">—</span>
+                                <span class="badge bg-warning text-dark" id="serviceContractStatusBadge">Not Available</span>
+
+
 
                             </div>
 

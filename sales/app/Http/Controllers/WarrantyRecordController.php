@@ -20,6 +20,8 @@ class WarrantyRecordController extends Controller
                 'warranty_id' => $warranty->warranty_id,
                 'warranty_number' => $warranty->warranty_number,
                 'warranty_status' => $warranty->warranty_status,
+                'coverage_type' => $warranty->coverage_type,
+
                 'warranty_start' => optional($warranty->warranty_start)->format('Y-m-d'),
                 'warranty_end' => optional($warranty->warranty_end)->format('Y-m-d'),
                 'product' => [

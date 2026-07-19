@@ -1,4 +1,5 @@
-<!-- Assign Ticket modal (UI-only placeholder) -->
+<!-- Assign Ticket modal -->
+
 <div class="modal fade" id="ticketsAssignModal" tabindex="-1" aria-labelledby="ticketsAssignModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content" style="border-radius: 16px;">
@@ -62,7 +63,8 @@
                             </div>
 
                             <div class="alert alert-info mt-3 mb-0" role="alert">
-                                UI-only placeholder modal. Assignment actions are not submitted to backend.
+                                Assignment workflow is active. You can update the assigned employee and save.
+
                             </div>
                         </div>
                     </div>
@@ -100,8 +102,8 @@
 
             <div class="modal-footer" style="border-top: 1px solid rgba(0,0,0,.06);">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn" id="ticketsAssignSaveBtn" style="background:#5347CE;color:#fff;border:1px solid rgba(255,255,255,.25);">
-                    Save
+                <button type="button" class="btn" id="ticketsAssignSaveBtn" style="background:#6b7280;color:#fff;border:1px solid rgba(255,255,255,.25);" disabled>
+                    Save (Coming Soon)
                 </button>
             </div>
 

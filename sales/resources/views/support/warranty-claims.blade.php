@@ -10,7 +10,10 @@
     @include('support.warranty-claim-status-modal')
 
     <div class="row g-4">
+        {{-- Notification host used by JS (keep only one DOM ID) --}}
         <div id="supportWarrantyClaimsNotificationHost" class="mb-3" style="grid-column: 1 / -1;"></div>
+
+
 
 
         <div class="col-md-3">
@@ -194,6 +197,8 @@
                                     <span class="badge bg-primary">{{ $claim->claim_status }}</span>
                                 @elseif($cs === 'rejected')
                                     <span class="badge bg-danger">{{ $claim->claim_status }}</span>
+                                @elseif($cs === 'completed')
+                                    <span class="badge bg-success">{{ $claim->claim_status }}</span>
                                 @else
                                     <span class="badge bg-secondary">{{ $claim->claim_status ?? '—' }}</span>
                                 @endif
@@ -288,6 +293,20 @@
             }
         }
 
+        document.querySelectorAll('button.js-warranty-claim-review').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const claimId = e.currentTarget.getAttribute('data-claim-id');
+                if (!claimId) return;
+
+                // Populate modal from server (replaces placeholder UI)
+                try {
+                    await loadWarrantyClaimIntoModal(claimId);
+                } catch (err) {
+                    console.error(err);
+                }
+            });
+        });
+
         document.querySelectorAll('button[aria-label="Update Status"]').forEach(btn => {
             btn.addEventListener('click', (e) => {
 
@@ -317,6 +336,7 @@
                 }
             });
         });
+
 
         const statusSaveBtn = document.getElementById('warrantyClaimStatusSaveBtn');
         const statusModalEl = document.getElementById('warrantyClaimStatusModal');
@@ -348,10 +368,21 @@
                         return;
                     }
 
-                    // Update badge immediately (status is column 6)
-                    const trigger = document.querySelector(`button[aria-label="Update Status"][data-bs-toggle="modal"][data-bs-target="#warrantyClaimStatusModal"]`);
-                    const row = trigger?.closest('tr');
-                    const statusTd = row?.querySelector('td:nth-child(6)');
+                    // Update badge immediately (status is column 6) - update only the selected row
+                    const claimsTable = document.querySelector('table');
+                    let statusTd = null;
+
+                    if (claimsTable) {
+                        // Prefer exact claimId match by the "WC-{{claim_id}}" cell in the same row.
+                        const wcCell = Array.from(claimsTable.querySelectorAll('td.fw-semibold')).find(td => {
+                            const wcText = (td.textContent || '').trim();
+                            const foundId = wcText.replace(/^WC-/, '').trim();
+                            return String(foundId) === String(claimId);
+                        });
+
+                        statusTd = wcCell?.closest('tr')?.querySelector('td:nth-child(6)');
+                    }
+
                     if (statusTd) {
                         const lower = (data.status || '').toString().toLowerCase();
                         let cls = 'bg-secondary';
@@ -359,8 +390,11 @@
                         else if (lower === 'approved') cls = 'bg-primary';
                         else if (lower === 'rejected') cls = 'bg-danger';
                         else if (lower === 'completed') cls = 'bg-success';
+
                         statusTd.innerHTML = `<span class="badge ${cls}">${data.status}</span>`;
                     }
+
+
 
                     const modalInstance = bootstrap.Modal.getInstance(statusModalEl);
                     if (modalInstance) modalInstance.hide();

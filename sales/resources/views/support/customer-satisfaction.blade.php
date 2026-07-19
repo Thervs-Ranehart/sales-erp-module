@@ -34,7 +34,7 @@
             </div>
         </div>
 
-        {{-- Search + Filters --}}
+        {{-- Search + Filters (functional) --}}
         <div class="card p-3 mb-4" style="background: rgba(255,255,255,.7); border: 1px solid rgba(0,0,0,.06); box-shadow: none;">
             <form method="GET" action="{{ route('support.customer-satisfaction') }}">
                 <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
@@ -69,6 +69,7 @@
                 </div>
             </form>
         </div>
+
 
         {{-- Summary cards --}}
         <div class="row g-3 mb-4">

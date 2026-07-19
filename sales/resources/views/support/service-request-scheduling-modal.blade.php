@@ -94,7 +94,7 @@
 
             <div class="modal-footer" style="border-top: 1px solid rgba(0,0,0,.06);">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn" style="background:#5347CE;color:#fff;border:1px solid rgba(255,255,255,.25);">Schedule (placeholder)</button>
+                <button id="serviceRequestScheduleModalPrimaryAction" type="button" class="btn" style="background:#5347CE;color:#fff;border:1px solid rgba(255,255,255,.25);">Schedule (placeholder)</button>
             </div>
         </div>
     </div>
