@@ -87,8 +87,8 @@
                             const end = findValueByLabel('Warranty End');
                             if (end) end.textContent = w.warranty_end || '—';
 
-                            const coverage = findValueByLabel('Coverage Type');
-                            if (coverage) coverage.textContent = w.coverage_type || '—';
+const coverage = findValueByLabel('Coverage Type');
+                            if (coverage) coverage.textContent = '—';
 
 
 

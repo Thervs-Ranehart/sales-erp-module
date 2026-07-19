@@ -192,7 +192,7 @@
                             </td>
                             <td>{{ $req->supportTicket->customer->customer_name ?? '—' }}</td>
                             <td>
-                                {{ $req->supportTicket->ticketAssignments->first()->employee->employee_name ?? '—' }}
+{{ $req->supportTicket->ticketAssignments->first()->employee->getFullNameAttribute() ?? '—' }}
                             </td>
                             <td>
                                 <div class="small text-muted mb-1">{{ $req->scheduled_date ? $req->scheduled_date->format('Y-m-d') : '—' }}</div>

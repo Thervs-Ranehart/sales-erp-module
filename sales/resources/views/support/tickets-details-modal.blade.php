@@ -42,7 +42,7 @@
                             <div class="row g-3">
                                 <div class="col-sm-6">
                                     <div class="text-muted small">Assigned Employee</div>
-                                <div class="fw-semibold">{{ isset($ticket) ? (optional($ticket->ticketAssignments->first())->employee->employee_name ?? '—') : '—' }}</div>
+                                    <div class="fw-semibold">{{ isset($ticket) ? (optional($ticket->ticketAssignments->first())->employee->getFullNameAttribute() ?? '—') : '—' }}</div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="text-muted small">Due Date</div>
@@ -109,5 +109,4 @@
         </div>
     </div>
 </div>
-
 

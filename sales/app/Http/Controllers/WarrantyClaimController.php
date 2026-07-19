@@ -57,7 +57,7 @@ class WarrantyClaimController extends Controller
             ],
             'assignedEmployee' => [
                 'employee_id' => optional($assignedStaff)->employee_id,
-                'employee_name' => optional($assignedStaff)->employee_name,
+                'employee_name' => optional($assignedStaff)->getFullNameAttribute(),
             ],
             'availableStatuses' => ['Pending', 'Approved', 'Rejected', 'Completed'],
         ]);
@@ -77,6 +77,7 @@ class WarrantyClaimController extends Controller
 
         $claim = WarrantyClaim::query()->findOrFail($claimId);
         $claim->claim_status = $request->input('claim_status');
+
         if (strtolower((string) $claim->claim_status) === 'approved' && !$claim->approved_date) {
             $claim->approved_date = now();
         }

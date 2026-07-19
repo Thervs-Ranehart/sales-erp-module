@@ -46,8 +46,8 @@ class SupportTicketController extends Controller
                 'order_id' => $ticket->order_id,
             ],
             'assignedEmployee' => [
-                'employee_id' => optional($assignedEmployee)->employee_id,
-                'employee_name' => optional($assignedEmployee)->employee_name,
+'employee_id' => optional($assignedEmployee)->employee_id,
+                'employee_name' => optional($assignedEmployee)->getFullNameAttribute(),
             ],
         ]);
     }
