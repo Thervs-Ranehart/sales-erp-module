@@ -9,6 +9,8 @@
         <div class="card p-4">
         <form method="GET">
 
+
+
         <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-3">
 
             <div>
@@ -71,8 +73,9 @@
 
         {{-- Resolution Table --}}
 
+
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+            <table class="table table-hover align-middle mb-0" style="min-width: 750px;">
                 <thead>
                     <tr>
                         <th style="min-width: 160px;">Ticket</th>
@@ -100,8 +103,13 @@
                             <td>{{ $resolution->resolved_at ? $resolution->resolved_at->format('Y-m-d') : '—' }}</td>
                             <td class="text-end" style="min-width: 260px; white-space: nowrap;">
                                 <div class="d-flex align-items-center justify-content-end flex-nowrap gap-2">
-                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#resolutionDetailsModal">
-                                        <i class="bi bi-eye me-1"></i><span class="text-nowrap"> View details</span>
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-primary js-resolution-view"
+                                            data-resolution-id="{{ $resolution->resolution_id }}"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#resolutionDetailsModal"
+                                            aria-label="View">
+                                        <i class="bi bi-eye"></i>
                                     </button>
                                 </div>
                             </td>
@@ -116,7 +124,7 @@
         </div>
 
 
-            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mt-4">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mt-4">
             <div class="text-muted small">Showing results.</div>
 
             <nav aria-label="Resolution pagination">
@@ -124,6 +132,121 @@
             </nav>
         </div>
     </div>
+
+    <script>
+    (function(){
+      const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+      const modalEl = document.getElementById('resolutionDetailsModal');
+      if(!modalEl) return;
+
+      const mapText = (id, value) => {
+        const el = document.getElementById(id);
+        if(el) el.textContent = (value !== undefined && value !== null && value !== '' ? value : '—');
+      };
+
+      const mapBadge = (badgeId, text, desiredClass) => {
+        const badge = document.getElementById(badgeId);
+        if(!badge) return;
+        badge.textContent = (text !== undefined && text !== null && text !== '' ? text : '—');
+        if(desiredClass) badge.className = desiredClass;
+      };
+
+      // Determine badge classes based on workflow/resolution outcomes
+      const getOutcomeBadgeClass = (outcome) => {
+        const o = (outcome ?? '').toString().toLowerCase();
+        if(o === 'closed') return 'badge bg-success';
+        if(o === 'pending qc') return 'badge bg-warning text-dark';
+        if(o === 'in review') return 'badge bg-primary';
+        if(o === 'reopened') return 'badge bg-danger';
+        return 'badge bg-secondary';
+      };
+
+      const getWorkflowBadgeClass = (workflowOutcome) => {
+        const o = (workflowOutcome ?? '').toString().toLowerCase();
+        if(o === 'closed') return 'badge bg-success';
+        if(o === 'in review') return 'badge bg-primary';
+        if(o === 'pending qc') return 'badge bg-warning text-dark';
+        return 'badge bg-secondary';
+      };
+
+      document.querySelectorAll('.js-resolution-view').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const resolutionId = btn.getAttribute('data-resolution-id');
+          if(!resolutionId) return;
+
+          // Set loading state
+          mapText('resolutionRootCauseText', '—');
+          mapText('resolutionRootCauseNarrativeText', '—');
+          mapText('resolutionCorrectiveActionText', '—');
+          mapText('resolutionResolvedByText', '—');
+          mapText('resolutionTimeHoursText', '—');
+          mapText('resolutionResolvedDateText', '—');
+          mapText('resolutionTicketNumberText', '—');
+          mapText('resolutionQualityNotesText', '—');
+          mapText('resolutionEvidenceSummaryText', '—');
+          mapText('resolutionEvidenceCountBadge', '—');
+          mapText('resolutionWorkflowStatusText', '—');
+          mapText('resolutionWorkflowOutcomeBadge', '—');
+
+          const outcomeBadge = document.getElementById('resolutionOutcomeBadge');
+          if(outcomeBadge) outcomeBadge.className = 'badge bg-secondary';
+          const workflowOutcomeBadge = document.getElementById('resolutionWorkflowOutcomeBadge');
+          if(workflowOutcomeBadge) workflowOutcomeBadge.className = 'badge bg-success mt-2';
+
+          try {
+            const res = await fetch(`/support/resolution-tracking/${resolutionId}/show`, {
+              headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                ...(csrf ? {'X-CSRF-TOKEN': csrf} : {})
+              }
+            });
+            if(!res.ok) throw new Error('Failed to load resolution details');
+            const data = await res.json();
+
+            const m = data?.modal ?? {};
+
+            mapText('resolutionRootCauseText', m.resolutionRootCauseText);
+            mapText('resolutionRootCauseNarrativeText', m.resolutionRootCauseNarrativeText);
+            mapText('resolutionCorrectiveActionText', m.resolutionCorrectiveActionText);
+            mapText('resolutionResolvedByText', m.resolutionResolvedByText);
+            mapText('resolutionTimeHoursText', m.resolutionTimeHoursText);
+            mapText('resolutionResolvedDateText', m.resolutionResolvedDateText);
+            mapText('resolutionTicketNumberText', m.resolutionTicketNumberText);
+            mapText('resolutionQualityNotesText', m.resolutionQualityNotesText);
+            mapText('resolutionEvidenceSummaryText', m.resolutionEvidenceSummaryText);
+
+            const evidenceCountBadge = document.getElementById('resolutionEvidenceCountBadge');
+            if(evidenceCountBadge) {
+              evidenceCountBadge.textContent = (m.resolutionEvidenceCountBadge ?? '—');
+            }
+
+            mapText('resolutionWorkflowStatusText', m.resolutionWorkflowStatusText);
+
+            // outcome badges
+            if(outcomeBadge) {
+              const cls = getOutcomeBadgeClass(m.resolutionOutcomeBadge);
+              outcomeBadge.className = cls;
+              outcomeBadge.textContent = m.resolutionOutcomeBadge ?? '—';
+            }
+
+            if(workflowOutcomeBadge) {
+              const cls = getWorkflowBadgeClass(m.resolutionWorkflowOutcomeBadge);
+              // keep existing spacing class if present
+              workflowOutcomeBadge.className = cls + ' mt-2';
+              workflowOutcomeBadge.textContent = m.resolutionWorkflowOutcomeBadge ?? '—';
+            }
+
+          } catch (err) {
+            console.error(err);
+          }
+        });
+      });
+    })();
+    </script>
 @endsection
+
+
+
+
 
 

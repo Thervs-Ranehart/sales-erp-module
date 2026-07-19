@@ -5,7 +5,7 @@
             <div class="modal-header" style="background: rgba(83,71,206,.08); border-bottom: 1px solid rgba(0,0,0,.06);">
                 <div>
                     <h5 class="modal-title fw-bold" id="resolutionDetailsModalLabel">Resolution Details</h5>
-                    <div class="text-muted small" id="resolutionDetailsSubtitle">RS-6001 • TK-1003</div>
+                    <div class="text-muted small" id="resolutionDetailsSubtitle">—</div>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -17,8 +17,8 @@
                             <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
                                 <div>
                                     <div class="text-muted small">Root Cause</div>
-                                    <div class="fw-bold fs-5">Mismatch between serial database and production batch</div>
-                                    <div class="text-muted small">Placeholder root-cause narrative.</div>
+                                    <div class="fw-bold fs-5" id="resolutionRootCauseText">Mismatch between serial database and production batch</div>
+                                    <div class="text-muted small" id="resolutionRootCauseNarrativeText">—</div>
                                 </div>
                                 <span class="badge bg-success" id="resolutionOutcomeBadge">Closed</span>
                             </div>
@@ -26,38 +26,32 @@
                             <div class="mt-3">
                                 <div class="text-muted small mb-2">Corrective Action</div>
                                 <div class="alert alert-info mb-0" role="alert">
-                                    Updated QC checklist + added cross-check step for serial-to-batch verification.
+                                    <span id="resolutionCorrectiveActionText">—</span>
                                 </div>
                             </div>
 
                             <div class="row g-3 mt-1">
                                 <div class="col-sm-6">
                                     <div class="text-muted small">Resolved By</div>
-                                    <div class="fw-semibold">QC & Resolutions Team</div>
+                                    <div class="fw-semibold" id="resolutionResolvedByText">QC & Resolutions Team</div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="text-muted small">Resolution Time</div>
-                                    <div class="fw-semibold">18h 25m</div>
+                                    <div class="fw-semibold" id="resolutionTimeHoursText">18h 25m</div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="text-muted small">Resolved Date</div>
-                                    <div class="fw-semibold">2026-07-10</div>
+                                    <div class="fw-semibold" id="resolutionResolvedDateText">2026-07-10</div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="text-muted small">Ticket</div>
-                                    <div class="fw-semibold">TK-1003</div>
+                                    <div class="fw-semibold" id="resolutionTicketNumberText">TK-1003</div>
                                 </div>
                             </div>
 
                             <div class="mt-3">
                                 <div class="text-muted small mb-2">Quality Notes</div>
-                                <div class="text-muted small">
-                                    • Verified device test results
-                                    <br>
-                                    • Confirmed replacement/troubleshooting steps
-                                    <br>
-                                    • Prevented recurrence via updated validation rules
-                                </div>
+                                <div class="text-muted small" id="resolutionQualityNotesText">—</div>
                             </div>
                         </div>
                     </div>
@@ -68,13 +62,13 @@
                             <div class="list-group list-group-flush">
                                 <div class="list-group-item">
                                     <div class="fw-semibold">Evidence</div>
-                                    <div class="text-muted small">QC report, serial verification screenshot, test logs (placeholder).</div>
-                                    <span class="badge bg-primary mt-2">3 items</span>
+                                    <div class="text-muted small" id="resolutionEvidenceSummaryText">—</div>
+                                    <span class="badge bg-primary mt-2" id="resolutionEvidenceCountBadge">—</span>
                                 </div>
                                 <div class="list-group-item">
                                     <div class="fw-semibold">Status</div>
-                                    <div class="text-muted small">Outcome and workflow state (placeholder).</div>
-                                    <span class="badge bg-success mt-2">QC passed</span>
+                                    <div class="text-muted small" id="resolutionWorkflowStatusText">—</div>
+                                    <span class="badge bg-success mt-2" id="resolutionWorkflowOutcomeBadge">—</span>
                                 </div>
                             </div>
 
@@ -85,7 +79,7 @@
                             </div>
 
                             <div class="text-muted small mt-3">
-                                UI-only placeholder modal.
+                                —
                             </div>
                         </div>
                     </div>

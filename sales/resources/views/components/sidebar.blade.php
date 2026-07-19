@@ -36,11 +36,10 @@ $mainItems = [
 
     [
         'label' => 'After-Sales Support and Case Management',
-        'route' => 'support.index',
+        'route' => 'support.tickets',
         'icon' => 'headset',
         'hasDropdown' => true,
         'children' => [
-            ['label' => 'Support Dashboard', 'route' => 'support.index', 'icon' => 'speedometer2'],
             ['label' => 'Support Tickets', 'route' => 'support.tickets', 'icon' => 'ticket'],
             ['label' => 'Warranty Records', 'route' => 'support.warranty-records', 'icon' => 'clipboard2-check'],
             ['label' => 'Warranty Claims', 'route' => 'support.warranty-claims', 'icon' => 'file-earmark-text'],
@@ -69,6 +68,10 @@ $utilityItems = [
     ['label' => 'Profile', 'route' => 'profile.index', 'icon' => 'person-circle'],
 ];
 @endphp
+
+<button type="button" class="btn btn-sm d-md-none" id="sidebarToggle" aria-label="Toggle sidebar" style="position: fixed; top: 12px; left: 12px; z-index: 1100; background:#5347CE; color:#fff; border:1px solid rgba(255,255,255,.25);">
+    <i class="bi bi-list"></i>
+</button>
 
 <div class="sidebar d-flex flex-column" id="app-sidebar" data-sidebar-state="collapsed">
     <h4 class="brand">
@@ -108,7 +111,7 @@ $utilityItems = [
                     $itemUrl = Route::has($itemRouteName) ? route($itemRouteName) : null;
                 @endphp
 
-                @if ($itemUrl)
+            @if ($itemUrl)
                     <a href="{{ $itemUrl }}" class="{{ $isActive ? 'active' : '' }}" title="{{ $item['label'] }}">
 
                     <i class="bi bi-{{ $item['icon'] }}"></i>
@@ -229,14 +232,73 @@ $utilityItems = [
     #app-sidebar[data-sidebar-state="collapsed"] .sub-nav.open {
         display: flex !important;
     }
+
+    /* Mobile/tablet: replace hover-only expansion with a tap-to-toggle drawer */
+    @media (max-width: 767.98px) {
+        /* Disable hover-driven expansion on small screens */
+        .sidebar:hover {
+            width: 78px;
+            height: 100vh;
+            max-height: 100vh;
+        }
+
+        /* Turn sidebar into an off-canvas drawer */
+        #app-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 1101;
+            width: 190px; /* keep labels visible while opened */
+            max-height: 100vh;
+            transform: translateX(-100%);
+            transition: transform .2s ease;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        /* When open, slide in */
+        #app-sidebar.is-open {
+            transform: translateX(0);
+        }
+
+        /* On mobile, show labels/icons when sidebar is opened */
+        #app-sidebar.is-open .brand-text,
+        #app-sidebar.is-open .nav-label {
+            display: inline !important;
+        }
+
+        /* Ensure closed drawer doesn't occupy visible width */
+        #app-sidebar:not(.is-open) .brand-text,
+        #app-sidebar:not(.is-open) .nav-label {
+            display: none !important;
+        }
+
+        /* Backdrop */
+        .sidebar-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.35);
+            z-index: 1100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s ease;
+        }
+        .sidebar-backdrop.is-open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    }
 </style>
 
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const sidebar = document.getElementById('app-sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
 
         const syncSubmenuActiveState = function () {
+            if (!sidebar) return;
             const expanded = sidebar.getAttribute('data-sidebar-state') === 'expanded';
 
             document.querySelectorAll('.sub-nav-link[data-active-route="1"]').forEach(function (link) {
@@ -244,8 +306,40 @@ $utilityItems = [
             });
         };
 
+        const ensureBackdrop = function () {
+            let backdrop = document.querySelector('.sidebar-backdrop');
+            if (!backdrop) {
+                backdrop = document.createElement('div');
+                backdrop.className = 'sidebar-backdrop';
+                document.body.appendChild(backdrop);
+            }
+            return backdrop;
+        };
+
+        const isMobile = function () {
+            return window.matchMedia && window.matchMedia('(max-width: 767.98px)').matches;
+        };
+
+        const openSidebar = function () {
+            if (!sidebar) return;
+            const backdrop = ensureBackdrop();
+            sidebar.classList.add('is-open');
+            backdrop.classList.add('is-open');
+            document.body.style.overflow = 'hidden';
+        };
+
+        const closeSidebar = function () {
+            if (!sidebar) return;
+            const backdrop = ensureBackdrop();
+            sidebar.classList.remove('is-open');
+            backdrop.classList.remove('is-open');
+            document.body.style.overflow = '';
+        };
+
         if (sidebar) {
             sidebar.addEventListener('mouseenter', function () {
+                // Keep desktop behavior unchanged; ignore hover logic on mobile.
+                if (isMobile()) return;
                 sidebar.setAttribute('data-sidebar-state', 'expanded');
                 syncSubmenuActiveState();
             });
@@ -254,10 +348,52 @@ $utilityItems = [
             // This prevents the parent submenu (e.g., CRM) from collapsing/losing its state
             // when user navigates to other items inside that parent.
             sidebar.addEventListener('mouseleave', function () {
+                if (isMobile()) return;
                 sidebar.setAttribute('data-sidebar-state', 'collapsed');
             });
         }
 
+        // Hamburger toggle for mobile
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (!isMobile()) {
+                    return;
+                }
+
+                if (sidebar.classList.contains('is-open')) {
+                    closeSidebar();
+                } else {
+                    openSidebar();
+                }
+            });
+        }
+
+        // Close when clicking backdrop
+        document.addEventListener('click', function (event) {
+            if (!isMobile()) return;
+            const backdrop = document.querySelector('.sidebar-backdrop');
+            if (backdrop && backdrop.classList.contains('is-open') && event.target === backdrop) {
+                closeSidebar();
+            }
+        });
+
+        // Close on escape
+        document.addEventListener('keydown', function (event) {
+            if (!isMobile()) return;
+            if (event.key === 'Escape') {
+                closeSidebar();
+            }
+        });
+
+        // Close if resizing to desktop
+        window.addEventListener('resize', function () {
+            if (!isMobile()) {
+                closeSidebar();
+            }
+        });
 
         document.querySelectorAll('.sidebar-drop-icon[data-dropdown-toggle]').forEach(function (icon) {
             icon.addEventListener('click', function (event) {
@@ -279,3 +415,4 @@ $utilityItems = [
         syncSubmenuActiveState();
     });
 </script>
+
