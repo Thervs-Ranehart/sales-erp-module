@@ -85,8 +85,8 @@
             canvas.height
         );
 
-        gradient.addColorStop(0, 'rgba(37,99,235,0.25)');
-        gradient.addColorStop(1, 'rgba(37,99,235,0.02)');
+        gradient.addColorStop(0, 'rgba(18,139,153,0.28)');
+        gradient.addColorStop(1, 'rgba(28,229,189,0.02)');
 
         const chart = new Chart(ctx, {
             type: 'line',
@@ -100,7 +100,7 @@
 
                         data: values,
 
-                        borderColor: '#2563EB',
+                        borderColor: '#128B99',
 
                         backgroundColor: gradient,
 
@@ -110,11 +110,11 @@
 
                         tension: 0.4,
 
-                        pointRadius: 0,
+                        pointRadius: 3,
 
                         pointHoverRadius: 7,
 
-                        pointBackgroundColor: '#2563EB',
+                        pointBackgroundColor: '#128B99',
 
                         pointBorderColor: '#ffffff',
 
@@ -164,6 +164,10 @@
 
                         padding: 12,
 
+                        cornerRadius: 10,
+
+                        displayColors: false,
+
                         callbacks: {
                             label(context) {
                                 return formatPHP(context.raw ?? 0);
@@ -188,7 +192,7 @@
                     },
 
                     y: {
-                        beginAtZero: false,
+                        beginAtZero: true,
 
                         grid: {
                             color: 'rgba(15,23,42,0.08)',

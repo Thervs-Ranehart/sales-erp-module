@@ -241,7 +241,7 @@
 
                             <hr class="my-4">
 
-                            <p class="text-center text-muted mb-0">© {{ date('Y') }} Sales adn Customer Support Management System</p>
+                            <p class="text-center text-muted mb-0">© {{ date('Y') }} Sales and Customer Support Management System</p>
                         </div>
                     </div>
                 </div>

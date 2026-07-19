@@ -1,82 +1,42 @@
 @extends('layouts.app')
 
 @section('content')
-    @php($title = 'Recommendations')
-    @php($subtitle = 'Actionable next steps based on your forecast performance')
+    @php
+        $tabs = [
+            ['label' => 'Sales Reports', 'route' => 'forecasting.reports'],
+            ['label' => 'Target vs. Actual', 'route' => 'forecasting.performance'],
+            ['label' => 'Forecasting', 'route' => 'forecasting.forecast'],
+            ['label' => 'Recommendations', 'route' => 'forecasting.recommendations'],
+        ];
+        $kpis = [
+            ['label' => 'Total Recommendations', 'value' => $recommendationKpis['total'], 'icon' => 'list-check', 'tone' => 'text-primary', 'accent' => 'rgba(83,71,206,.12)'],
+            ['label' => 'High-Priority Actions', 'value' => $recommendationKpis['highPriority'], 'icon' => 'exclamation-octagon', 'tone' => 'text-danger', 'accent' => 'rgba(239,68,68,.12)'],
+            ['label' => 'Sales Opportunities', 'value' => $recommendationKpis['opportunities'], 'icon' => 'graph-up-arrow', 'tone' => 'text-success', 'accent' => 'rgba(16,185,129,.14)'],
+            ['label' => 'Performance Risks', 'value' => $recommendationKpis['risks'], 'icon' => 'shield-exclamation', 'tone' => 'text-warning', 'accent' => 'rgba(245,158,11,.14)'],
+            ['label' => 'Inventory Actions', 'value' => $recommendationKpis['inventoryActions'], 'icon' => 'boxes', 'tone' => 'text-info', 'accent' => 'rgba(18,139,153,.12)'],
+            ['label' => 'Marketing Actions', 'value' => $recommendationKpis['marketingActions'], 'icon' => 'megaphone', 'tone' => 'text-primary', 'accent' => 'rgba(83,71,206,.12)'],
+        ];
+    @endphp
 
-    @php($tabs = [
-        ['label' => 'Sales Reports', 'route' => 'forecasting.reports'],
-        ['label' => 'Target vs. Actual', 'route' => 'forecasting.performance'],
-        ['label' => 'Forecasting', 'route' => 'forecasting.forecast'],
-        ['label' => 'Recommendations', 'route' => 'forecasting.recommendations'],
-    ])
-
-    @php($kpis = [
-        ['label' => 'Priority Actions', 'value' => '12', 'icon' => 'lightbulb', 'tone' => 'text-success', 'accent' => 'rgba(22, 200, 199, 0.12)'],
-        ['label' => 'Upsell Opportunities', 'value' => '8', 'icon' => 'rocket-takeoff', 'tone' => 'text-primary', 'accent' => 'rgba(83, 71, 206, 0.12)'],
-        ['label' => 'Retention Risk', 'value' => '3', 'icon' => 'exclamation-triangle', 'tone' => 'text-warning', 'accent' => 'rgba(245, 158, 11, 0.14)'],
-        ['label' => 'Account Expansion', 'value' => '5', 'icon' => 'growth', 'tone' => 'text-info', 'accent' => 'rgba(72, 150, 254, 0.14)'],
-        ['label' => 'Action Coverage', 'value' => '87%', 'icon' => 'shield-check', 'tone' => 'text-danger', 'accent' => 'rgba(239, 68, 68, 0.13)'],
-        ['label' => 'Expected Impact', 'value' => '+9.2%', 'icon' => 'sparkles', 'tone' => 'text-success', 'accent' => 'rgba(16, 185, 129, 0.14)'],
-    ])
-
-    <main class="w-full flex items-center" style="margin: -1rem -1rem 0; width: calc(100% + 2rem); padding: 32px 48px; height: 258px; max-height: 258px; background: linear-gradient(90deg, #128B99 0%, #1CE5BD 100%); border-radius: 0;">
-        <div class="d-flex flex-column h-100 w-100">
-            <div>
-                <h1 class="text-white font-semibold text-[45px] leading-tight">Recommendations</h1>
-            </div>
-            <div class="flex-grow-1 d-flex align-items-center">
-                <p class="text-white" style="width: 100%; margin: 0; font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 600; line-height: 1.6; opacity: 0.95;">
-                    Turn insights into prioritized actions that can improve revenue, retention, and performance.
-                </p>
-            </div>
-            <div>
-                <a
-                    href="{{ route('forecasting.recommendations') }}"
-                    class="hero-action-btn"
-                    style="padding: 0.75rem 1.6rem;"
-                >
-                    View Recommendations
-                </a>
-            </div>
-        </div>
+    <main class="w-full flex items-center" style="margin:-1rem -1rem 0;width:calc(100% + 2rem);padding:32px 48px;height:258px;max-height:258px;background:linear-gradient(90deg,#128B99 0%,#1CE5BD 100%);border-radius:0;">
+        <div class="d-flex flex-column h-100 w-100"><h1 class="text-white font-semibold text-[45px] leading-tight">Sales Recommendations</h1><div class="flex-grow-1 d-flex align-items-center"><p class="text-white mb-0" style="font-family:'Poppins',sans-serif;font-size:18px;font-weight:600;line-height:1.6;opacity:.95;">Turn sales reports, target performance, and forecast trends into actionable recommendations for sales, marketing, and inventory planning.</p></div><div><button type="button" class="hero-action-btn" style="padding:.75rem 1.6rem;"><i class="bi bi-download me-2"></i>Export Recommendations</button></div></div>
     </main>
 
-    <section class="mt-4">
-        <div class="row g-4">
-            @foreach ($kpis as $kpi)
-                <div class="col-md-6 col-lg-4">
-                    <div class="card p-3 h-100 border-0 shadow-sm" style="background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%); min-height: 112px;">
-                        <div class="d-flex align-items-center justify-content-between mb-3">
-                            <span class="fw-semibold small text-muted">{{ $kpi['label'] }}</span>
-                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: {{ $kpi['accent'] }};">
-                                <i class="bi bi-{{ $kpi['icon'] }} fs-6 {{ $kpi['tone'] }}"></i>
-                            </div>
-                        </div>
-                        <div class="fw-bold fs-4 {{ $kpi['tone'] }}">{{ $kpi['value'] }}</div>
-                        <p class="text-muted small mb-0 mt-2">Action readiness</p>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    </section>
+    <section class="mt-4" aria-label="Recommendation KPI summary"><div class="row g-4">@foreach($kpis as $kpi)<div class="col-12 col-md-6 col-lg-4"><article class="card border-0 shadow-sm h-100 p-3" style="background:linear-gradient(145deg,#fff,#f8fafc);min-height:112px;"><div class="d-flex justify-content-between align-items-center mb-3"><span class="small fw-semibold text-muted">{{ $kpi['label'] }}</span><span class="rounded-circle d-flex align-items-center justify-content-center" style="width:36px;height:36px;background:{{ $kpi['accent'] }}"><i class="bi bi-{{ $kpi['icon'] }} {{ $kpi['tone'] }}"></i></span></div><div class="fs-4 fw-bold {{ $kpi['tone'] }}">{{ $kpi['value'] }}</div><p class="small text-muted mb-0 mt-2">Current review queue</p></article></div>@endforeach</div></section>
 
-    <section class="mt-4">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div class="d-flex gap-2 flex-wrap">
-                @foreach ($tabs as $tab)
-                    @php($isActive = Route::currentRouteName() === $tab['route'])
-                    <a href="{{ route($tab['route']) }}" class="btn btn-sm {{ $isActive ? 'btn-primary' : 'btn-outline-secondary' }}">
-                        {{ $tab['label'] }}
-                    </a>
-                @endforeach
-            </div>
+    <section class="mt-4"><div class="d-flex justify-content-between align-items-center flex-wrap gap-3"><nav class="d-flex gap-2 flex-wrap" aria-label="Forecasting navigation">@foreach($tabs as $tab)@php($active = Route::currentRouteName() === $tab['route'])<a href="{{ route($tab['route']) }}" class="btn btn-sm {{ $active ? 'btn-primary' : 'btn-outline-secondary' }}" @if($active) aria-current="page" @endif>{{ $tab['label'] }}</a>@endforeach</nav><button id="rec-open-filter" type="button" class="btn btn-outline-secondary btn-sm" aria-controls="rec-filter-drawer" aria-expanded="false"><i class="bi bi-funnel me-2"></i>Filter</button></div></section>
 
-            <button class="btn btn-outline-secondary btn-sm">
-                <i class="bi bi-funnel me-2"></i>
-                Filter
-            </button>
-        </div>
-    </section>
+    <section class="mt-5" aria-labelledby="priority-recommendations-heading"><div class="mb-3"><h2 id="priority-recommendations-heading" class="text-lg font-bold text-gray-900 mb-1">Priority Recommendations</h2><p class="small text-muted mb-0">Actions requiring the earliest management review based on current results.</p></div><div class="row g-4">@foreach($priorityRecommendations as $recommendation)<div class="col-12 col-xl-6"><x-recommendation-card :recommendation="$recommendation" /></div>@endforeach</div></section>
+
+    <section class="mt-5" aria-labelledby="recommendation-categories-heading"><h2 id="recommendation-categories-heading" class="text-lg font-bold text-gray-900 mb-3">Recommendation Categories</h2><div class="row g-4">@foreach($recommendationCategories as $category)<div class="col-12 col-md-6 col-xl-4"><article class="card border-0 shadow-sm rounded-4 h-100"><div class="card-body p-4"><div class="d-flex justify-content-between mb-3"><span class="rounded-3 bg-{{ $category['tone'] }} bg-opacity-10 text-{{ $category['tone'] }} d-flex align-items-center justify-content-center" style="width:42px;height:42px"><i class="bi bi-{{ $category['icon'] }}"></i></span><x-recommendation-priority-badge :priority="$category['priority']" /></div><h3 class="fs-6 fw-bold">{{ $category['name'] }}</h3><p class="small text-muted mb-3">{{ $category['issue'] }}</p><div class="d-flex justify-content-between align-items-center"><span class="small fw-semibold">{{ $category['count'] }} recommendations</span><button type="button" class="btn btn-sm btn-link text-decoration-none p-0">Review actions <i class="bi bi-arrow-right"></i></button></div></div></article></div>@endforeach</div></section>
+
+    <section class="mt-5" aria-labelledby="recommendations-table-heading"><div class="card border-0 shadow-sm rounded-4 overflow-hidden"><div class="card-header bg-white border-0 px-3 px-md-4 pt-4 pb-3"><h2 id="recommendations-table-heading" class="fs-5 fw-bold mb-1">Detailed Recommendations</h2><p class="small text-muted mb-0">Trace every suggested action to its supporting metric and responsible team.</p></div><div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th class="ps-3 ps-md-4">Recommendation</th><th>Category</th><th>Based On</th><th>Priority</th><th>Expected Impact</th><th>Responsible Team</th><th>Status</th><th class="pe-3 pe-md-4">Action</th></tr></thead><tbody>@foreach($recommendationRows as $row)<tr><th class="ps-3 ps-md-4" scope="row">{{ $row['title'] }}</th><td><span class="badge text-bg-light border text-dark">{{ $row['category'] }}</span></td><td>{{ $row['basis'] }}</td><td><x-recommendation-priority-badge :priority="$row['priority']" /></td><td>{{ $row['impact'] }}</td><td>{{ $row['responsible_team'] }}</td><td><x-recommendation-status-badge :status="$row['status']" /></td><td class="pe-3 pe-md-4"><button type="button" class="btn btn-sm btn-outline-primary text-nowrap">Review</button></td></tr>@endforeach</tbody></table></div></div></section>
+
+    <section class="mt-5" aria-labelledby="supporting-insights-heading"><h2 id="supporting-insights-heading" class="text-lg font-bold text-gray-900 mb-3">Supporting Insights</h2><div class="row g-3">@foreach($supportingInsights as $insight)@php($style = match($insight['type']) {'success' => ['alert-success','bi-check-circle-fill'], 'warning' => ['alert-warning','bi-exclamation-triangle-fill'], 'risk' => ['alert-danger','bi-shield-fill-exclamation'], default => ['alert-info','bi-info-circle-fill']})<div class="col-12 col-md-6"><div class="alert {{ $style[0] }} h-100 mb-0 d-flex gap-3"><i class="bi {{ $style[1] }}"></i><span>{{ $insight['text'] }}</span></div></div>@endforeach</div></section>
+
+    <section class="mt-5" aria-labelledby="action-plan-heading"><h2 id="action-plan-heading" class="text-lg font-bold text-gray-900 mb-3">Recommended Action Plan</h2><div class="row g-4">@foreach($actionPlan as $phase => $actions)<div class="col-12 col-xl-4"><article class="card border-0 shadow-sm rounded-4 h-100"><div class="card-body p-4"><h3 class="fs-6 fw-bold mb-4">{{ $phase }}</h3>@foreach($actions as $action)<div class="border-start border-3 border-primary ps-3 mb-4"><div class="fw-semibold">{{ $action['action'] }}</div><dl class="small text-muted mb-0 mt-2"><div><dt class="d-inline">Owner:</dt> <dd class="d-inline">{{ $action['team'] }}</dd></div><div><dt class="d-inline">Timeline:</dt> <dd class="d-inline">{{ $action['timeline'] }}</dd></div><div><dt class="d-inline">Result:</dt> <dd class="d-inline">{{ $action['result'] }}</dd></div></dl></div>@endforeach</div></article></div>@endforeach</div></section>
+
+    <aside class="alert alert-info mt-5 mb-4" aria-labelledby="recommendation-method-heading"><h2 id="recommendation-method-heading" class="fs-6 fw-bold"><i class="bi bi-info-circle me-2"></i>Recommendation methodology</h2><p>Recommendations are generated from available sales-order records, target achievement results, and calculated forecast trends. They are data-supported, rule-based suggestions and should be reviewed by management before implementation.</p><p class="mb-0">Safe sample recommendations are shown only when qualifying database records are unavailable. Recommendations remain suggestions until reviewed and approved by an authorized manager.</p></aside>
+
+    @include('components.recommendation-filter')
 @endsection
-

@@ -1,33 +1,28 @@
 <?php
 
+use App\Http\Controllers\AfterSalesSupportController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Crm\CustomerDirectoryController;
-use App\Http\Controllers\Crm\CustomerProfilesController;
-use App\Http\Controllers\Crm\PurchaseHistoryController;
-use App\Http\Controllers\Crm\CustomerLogsController;
 use App\Http\Controllers\Crm\CustomerFollowUpsController;
-use App\Http\Controllers\Crm\CustomerSegmentationController;
+use App\Http\Controllers\Crm\CustomerLogsController;
 use App\Http\Controllers\Crm\CustomerLoyaltyController;
+use App\Http\Controllers\Crm\CustomerProfilesController;
+use App\Http\Controllers\Crm\CustomerSegmentationController;
+use App\Http\Controllers\Crm\PurchaseHistoryController;
 use App\Http\Controllers\Crm\RewardController;
-
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ForecastingController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\NotificationController;
-
+use App\Http\Controllers\PricingRuleController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\SalesOrderController;
-use App\Http\Controllers\PricingRuleController;
-use App\Http\Controllers\InvoiceController;
-
+use App\Http\Controllers\SalesTargetController;
 use App\Http\Controllers\SupportTicketController;
-use App\Http\Controllers\AfterSalesSupportController;
 use App\Http\Controllers\WarrantyClaimController;
-
-
+use App\Http\Controllers\WarrantyRecordController;
 use Illuminate\Support\Facades\Route;
-
-
 
 Route::get('/', [LoginController::class, 'show']);
 
@@ -85,7 +80,6 @@ Route::post('/crm/rewards', [RewardController::class, 'store'])->name('crm.rewar
 Route::put('/crm/rewards/{reward}', [RewardController::class, 'update'])->name('crm.rewards.update');
 Route::delete('/crm/rewards/{reward}', [RewardController::class, 'destroy'])->name('crm.rewards.destroy');
 
-
 // After-Sales Support (case management)
 // Redirect module entrypoint to Support Tickets (default)
 Route::redirect('/after-sales-support', '/support/tickets');
@@ -98,7 +92,7 @@ Route::post('/support/tickets/{ticket}/assign', [\App\Http\Controllers\SupportTi
 Route::post('/support/tickets/{ticket}/status', [\App\Http\Controllers\SupportTicketController::class, 'updateStatus'])->name('support.tickets.status');
 
 // Warranty Records (AJAX View)
-Route::get('/support/warranty-records/{warranty}/show', [\App\Http\Controllers\WarrantyRecordController::class, 'show'])->name('support.warranty-records.show');
+Route::get('/support/warranty-records/{warranty}/show', [WarrantyRecordController::class, 'show'])->name('support.warranty-records.show');
 
 // Warranty Claims (AJAX modal workflow)
 Route::get('/support/warranty-claims/{claim}/show', [WarrantyClaimController::class, 'show'])->name('support.warranty-claims.show');
@@ -121,9 +115,12 @@ Route::get('/support/customer-satisfaction', [AfterSalesSupportController::class
 
 Route::get('/forecasting', [ForecastingController::class, 'index'])->name('forecasting.index');
 Route::get('/forecasting/reports', [ForecastingController::class, 'reports'])->name('forecasting.reports');
+Route::get('/forecasting/sales-analysis', [ForecastingController::class, 'salesAnalysis'])->name('forecasting.sales-analysis');
 Route::get('/forecasting/performance', [ForecastingController::class, 'performance'])->name('forecasting.performance');
 Route::get('/forecasting/forecast', [ForecastingController::class, 'forecast'])->name('forecasting.forecast');
 Route::get('/forecasting/recommendations', [ForecastingController::class, 'recommendations'])->name('forecasting.recommendations');
+Route::post('/forecasting/targets', [SalesTargetController::class, 'store'])->name('forecasting.targets.store');
+Route::delete('/forecasting/targets/{salesTarget}', [SalesTargetController::class, 'destroy'])->name('forecasting.targets.destroy');
 
 Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
 
@@ -141,7 +138,6 @@ Route::put('/sales-orders/{salesOrder}', [SalesOrderController::class, 'update']
 Route::delete('/sales-orders/{salesOrder}', [SalesOrderController::class, 'destroy'])->name('sales.destroy');
 Route::get('/sales-order-management/profile/{salesOrder}', [SalesOrderController::class, 'show'])->name('sales.profile');
 Route::patch('/sales-order-management/profile/{salesOrder}/status', [SalesOrderController::class, 'updateStatus'])->name('sales.update-status');
-
 
 Route::resource('pricing-rules', PricingRuleController::class);
 Route::resource('invoices', InvoiceController::class);
