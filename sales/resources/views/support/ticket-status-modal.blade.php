@@ -16,9 +16,11 @@
                 <div class="mb-3">
                     <label class="form-label small text-muted">Status</label>
                     <select class="form-select" id="ticketStatusSelect" aria-label="Ticket status">
+                        <option value="Open">Open</option>
                         <option value="Pending">Pending</option>
                         <option value="In Progress">In Progress</option>
                         <option value="Resolved">Resolved</option>
+                        <option value="Closed">Closed</option>
                         <option value="Escalated">Escalated</option>
                     </select>
                     <div class="invalid-feedback d-block" id="ticketStatusError" style="display:none;"></div>

@@ -311,7 +311,10 @@
         }
     </style>
 </head>
-<body>
+<body class="{{ request()->routeIs('support.*') ? 'support-module' : '' }}">
+    @if (request()->routeIs('support.*'))
+        @include('components.support-ui')
+    @endif
     <div class="d-flex">
         <x-sidebar current-route="{{ Route::currentRouteName() }}" />
 
@@ -325,10 +328,12 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    @stack('scripts')
 </body>
 </html>
 
-<!--
+{{-- Legacy duplicate layout removed from compiled output. --}}
+{{--
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -617,7 +622,7 @@
             <x-topbar title="{{ $title ?? 'Sales Quotation Management System' }}" subtitle="{{ $subtitle ?? 'Enterprise dashboard' }}" />
 
           <main class="p-4">
-    @yield('content')
+    Legacy content placeholder removed.
 </main>
 </div>
 </div>
@@ -672,4 +677,4 @@
 
 </body>
 </html>
- -->
+--}}

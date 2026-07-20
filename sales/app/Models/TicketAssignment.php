@@ -9,6 +9,7 @@ class TicketAssignment extends Model
     protected $table = 'ticket_assignments';
 
     protected $primaryKey = 'assignment_id';
+
     public $incrementing = true;
 
     public $timestamps = false;
@@ -18,6 +19,10 @@ class TicketAssignment extends Model
         'employee_id',
         'assigned_at',
         'assignment_status',
+    ];
+
+    protected $casts = [
+        'assigned_at' => 'datetime',
     ];
 
     public function supportTicket()
@@ -30,4 +35,3 @@ class TicketAssignment extends Model
         return $this->belongsTo(Employee::class, 'employee_id', 'employee_id');
     }
 }
-

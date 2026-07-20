@@ -9,6 +9,7 @@ class WarrantyRecord extends Model
     protected $table = 'warranty_records';
 
     protected $primaryKey = 'warranty_id';
+
     public $incrementing = true;
 
     public $timestamps = true;
@@ -41,9 +42,41 @@ class WarrantyRecord extends Model
         return $this->belongsTo(Product::class, 'product_id', 'product_id');
     }
 
+    public function customer()
+    {
+        return $this->hasOneThrough(
+            Customer::class,
+            SalesOrder::class,
+            'order_id',
+            'customer_id',
+            'order_id',
+            'customer_id',
+        );
+    }
+
     public function warrantyClaims()
     {
         return $this->hasMany(WarrantyClaim::class, 'warranty_id', 'warranty_id');
     }
-}
 
+    public function currentStatus(): string
+    {
+        if ($this->warranty_status !== null && $this->warranty_status !== '') {
+            return $this->warranty_status;
+        }
+
+        if ($this->warranty_end === null) {
+            return '—';
+        }
+
+        if ($this->warranty_end->isPast()) {
+            return 'Expired';
+        }
+
+        if ($this->warranty_end->lte(today()->addDays(30))) {
+            return 'Expiring Soon';
+        }
+
+        return 'Active';
+    }
+}

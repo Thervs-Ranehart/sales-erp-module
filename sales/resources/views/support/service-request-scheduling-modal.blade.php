@@ -1,102 +1,20 @@
-<!-- Service request scheduling modal (UI-only placeholder) -->
 <div class="modal fade" id="serviceRequestScheduleModal" tabindex="-1" aria-labelledby="serviceRequestScheduleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content" style="border-radius: 16px;">
-            <div class="modal-header" style="background: rgba(83,71,206,.08); border-bottom: 1px solid rgba(0,0,0,.06);">
-                <div>
-                    <h5 class="modal-title fw-bold" id="serviceRequestScheduleModalLabel">Schedule Service Request</h5>
-                    <div class="text-muted small" id="serviceRequestScheduleModalSubtitle">—</div>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
+    <div class="modal-dialog modal-lg modal-dialog-scrollable"><div class="modal-content" style="border-radius:16px;">
+        <div class="modal-header" style="background:rgba(83,71,206,.08);"><div><h5 class="modal-title fw-bold" id="serviceRequestScheduleModalLabel">Schedule Service Request</h5><div class="text-muted small" id="serviceRequestScheduleModalSubtitle">—</div></div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+        <form id="serviceRequestScheduleForm">
             <div class="modal-body">
-                <div class="row g-4">
-                    <div class="col-lg-7">
-                        <div class="card p-3" style="box-shadow:none; border: 1px solid rgba(0,0,0,.06);">
-                            <div class="fw-bold mb-3">Scheduling Information</div>
-
-                            <div class="row g-3">
-                                <div class="col-sm-6">
-                                    <label class="form-label small text-muted">Technician</label>
-                                    <select class="form-select" aria-label="Technician" id="serviceRequestScheduleTechnicianSelect">
-                                        <option selected value="">—</option>
-                                    </select>
-                                </div>
-                                <div class="col-sm-6">
-                                    <label class="form-label small text-muted">Schedule Date</label>
-                                    <input type="date" class="form-control" aria-label="Schedule date" id="serviceRequestScheduleDateInput" />
-                                </div>
-
-                                <div class="col-sm-6">
-                                    <label class="form-label small text-muted">Time Window</label>
-                                    <select class="form-select" aria-label="Time window" id="serviceRequestScheduleTimeWindowSelect">
-                                        <option selected>09:00–12:00</option>
-                                        <option>13:00–16:00</option>
-                                        <option>16:00–18:00</option>
-                                    </select>
-                                </div>
-                                <div class="col-sm-6">
-                                    <label class="form-label small text-muted">Priority</label>
-                                    <select class="form-select" aria-label="Priority" id="serviceRequestSchedulePrioritySelect">
-                                        <option selected>High</option>
-                                        <option>Medium</option>
-                                        <option>Low</option>
-                                    </select>
-                                </div>
-
-                                <div class="col-12">
-                                    <label class="form-label small text-muted">Dispatch Notes</label>
-                                    <textarea class="form-control" rows="3" aria-label="Dispatch notes" id="serviceRequestScheduleNotesTextarea"></textarea>
-                                </div>
-                            </div>
-
-                            <div class="alert alert-info mt-3 mb-0" role="alert" id="serviceRequestSchedulePlaceholderAlert">
-                                UI-only: scheduling actions will connect to backend later.
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-5">
-                        <div class="card p-3" style="box-shadow:none; border: 1px solid rgba(0,0,0,.06);">
-                            <div class="fw-bold mb-2">Related Details</div>
-                            <div class="list-group list-group-flush">
-                                <div class="list-group-item">
-                                    <div class="text-muted small">Request Number</div>
-                                    <div class="fw-semibold" id="serviceRequestScheduleRequestNumber">—</div>
-                                </div>
-                                <div class="list-group-item">
-                                    <div class="text-muted small">Ticket</div>
-                                    <div class="fw-semibold" id="serviceRequestScheduleTicketNumber">—</div>
-                                </div>
-                                <div class="list-group-item">
-                                    <div class="text-muted small">Customer</div>
-                                    <div class="fw-semibold" id="serviceRequestScheduleCustomerName">—</div>
-                                </div>
-                                <div class="list-group-item">
-                                    <div class="text-muted small">Coverage</div>
-                                    <div class="fw-semibold" id="serviceRequestScheduleCoverage">—</div>
-                                </div>
-                            </div>
-
-                            <div class="mt-3">
-                                <div class="text-muted small mb-2">Readiness checklist</div>
-                                <div class="d-flex flex-wrap gap-2">
-                                    <span class="badge bg-success">Parts reserved</span>
-                                    <span class="badge bg-primary">Technician assigned</span>
-                                    <span class="badge bg-warning text-dark">Address confirmation</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div id="serviceRequestScheduleAlert" class="alert d-none" role="alert"></div>
+                <div class="row g-3">
+                    <div class="col-md-6"><label class="form-label small text-muted" for="serviceRequestTechnician">Technician</label><select class="form-select" id="serviceRequestTechnician" required></select></div>
+                    <div class="col-md-6"><label class="form-label small text-muted" for="serviceRequestPriority">Priority</label><select class="form-select" id="serviceRequestPriority" required><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select></div>
+                    <div class="col-md-4"><label class="form-label small text-muted" for="serviceRequestScheduleDate">Scheduled Date</label><input class="form-control" type="date" id="serviceRequestScheduleDate" required></div>
+                    <div class="col-md-4"><label class="form-label small text-muted" for="serviceRequestScheduleTime">Start Time</label><input class="form-control" type="time" id="serviceRequestScheduleTime" required></div>
+                    <div class="col-md-4"><label class="form-label small text-muted" for="serviceRequestScheduleEnd">End Time <span class="text-muted">(optional)</span></label><input class="form-control" type="time" id="serviceRequestScheduleEnd"></div>
+                    <div class="col-12"><label class="form-label small text-muted" for="serviceRequestScheduleNotes">Scheduling Notes</label><textarea class="form-control" id="serviceRequestScheduleNotes" rows="3" maxlength="2000"></textarea></div>
                 </div>
+                <div class="border rounded p-3 mt-3 bg-light"><div class="row g-3"><div class="col-md-4"><div class="text-muted small">Customer</div><div class="fw-semibold" id="serviceRequestScheduleCustomer">—</div></div><div class="col-md-4"><div class="text-muted small">Ticket</div><div class="fw-semibold" id="serviceRequestScheduleTicket">—</div></div><div class="col-md-4"><div class="text-muted small">Coverage</div><div class="fw-semibold" id="serviceRequestScheduleCoverage">No Linked Contract</div></div></div><div class="mt-2"><span class="text-muted small">Service Contract: </span><a class="small link-primary d-none" id="serviceRequestScheduleContractLink" href="#">View contract</a><span class="small" id="serviceRequestScheduleContract">No linked contract</span></div></div>
             </div>
-
-            <div class="modal-footer" style="border-top: 1px solid rgba(0,0,0,.06);">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                <button id="serviceRequestScheduleModalPrimaryAction" type="button" class="btn" style="background:#5347CE;color:#fff;border:1px solid rgba(255,255,255,.25);">Schedule (placeholder)</button>
-            </div>
-        </div>
-    </div>
+            <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn" id="serviceRequestScheduleSave" style="background:#5347CE;color:#fff;">Save Schedule</button></div>
+        </form>
+    </div></div>
 </div>
-

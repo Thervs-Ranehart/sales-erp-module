@@ -6,23 +6,26 @@
 
     @include('components.page-header', ['title' => $title, 'subtitle' => $subtitle])
 
-    {{-- Read-only contract coverage modal (UI only) --}}
+    {{-- Read-only contract details modal --}}
     @include('support.service-contract-view-modal')
+    @if($openContract ?? null)
+        <button type="button" class="d-none js-service-contract-view" data-contract-id="{{ $openContract->contract_id }}" data-bs-toggle="modal" data-bs-target="#serviceContractModal" aria-hidden="true"></button>
+    @endif
 
-    {{-- Contract statistics (support verification focus) --}}
+    {{-- Contract statistics --}}
     <div class="row g-3">
         <div class="col-md-3">
             <div class="card p-3 h-100">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <div class="text-muted small fw-semibold">Active Coverage</div>
-                        <div class="display-6 fw-bold">{{ $activeCoverageCount ?? 0 }}</div>
+                        <div class="text-muted small fw-semibold">Active Contracts</div>
+                        <div class="display-6 fw-bold">{{ $activeContractCount ?? 0 }}</div>
                     </div>
                     <div class="rounded-3" style="background:rgba(22,200,199,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
                         <i class="bi bi-shield-check" style="color:#16C8C7; font-size:20px;"></i>
                     </div>
                 </div>
-                <div class="mt-2"><span class="badge bg-success">Eligible</span></div>
+                <div class="mt-2"><span class="badge bg-success">Current coverage</span></div>
             </div>
         </div>
 
@@ -60,21 +63,21 @@
             <div class="card p-3 h-100">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <div class="text-muted small fw-semibold">Coverage Verification Rate</div>
-                        <div class="display-6 fw-bold">{{ $coverageVerificationRatePct ?? 0 }}%</div>
+                        <div class="text-muted small fw-semibold">Active Contract Rate</div>
+                        <div class="display-6 fw-bold">{{ $activeContractRatePct ?? 0 }}%</div>
                     </div>
                     <div class="rounded-3" style="background:rgba(83,71,206,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
                         <i class="bi bi-check2-circle" style="color:#5347CE; font-size:20px;"></i>
                     </div>
                 </div>
-                <div class="mt-2"><span class="badge bg-primary">Eligible coverage</span></div>
+                <div class="mt-2"><span class="badge bg-primary">Of all contracts</span></div>
             </div>
         </div>
     </div>
 
 
     {{-- Search + Filters (read-only) --}}
-    <form method="GET">
+    <form method="GET" action="{{ route('support.service-contracts') }}">
         <div class="card p-3 mt-4" style="background: rgba(255,255,255,.7); border: 1px solid rgba(0,0,0,.06); box-shadow: none;">
         <div class="row g-3" id="serviceContractsFilters">
 
@@ -93,8 +96,9 @@
                 <select class="form-select form-select-sm" aria-label="Status filter" name="status">
                     <option value="all" {{ ($status ?? null) === null || ($status ?? '') === 'all' ? 'selected' : '' }}>Status: All</option>
                     <option value="Active" {{ ($status ?? '') === 'Active' ? 'selected' : '' }}>Active</option>
-                    <option value="Expiring" {{ ($status ?? '') === 'Expiring' ? 'selected' : '' }}>Expiring</option>
+                    <option value="Expiring Soon" {{ ($status ?? '') === 'Expiring Soon' ? 'selected' : '' }}>Expiring Soon</option>
                     <option value="Expired" {{ ($status ?? '') === 'Expired' ? 'selected' : '' }}>Expired</option>
+                    <option value="Terminated" {{ ($status ?? '') === 'Terminated' ? 'selected' : '' }}>Terminated</option>
                 </select>
             </div>
 
@@ -102,10 +106,9 @@
                 <label class="form-label small text-muted">Customer</label>
                 <select class="form-select form-select-sm" aria-label="Customer filter" name="customer">
                     <option value="all" {{ ($customer ?? null) === null || ($customer ?? '') === 'all' ? 'selected' : '' }}>All customers</option>
-                    <option value="XYZ Trading" {{ ($customer ?? '') === 'XYZ Trading' ? 'selected' : '' }}>XYZ Trading</option>
-                    <option value="ABC Corporation" {{ ($customer ?? '') === 'ABC Corporation' ? 'selected' : '' }}>ABC Corporation</option>
-                    <option value="Northwind Retail" {{ ($customer ?? '') === 'Northwind Retail' ? 'selected' : '' }}>Northwind Retail</option>
-                    <option value="Greenfield Industries" {{ ($customer ?? '') === 'Greenfield Industries' ? 'selected' : '' }}>Greenfield Industries</option>
+                    @foreach(($customers ?? collect()) as $customerOption)
+                        <option value="{{ $customerOption->customer_id }}" {{ (string) ($customer ?? '') === (string) $customerOption->customer_id ? 'selected' : '' }}>{{ $customerOption->full_name }}</option>
+                    @endforeach
                 </select>
             </div>
 
@@ -161,23 +164,26 @@
                     @forelse($serviceContracts as $contract)
                         <tr>
                             <td class="fw-semibold">{{ $contract->contract_number ?? ('SC-' . $contract->contract_id) }}</td>
-                            <td>{{ $contract->customer->customer_name ?? '—' }}</td>
-                            <td>{{ $contract->product->product_name ?? '—' }}</td>
+                            <td>{{ $contract->customer?->full_name ?? '—' }}</td>
+                            <td>{{ $contract->product?->product_name ?? '—' }}</td>
                             <td class="text-muted">
                                 {{ $contract->service_start ? $contract->service_start->format('Y-m-d') : '—' }}
                                 →
                                 {{ $contract->service_end ? $contract->service_end->format('Y-m-d') : '—' }}
                             </td>
                             <td>
-                                @php($cs = strtolower((string)($contract->contract_status ?? '')))
+                                @php($contractStatus = $contract->currentStatus())
+                                @php($cs = strtolower($contractStatus))
                                 @if($cs === 'active')
-                                    <span class="badge bg-success">{{ $contract->contract_status }}</span>
-                                @elseif($cs === 'expiring')
-                                    <span class="badge bg-warning text-dark">{{ $contract->contract_status }}</span>
+                                    <span class="badge bg-success">{{ $contractStatus }}</span>
+                                @elseif($cs === 'expiring soon')
+                                    <span class="badge bg-warning text-dark">{{ $contractStatus }}</span>
                                 @elseif($cs === 'expired')
-                                    <span class="badge bg-danger">{{ $contract->contract_status }}</span>
+                                    <span class="badge bg-danger">{{ $contractStatus }}</span>
+                                @elseif($cs === 'terminated')
+                                    <span class="badge bg-secondary">{{ $contractStatus }}</span>
                                 @else
-                                    <span class="badge bg-secondary">{{ $contract->contract_status ?? '—' }}</span>
+                                    <span class="badge bg-secondary">{{ $contractStatus }}</span>
                                 @endif
                             </td>
                             <td class="text-end">
@@ -201,7 +207,7 @@
             <div class="text-muted small">Showing results.</div>
 
             <nav aria-label="Contracts pagination">
-                {{ $serviceContracts->links() }}
+                {{ $serviceContracts->links('pagination::bootstrap-5') }}
             </nav>
         </div>
     </div>
@@ -228,14 +234,14 @@
         const data = await res.json();
 
         const c = data.contract || {};
-        document.getElementById('serviceContractModalSubtitle').textContent = c.contract_number ? `${c.contract_number} • ${c.customer_name ?? c.customer?.customer_name ?? '—'}` : '—';
+        document.getElementById('serviceContractModalSubtitle').textContent = c.contract_number ? `${c.contract_number} • ${c.customer?.name ?? '—'}` : '—';
 
+        document.getElementById('serviceContractCustomer').textContent = c.customer?.name ?? '—';
+        document.getElementById('serviceContractProduct').textContent = c.product?.product_name ?? '—';
         document.getElementById('serviceContractServiceType').textContent = c.service_type ?? '—';
         document.getElementById('serviceContractStartDate').textContent = c.service_start ?? '—';
         document.getElementById('serviceContractEndDate').textContent = c.service_end ?? '—';
-        document.getElementById('serviceContractOwner').textContent = '—';
-        document.getElementById('serviceContractSla').textContent = '—';
-        document.getElementById('serviceContractDispatchFrequency').textContent = '—';
+        document.getElementById('serviceContractCreatedDate').textContent = c.created_at ?? '—';
 
         const badge = document.getElementById('serviceContractStatusBadge');
         badge.textContent = c.contract_status ?? '—';
@@ -243,7 +249,7 @@
         const status = (c.contract_status ?? '').toString().toLowerCase();
         let cls = 'badge bg-secondary';
         if(status === 'active') cls = 'badge bg-success';
-        else if(status === 'expiring') cls = 'badge bg-warning text-dark';
+        else if(status === 'expiring soon') cls = 'badge bg-warning text-dark';
         else if(status === 'expired') cls = 'badge bg-danger';
         badge.className = cls;
       } catch (err) {
@@ -251,9 +257,8 @@
       }
     });
   });
+  const openContractId = @json($openContractId ?? null);
+  if (openContractId) document.querySelector(`.js-service-contract-view[data-contract-id="${openContractId}"]`)?.click();
 })();
 </script>
 @endsection
-
-
-

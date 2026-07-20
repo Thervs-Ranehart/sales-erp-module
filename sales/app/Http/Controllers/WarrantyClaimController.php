@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\WarrantyClaim;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class WarrantyClaimController extends Controller
@@ -16,21 +17,21 @@ class WarrantyClaimController extends Controller
         $claim = WarrantyClaim::query()
             ->with([
                 'warrantyRecord.product',
-                'warrantyRecord.order.customer',
+                'warrantyRecord.customer',
                 'supportTicket.customer',
                 'supportTicket.product',
+                'supportTicket.latestAssignment.employee',
             ])
             ->findOrFail($claimId);
 
-        $assignedStaff = $claim->supportTicket
-            ? $claim->supportTicket->ticketAssignments->first()?->employee
-            : null;
+        $assignedStaff = $claim->supportTicket?->latestAssignment?->employee;
 
         return response()->json([
             'claim' => [
                 'claim_id' => $claim->claim_id,
                 'warranty_id' => $claim->warranty_id,
                 'ticket_id' => $claim->ticket_id,
+                'ticket_number' => $claim->ticket_id ? 'TK-'.$claim->ticket_id : null,
                 'claim_reason' => $claim->claim_reason,
                 'claim_status' => $claim->claim_status,
                 'claim_date' => optional($claim->claim_date)->format('Y-m-d H:i'),
@@ -39,25 +40,26 @@ class WarrantyClaimController extends Controller
             'warranty' => [
                 'warranty_number' => optional($claim->warrantyRecord)->warranty_number,
                 'warranty_status' => optional($claim->warrantyRecord)->warranty_status,
-                'warranty_start' => optional($claim->warrantyRecord->warranty_start)->format('Y-m-d'),
-                'warranty_end' => optional($claim->warrantyRecord->warranty_end)->format('Y-m-d'),
+                'warranty_start' => $claim->warrantyRecord?->warranty_start?->format('Y-m-d'),
+                'warranty_end' => $claim->warrantyRecord?->warranty_end?->format('Y-m-d'),
                 'product' => [
                     'product_name' => optional(optional($claim->warrantyRecord)->product)->product_name,
-                    'sku' => optional(optional($claim->warrantyRecord)->product)->sku,
                 ],
                 'customer' => [
-                    'customer_name' => optional(optional(optional($claim->warrantyRecord)->order)->customer)->customer_name,
-                    'email' => optional(optional(optional($claim->warrantyRecord)->order)->customer)->email,
+                    'name' => optional($claim->warrantyRecord?->customer)->full_name,
+                    'email' => optional($claim->warrantyRecord?->customer)->email,
                 ],
             ],
             'ticket' => [
+                'ticket_id' => optional($claim->supportTicket)->ticket_id,
                 'subject' => optional($claim->supportTicket)->subject,
                 'status' => optional($claim->supportTicket)->status,
                 'priority' => optional($claim->supportTicket)->priority,
             ],
             'assignedEmployee' => [
                 'employee_id' => optional($assignedStaff)->employee_id,
-                'employee_name' => optional($assignedStaff)->getFullNameAttribute(),
+                'name' => optional($assignedStaff)->full_name,
+                'department' => optional($assignedStaff)->department,
             ],
             'availableStatuses' => ['Pending', 'Approved', 'Rejected', 'Completed'],
         ]);
@@ -66,29 +68,40 @@ class WarrantyClaimController extends Controller
     public function updateStatus(Request $request, $claimId)
     {
         $validator = Validator::make($request->all(), [
-            'claim_status' => ['required', 'string', 'max:255'],
+            'claim_status' => ['required', 'in:Pending,Approved,Rejected,Completed'],
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors(),
-            ], 422);
+            if ($request->expectsJson()) {
+                return response()->json(['errors' => $validator->errors()], 422);
+            }
+
+            return back()->withErrors($validator)->withInput();
         }
 
         $claim = WarrantyClaim::query()->findOrFail($claimId);
-        $claim->claim_status = $request->input('claim_status');
+        $status = $request->string('claim_status')->toString();
 
-        if (strtolower((string) $claim->claim_status) === 'approved' && !$claim->approved_date) {
-            $claim->approved_date = now();
+        DB::transaction(function () use ($claim, $status): void {
+            $claim->claim_status = $status;
+
+            // Preserve the first approval timestamp as an audit record even if the claim is later rejected or completed.
+            if ($status === 'Approved' && $claim->approved_date === null) {
+                $claim->approved_date = now();
+            }
+
+            $claim->save();
+        });
+
+        if (! $request->expectsJson()) {
+            return redirect()->route('support.warranty-claims')->with('success', 'Claim status updated successfully.');
         }
-
-        $claim->save();
 
         return response()->json([
             'message' => 'Claim status updated successfully.',
             'status' => $claim->claim_status,
             'claim_id' => $claim->claim_id,
+            'approved_date' => optional($claim->approved_date)->format('Y-m-d H:i'),
         ]);
     }
 }
-

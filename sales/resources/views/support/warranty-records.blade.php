@@ -11,6 +11,8 @@
     <div class="card p-4">
 
 
+    {{-- Superseded inline handler retained temporarily below only as a Blade comment. --}}
+    {{--
     <script>
         (function () {
             const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
@@ -33,6 +35,9 @@
                     const warrantyId = e.currentTarget.getAttribute('data-warranty-id');
                     if (!warrantyId) return;
 
+                    ['warrantyCustomer', 'warrantyProduct', 'warrantySku', 'warrantyOrder', 'warrantyStart', 'warrantyEnd', 'warrantyPurchaseDate', 'warrantyCreatedAt', 'warrantyClaimCount'].forEach((id) => setText(id, 'Loading…'));
+                    setText('warrantyViewModalSubtitle', 'Loading warranty details…');
+
                     try {
                         const res = await fetch(`{{ url('/support/warranty-records') }}/${warrantyId}/show`, {
                             headers: {
@@ -45,54 +50,15 @@
                         const data = await res.json();
 
                         const w = data.warranty || {};
-
-                        // Modal header subtitle
-                        setText('warrantyViewModalSubtitle', `${w.warranty_number || '—'} • ${w.customer?.customer_name || '—'}`);
-
-                        // Modal product/title
-                        const productNameEl = document.querySelector('#warrantyViewModal .fw-bold.fs-5');
-                        if (productNameEl) productNameEl.textContent = w.product?.product_name || '—';
-
-                        const serialEl = document.querySelector('#warrantyViewModal .text-muted small');
-                        // The modal has "Serial: ..." line as text-muted small; update the whole line via closest element
-                        // Update product line (Serial + Qty) inside the modal
-                        const serialLine = root.querySelector('#warrantyViewModalSerial');
-                        if (serialLine) {
-                            serialLine.textContent = `Serial: ${w.serial_number ?? w.product?.sku ?? '—'} • Qty: ${w.quantity ?? '—'}`;
-                        }
-
-                        const quantityLine = root.querySelector('#warrantyViewModalQuantity');
-                        if (quantityLine) {
-                            quantityLine.textContent = w.quantity ?? '—';
-                        }
-
-                        // Order
-                        const orderValue = document.querySelector('#warrantyViewModal .text-muted.small:nth-of-type(1)');
-                        // Instead of fragile nth-of-type, use label neighbor search
-                        const root = document.getElementById('warrantyViewModal');
-                        if (root) {
-                            const findValueByLabel = (labelText) => {
-                                const label = Array.from(root.querySelectorAll('.text-muted.small')).find(el => el.textContent.trim() === labelText);
-                                if (!label) return null;
-                                const container = label.closest('.col-sm-6');
-                                return container ? container.querySelector('.fw-semibold') : null;
-                            };
-
-                            const order = findValueByLabel('Order');
-                            if (order) order.textContent = w.order?.order_number || '—';
-
-                            const start = findValueByLabel('Warranty Start');
-                            if (start) start.textContent = w.warranty_start || '—';
-
-                            const end = findValueByLabel('Warranty End');
-                            if (end) end.textContent = w.warranty_end || '—';
-
-const coverage = findValueByLabel('Coverage Type');
-                            if (coverage) coverage.textContent = '—';
-
-
-
-                        }
+                        setText('warrantyViewModalSubtitle', `${w.warranty_number || '—'} • ${w.customer?.name || '—'}`);
+                        setText('warrantyCustomer', w.customer?.name);
+                        setText('warrantyProduct', w.product?.product_name);
+                        setText('warrantyOrder', w.order?.order_number);
+                        setText('warrantyStart', w.warranty_start);
+                        setText('warrantyEnd', w.warranty_end);
+                        setText('warrantyPurchaseDate', w.order?.order_date);
+                        setText('warrantyCreatedAt', w.created_at);
+                        setText('warrantyClaimCount', w.claim_count);
 
                         // Badge
                         const badge = document.getElementById('warrantyBadge');
@@ -102,12 +68,14 @@ const coverage = findValueByLabel('Coverage Type');
                         }
 
                     } catch (err) {
-                        console.error(err);
+                        setText('warrantyViewModalSubtitle', 'Unable to load warranty details.');
+                        ['warrantyCustomer', 'warrantyProduct', 'warrantySku', 'warrantyOrder', 'warrantyStart', 'warrantyEnd', 'warrantyPurchaseDate', 'warrantyCreatedAt', 'warrantyClaimCount'].forEach((id) => setText(id, '—'));
                     }
                 });
             });
         })();
     </script>
+    --}}
 
         {{-- Header + Actions --}}
 
@@ -128,7 +96,7 @@ const coverage = findValueByLabel('Coverage Type');
         </div>
 
         {{-- Filters --}}
-        <form method="GET">
+        <form method="GET" action="{{ route('support.warranty-records') }}">
         <div class="card p-3 mb-4" style="background: rgba(255,255,255,.7); border: 1px solid rgba(0,0,0,.06); box-shadow: none;">
             <div class="row g-3" id="warrantyFilters">
 
@@ -180,12 +148,21 @@ const coverage = findValueByLabel('Coverage Type');
                     <label class="form-label small text-muted">Product</label>
                     <select class="form-select form-select-sm" aria-label="Product filter" name="product">
                         <option value="all" {{ ($product ?? '') === '' || ($product ?? '') === 'all' ? 'selected' : '' }}>Product: All</option>
-                        <option value="Widget A" {{ ($product ?? '') === 'Widget A' ? 'selected' : '' }}>Widget A</option>
-                        <option value="Widget B" {{ ($product ?? '') === 'Widget B' ? 'selected' : '' }}>Widget B</option>
-                        <option value="Industrial Pump X" {{ ($product ?? '') === 'Industrial Pump X' ? 'selected' : '' }}>Industrial Pump X</option>
-                        <option value="Appliance Z" {{ ($product ?? '') === 'Appliance Z' ? 'selected' : '' }}>Appliance Z</option>
+                        @foreach($products as $productOption)
+                            <option value="{{ $productOption->product_id }}" @selected((string) ($product ?? '') === (string) $productOption->product_id)>{{ $productOption->product_name }}</option>
+                        @endforeach
                     </select>
 
+                </div>
+
+                <div class="col-6 col-lg-2">
+                    <label class="form-label small text-muted">Customer</label>
+                    <select class="form-select form-select-sm" aria-label="Customer filter" name="customer">
+                        <option value="">Customer: All</option>
+                        @foreach($customers as $customerOption)
+                            <option value="{{ $customerOption->customer_id }}" @selected((string) ($customer ?? '') === (string) $customerOption->customer_id)>{{ $customerOption->full_name }}</option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <div class="col-12 col-lg-4 d-flex align-items-end">
@@ -217,21 +194,22 @@ const coverage = findValueByLabel('Coverage Type');
                     @forelse($warrantyRecords as $warranty)
                         <tr>
                             <td class="fw-semibold">{{ $warranty->warranty_number ?? ('WR-' . $warranty->warranty_id) }}</td>
-                            <td>{{ $warranty->order->customer->customer_name ?? '—' }}</td>
-                            <td>{{ $warranty->product->product_name ?? '—' }}</td>
-                            <td>{{ $warranty->order->order_number ?? ('SO-' . $warranty->order_id) }}</td>
+                            <td>{{ $warranty->customer?->full_name ?? '—' }}</td>
+                            <td>{{ $warranty->product?->product_name ?? '—' }}</td>
+                            <td>{{ $warranty->order?->order_number ?? ($warranty->order_id ? 'SO-' . $warranty->order_id : '—') }}</td>
                             <td class="text-muted">{{ $warranty->warranty_start ? $warranty->warranty_start->format('Y-m-d') : '—' }}</td>
                             <td class="text-muted">{{ $warranty->warranty_end ? $warranty->warranty_end->format('Y-m-d') : '—' }}</td>
                             <td>
-                                @php($ws = strtolower((string)($warranty->warranty_status ?? '')))
+                                @php($warrantyStatus = $warranty->currentStatus())
+                                @php($ws = strtolower($warrantyStatus))
                                 @if($ws === 'active')
-                                    <span class="badge bg-success">{{ $warranty->warranty_status }}</span>
+                                    <span class="badge bg-success">{{ $warrantyStatus }}</span>
                                 @elseif($ws === 'expiring soon')
-                                    <span class="badge bg-warning text-dark">{{ $warranty->warranty_status }}</span>
+                                    <span class="badge bg-warning text-dark">{{ $warrantyStatus }}</span>
                                 @elseif($ws === 'expired')
-                                    <span class="badge bg-danger">{{ $warranty->warranty_status }}</span>
+                                    <span class="badge bg-danger">{{ $warrantyStatus }}</span>
                                 @else
-                                    <span class="badge bg-secondary">{{ $warranty->warranty_status ?? '—' }}</span>
+                                    <span class="badge bg-secondary">{{ $warrantyStatus }}</span>
                                 @endif
                             </td>
 
@@ -240,8 +218,6 @@ const coverage = findValueByLabel('Coverage Type');
                                     class="btn btn-sm btn-outline-primary js-warranty-view"
                                     type="button"
                                     data-warranty-id="{{ $warranty->warranty_id }}"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#warrantyViewModal"
                                     aria-label="View warranty"
                                 >
                                     <i class="bi bi-eye me-1"></i> View
@@ -251,7 +227,7 @@ const coverage = findValueByLabel('Coverage Type');
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="text-center text-muted py-4">No warranty records found.</td>
+                            <td colspan="8" class="text-center text-muted py-4">No warranty records found for the selected criteria.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -262,7 +238,7 @@ const coverage = findValueByLabel('Coverage Type');
             <div class="text-muted small">Showing results.</div>
 
             <nav aria-label="Warranty pagination">
-                {{ $warrantyRecords->links() }}
+                {{ $warrantyRecords->links('pagination::bootstrap-5') }}
             </nav>
         </div>
     </div>
@@ -270,6 +246,74 @@ const coverage = findValueByLabel('Coverage Type');
     </form>
 @endsection
 
+@push('scripts')
+    <script>
+        (function () {
+            const modalElement = document.getElementById('warrantyViewModal');
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            const fieldIds = ['warrantyCustomer', 'warrantyCustomerEmail', 'warrantyProduct', 'warrantyOrder', 'warrantyStart', 'warrantyEnd', 'warrantyPurchaseDate', 'warrantyCreatedAt', 'warrantyClaimCount'];
 
+            function setText(id, value) {
+                const element = document.getElementById(id);
+                if (element) element.textContent = value ?? '—';
+            }
 
+            function statusClass(status) {
+                switch ((status || '').toLowerCase()) {
+                    case 'active': return 'bg-success';
+                    case 'expiring soon': return 'bg-warning text-dark';
+                    case 'expired': return 'bg-danger';
+                    default: return 'bg-secondary';
+                }
+            }
 
+            document.addEventListener('click', async (event) => {
+                const button = event.target.closest('.js-warranty-view');
+                if (!button || !modalElement) return;
+
+                const warrantyId = button.dataset.warrantyId;
+                if (!warrantyId) return;
+
+                const errorAlert = document.getElementById('warrantyViewError');
+                errorAlert?.classList.add('d-none');
+                fieldIds.forEach((id) => setText(id, 'Loading…'));
+                setText('warrantyViewModalSubtitle', 'Loading warranty details…');
+
+                try {
+                    const response = await fetch(`{{ url('/support/warranty-records') }}/${warrantyId}/show`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            ...(csrf ? { 'X-CSRF-TOKEN': csrf } : {}),
+                        },
+                    });
+
+                    if (!response.ok) throw new Error('Unable to load warranty details.');
+
+                    const warranty = (await response.json()).warranty || {};
+                    setText('warrantyViewModalSubtitle', `${warranty.warranty_number || '—'} • ${warranty.customer?.name || '—'}`);
+                    setText('warrantyCustomer', warranty.customer?.name);
+                    setText('warrantyCustomerEmail', warranty.customer?.email);
+                    setText('warrantyProduct', warranty.product?.product_name);
+                    setText('warrantyOrder', warranty.order?.order_number);
+                    setText('warrantyStart', warranty.warranty_start);
+                    setText('warrantyEnd', warranty.warranty_end);
+                    setText('warrantyPurchaseDate', warranty.order?.order_date);
+                    setText('warrantyCreatedAt', warranty.created_at);
+                    setText('warrantyClaimCount', warranty.claim_count);
+
+                    const badge = document.getElementById('warrantyBadge');
+                    if (badge) {
+                        badge.className = `badge ${statusClass(warranty.warranty_status)}`;
+                        badge.textContent = warranty.warranty_status || '—';
+                    }
+                } catch (requestError) {
+                    fieldIds.forEach((id) => setText(id, '—'));
+                    setText('warrantyViewModalSubtitle', 'Unable to load warranty details.');
+                    errorAlert?.classList.remove('d-none');
+                }
+
+                bootstrap.Modal.getOrCreateInstance(modalElement).show();
+            });
+        })();
+    </script>
+@endpush

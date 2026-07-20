@@ -9,6 +9,7 @@ class SatisfactionMonitoring extends Model
     protected $table = 'satisfaction_monitoring';
 
     protected $primaryKey = 'feedback_id';
+
     public $incrementing = true;
 
     public $timestamps = false;
@@ -29,5 +30,16 @@ class SatisfactionMonitoring extends Model
     {
         return $this->belongsTo(SupportTicket::class, 'ticket_id', 'ticket_id');
     }
-}
 
+    public function customer()
+    {
+        return $this->hasOneThrough(
+            Customer::class,
+            SupportTicket::class,
+            'ticket_id',
+            'customer_id',
+            'ticket_id',
+            'customer_id',
+        );
+    }
+}

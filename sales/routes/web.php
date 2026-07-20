@@ -86,10 +86,10 @@ Route::redirect('/after-sales-support', '/support/tickets');
 
 Route::get('/support/tickets', [AfterSalesSupportController::class, 'ticketsIndex'])->name('support.tickets');
 
-Route::get('/support/tickets/{ticket}/show', [\App\Http\Controllers\SupportTicketController::class, 'show'])->name('support.tickets.show');
-Route::get('/support/tickets/{ticket}/assign', [\App\Http\Controllers\SupportTicketController::class, 'assignForm'])->name('support.tickets.assign.form');
-Route::post('/support/tickets/{ticket}/assign', [\App\Http\Controllers\SupportTicketController::class, 'assign'])->name('support.tickets.assign');
-Route::post('/support/tickets/{ticket}/status', [\App\Http\Controllers\SupportTicketController::class, 'updateStatus'])->name('support.tickets.status');
+Route::get('/support/tickets/{ticket}/show', [SupportTicketController::class, 'show'])->name('support.tickets.show');
+Route::get('/support/tickets/{ticket}/assign', [SupportTicketController::class, 'assignForm'])->name('support.tickets.assign.form');
+Route::post('/support/tickets/{ticket}/assign', [SupportTicketController::class, 'assign'])->name('support.tickets.assign');
+Route::post('/support/tickets/{ticket}/status', [SupportTicketController::class, 'updateStatus'])->name('support.tickets.status');
 
 // Warranty Records (AJAX View)
 Route::get('/support/warranty-records/{warranty}/show', [WarrantyRecordController::class, 'show'])->name('support.warranty-records.show');
@@ -97,7 +97,6 @@ Route::get('/support/warranty-records/{warranty}/show', [WarrantyRecordControlle
 // Warranty Claims (AJAX modal workflow)
 Route::get('/support/warranty-claims/{claim}/show', [WarrantyClaimController::class, 'show'])->name('support.warranty-claims.show');
 Route::post('/support/warranty-claims/{claim}/status', [WarrantyClaimController::class, 'updateStatus'])->name('support.warranty-claims.status');
-
 
 Route::get('/support/warranty-records', [AfterSalesSupportController::class, 'warrantyRecordsIndex'])->name('support.warranty-records');
 Route::get('/support/warranty-claims', [AfterSalesSupportController::class, 'warrantyClaimsIndex'])->name('support.warranty-claims');
@@ -107,6 +106,7 @@ Route::get('/support/service-contracts/{contract}/show', [AfterSalesSupportContr
 
 Route::get('/support/service-requests', [AfterSalesSupportController::class, 'serviceRequestsIndex'])->name('support.service-requests');
 Route::get('/support/service-requests/{request}/show', [AfterSalesSupportController::class, 'serviceRequestShow'])->name('support.service-requests.show');
+Route::patch('/support/service-requests/{request}/schedule', [AfterSalesSupportController::class, 'scheduleServiceRequest'])->name('support.service-requests.schedule');
 
 Route::get('/support/resolution-tracking', [AfterSalesSupportController::class, 'resolutionTrackingIndex'])->name('support.resolution-tracking');
 Route::get('/support/resolution-tracking/{resolution}/show', [AfterSalesSupportController::class, 'resolutionShow'])->name('support.resolution-tracking.show');

@@ -24,7 +24,7 @@
 
         {{-- Search + Filters --}}
         <div class="card p-3 mb-4" style="background: rgba(255,255,255,.7); border: 1px solid rgba(0,0,0,.06); box-shadow: none;">
-            <form method="GET" action="{{ route('support.tickets') }}">
+            <form id="ticketFiltersForm" method="GET" action="{{ route('support.tickets') }}">
                 <div class="row g-3" id="ticketsFilters">
                     <div class="col-12 col-lg-4">
                         {{-- Keep a dense, single-row form on small screens --}}
@@ -47,9 +47,11 @@
                         <label class="form-label small text-muted">Status</label>
                         <select class="form-select form-select-sm" aria-label="Status filter" name="status">
                             <option value="all" {{ ($status ?? '') === '' || ($status ?? '') === 'all' ? 'selected' : '' }}>Status: All</option>
+                            <option value="Open" {{ ($status ?? '') === 'Open' ? 'selected' : '' }}>Open</option>
                             <option value="Pending" {{ ($status ?? '') === 'Pending' ? 'selected' : '' }}>Pending</option>
                             <option value="In Progress" {{ ($status ?? '') === 'In Progress' ? 'selected' : '' }}>In Progress</option>
                             <option value="Resolved" {{ ($status ?? '') === 'Resolved' ? 'selected' : '' }}>Resolved</option>
+                            <option value="Closed" {{ ($status ?? '') === 'Closed' ? 'selected' : '' }}>Closed</option>
                             <option value="Escalated" {{ ($status ?? '') === 'Escalated' ? 'selected' : '' }}>Escalated</option>
                         </select>
                     </div>
@@ -69,29 +71,37 @@
                     <label class="form-label small text-muted">Customer</label>
                     <select class="form-select form-select-sm" aria-label="Customer filter" name="customer">
                         <option value="all" {{ ($customer ?? 'all') === 'all' ? 'selected' : '' }}>All Customers</option>
-                        <option value="ABC Corporation" {{ ($customer ?? 'all') === 'ABC Corporation' ? 'selected' : '' }}>ABC Corporation</option>
-                        <option value="XYZ Trading" {{ ($customer ?? 'all') === 'XYZ Trading' ? 'selected' : '' }}>XYZ Trading</option>
-                        <option value="Northwind Retail" {{ ($customer ?? 'all') === 'Northwind Retail' ? 'selected' : '' }}>Northwind Retail</option>
-                        <option value="Greenfield Industries" {{ ($customer ?? 'all') === 'Greenfield Industries' ? 'selected' : '' }}>Greenfield Industries</option>
+                        @foreach($customers as $customerOption)
+                            <option value="{{ $customerOption->customer_id }}" {{ (string) ($customer ?? 'all') === (string) $customerOption->customer_id ? 'selected' : '' }}>{{ $customerOption->name }}</option>
+                        @endforeach
                     </select>
 
                 </div>
 
                 <div class="col-6 col-lg-1">
                     <label class="form-label small text-muted">From</label>
-                    <input type="date" class="form-control form-control-sm" aria-label="Start date" />
+                    <input type="date" class="form-control form-control-sm" aria-label="Start date" name="from_date" value="{{ $fromDate ?? '' }}" />
                 </div>
                 <div class="col-6 col-lg-1">
                     <label class="form-label small text-muted">To</label>
-                    <input type="date" class="form-control form-control-sm" aria-label="End date" />
+                    <input type="date" class="form-control form-control-sm" aria-label="End date" name="to_date" value="{{ $toDate ?? '' }}" />
                 </div>
 
-                        <div class="col-12 d-flex justify-content-end">
-                            <button class="btn btn-sm" type="submit" style="background:#5347CE;color:#fff;border:1px solid rgba(255,255,255,.25);">
-                                <i class="bi bi-funnel me-1"></i> Apply Filters
-                            </button>
-                        </div>
+                    <div class="col-6 col-lg-2">
+                        <label class="form-label small text-muted">Assigned employee</label>
+                        <select class="form-select form-select-sm" aria-label="Assigned employee filter" name="assigned_employee">
+                            <option value="">All employees</option>
+                            @foreach($employees as $employeeOption)
+                                <option value="{{ $employeeOption->employee_id }}" {{ (string) ($assignedEmployee ?? '') === (string) $employeeOption->employee_id ? 'selected' : '' }}>{{ $employeeOption->full_name }}</option>
+                            @endforeach
+                        </select>
                     </div>
+                    <div class="col-12 d-flex justify-content-end">
+                        <button class="btn btn-sm" type="submit" style="background:#5347CE;color:#fff;border:1px solid rgba(255,255,255,.25);">
+                            <i class="bi bi-funnel me-1"></i> Apply Filters
+                        </button>
+                    </div>
+                </div>
                 <style>
                     @media (max-width: 575.98px) {
                         /* Stack filter inputs vertically on mobile */
@@ -118,7 +128,7 @@
 
         {{-- Main table --}}
                 <div class="table-responsive" style="-webkit-overflow-scrolling: touch;">
-            <table class="table table-hover align-middle mb-0 tickets-table" style="width: 100%;">
+            <table id="supportTicketsTable" class="table table-hover align-middle mb-0 tickets-table" style="width: 100%;">
                 {{-- Keep Bootstrap table-responsive and allow horizontal scrolling on small screens --}}
                 <style>
                             @media (max-width: 575.98px) {
@@ -156,7 +166,7 @@
                     @forelse($tickets as $ticket)
                         <tr>
                             <td class="fw-semibold">{{ 'TK-' . $ticket->ticket_id }}</td>
-                            <td>{{ $ticket->customer->customer_name ?? '—' }}</td>
+                            <td>{{ $ticket->customer?->full_name ?? '—' }}</td>
                             <td style="max-width: 260px;">
                                 <span class="d-block text-truncate" title="{{ $ticket->subject ?? '—' }}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $ticket->subject ?? '—' }}</span>
                             </td>
@@ -174,12 +184,17 @@
                             </td>
                             <td>
                                 @php($statusBadge = $ticket->status)
-                                @if(strtolower((string)$statusBadge) === 'pending')
+                                @if(strtolower((string)$statusBadge) === 'open')
+                                    <span class="badge bg-secondary px-2 py-1 fs-6">{{ $ticket->status }}</span>
+                                @elseif(strtolower((string)$statusBadge) === 'pending')
                                     <span class="badge bg-warning text-dark px-2 py-1 fs-6">{{ $ticket->status }}</span>
                                 @elseif(strtolower((string)$statusBadge) === 'in progress')
                                     <span class="badge bg-primary px-2 py-1 fs-6">{{ $ticket->status }}</span>
                                 @elseif(strtolower((string)$statusBadge) === 'resolved')
                                     <span class="badge bg-success px-2 py-1 fs-6">{{ $ticket->status }}</span>
+
+                                @elseif(strtolower((string)$statusBadge) === 'closed')
+                                    <span class="badge bg-dark px-2 py-1 fs-6">{{ $ticket->status }}</span>
 
                                 @elseif(strtolower((string)$statusBadge) === 'escalated')
                                     <span class="badge bg-danger px-2 py-1 fs-6">{{ $ticket->status }}</span>
@@ -188,7 +203,7 @@
                                 @endif
                             </td>
                             <td>
-                                {{ optional($ticket->ticketAssignments->first())->employee?->getFullNameAttribute() ?? '—' }}
+                                {{ $ticket->latestAssignment?->employee?->full_name ?? '—' }}
                             </td>
                             <td class="text-muted">{{ optional($ticket->due_date)->format('Y-m-d') }}</td>
                             <td class="text-end" style="white-space: nowrap;">
@@ -220,15 +235,18 @@
             <div class="text-muted small">Showing results.</div>
 
                 <nav aria-label="Tickets pagination">
-                    {{ $tickets->links() }}
+                    {{ $tickets->links('pagination::bootstrap-5') }}
                 </nav>
 
         </div>
     </div>
 
+@endsection
+
+@push('scripts')
 <script>
     (function () {
-        const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const csrf = '{{ csrf_token() }}';
 
         function notify(type, message) {
             // Bootstrap 5 alert
@@ -247,9 +265,11 @@
             const lower = s.toLowerCase();
 
             let cls = 'bg-secondary';
-            if (lower === 'pending') cls = 'bg-warning text-dark';
+            if (lower === 'open') cls = 'bg-secondary';
+            else if (lower === 'pending') cls = 'bg-warning text-dark';
             else if (lower === 'in progress') cls = 'bg-primary';
             else if (lower === 'resolved') cls = 'bg-success';
+            else if (lower === 'closed') cls = 'bg-dark';
             else if (lower === 'escalated') cls = 'bg-danger';
 
             return `<span class="badge ${cls} px-2 py-1 fs-6">${s || '—'}</span>`;
@@ -261,8 +281,10 @@
                 const ticketId = e.currentTarget.getAttribute('data-ticket-id');
                 if (!ticketId) return;
 
+                document.getElementById('ticketDetailsLoading')?.classList.remove('d-none');
+                document.getElementById('ticketDetailsContent')?.classList.add('d-none');
+
                 try {
-                    console.log('VIEW clicked ticketId=', ticketId);
                     const res = await fetch(`{{ url('/support/tickets') }}/${ticketId}/show`, {
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
@@ -275,55 +297,51 @@
                     const t = data.ticket || {};
 
                     // Fill modal (no page reload)
-                    document.getElementById('ticketDetailsSubtitle').textContent = `TK-${t.ticket_id ?? ticketId} • ${t.customer?.customer_name || '—'}`;
+                    document.getElementById('ticketDetailsSubtitle').textContent = `TK-${t.ticket_id ?? ticketId} • ${t.customer?.name || '—'}`;
                     document.getElementById('ticketDetailsSubject').textContent = t.subject || '—';
+                    document.getElementById('ticketDetailsDescription').textContent = t.description || '—';
+                    document.getElementById('ticketDetailsCustomer').textContent = t.customer?.name || '—';
+                    document.getElementById('ticketDetailsCustomerContact').textContent = t.customer?.email || '—';
+                    document.getElementById('ticketDetailsProduct').textContent = t.product?.product_name || '—';
+                    document.getElementById('ticketDetailsOrder').textContent = t.order_number || '—';
+                    document.getElementById('ticketDetailsPriority').textContent = t.priority || '—';
+                    document.getElementById('ticketDetailsCreatedAt').textContent = t.created_at || '—';
+                    document.getElementById('ticketDetailsResolvedAt').textContent = t.resolved_at || '—';
+                    document.getElementById('ticketDetailsClosedAt').textContent = t.closed_at || '—';
+                    document.getElementById('ticketDetailsAssignedEmployee').textContent = data.assignedEmployee?.name || '—';
+                    document.getElementById('ticketDetailsAssignedDepartment').textContent = data.assignedEmployee?.department || '—';
+                    document.getElementById('ticketDetailsAssignedAt').textContent = data.assignedEmployee?.assigned_at || '—';
+                    document.getElementById('ticketDetailsAssignmentHistory').innerHTML = (data.assignmentHistory || []).length
+                        ? data.assignmentHistory.map(a => `<div>${a.name || '—'}${a.department ? ` · ${a.department}` : ''} · ${a.assigned_at || '—'} · ${a.status || '—'}</div>`).join('')
+                        : 'No assignment history is available.';
 
                     // Update status badge
                     const ticketDetailsStatusEl = document.getElementById('ticketDetailsStatus');
                     if (ticketDetailsStatusEl) {
                         const lower = (t.status || '').toLowerCase();
                         let badgeClass = 'badge bg-secondary';
-                        if (lower === 'pending') badgeClass = 'badge bg-warning text-dark';
+                        if (lower === 'open') badgeClass = 'badge bg-secondary';
+                        else if (lower === 'pending') badgeClass = 'badge bg-warning text-dark';
                         else if (lower === 'in progress') badgeClass = 'badge bg-primary';
                         else if (lower === 'resolved') badgeClass = 'badge bg-success';
+                        else if (lower === 'closed') badgeClass = 'badge bg-dark';
                         else if (lower === 'escalated') badgeClass = 'badge bg-danger';
                         ticketDetailsStatusEl.className = badgeClass;
                         ticketDetailsStatusEl.textContent = t.status || '—';
                     }
 
-                    // Update description
-                    const descEl = document.querySelector('#ticketDetailsModal .text-muted.mb-3');
-                    if (descEl) descEl.textContent = t.description || '—';
-
-                    // Update assigned employee / due date / priority via label lookup
-                    const detailsRoot = document.getElementById('ticketDetailsModal');
-                    if (detailsRoot) {
-                        const findValueByLabel = (labelText) => {
-                            const label = Array.from(detailsRoot.querySelectorAll('.text-muted.small')).find(el => el.textContent.trim() === labelText);
-                            if (!label) return null;
-                            const container = label.closest('.col-sm-6');
-                            if (!container) return null;
-                            return container.querySelector('.fw-semibold');
-                        };
-
-                        const assignedValue = findValueByLabel('Assigned Employee');
-                        if (assignedValue) assignedValue.textContent = data.assignedEmployee?.employee_name || '—';
-
-                        const dueValue = findValueByLabel('Due Date');
-                        if (dueValue) dueValue.textContent = t.due_date ? t.due_date : '—';
-
-                        const priorityValue = findValueByLabel('Priority');
-                        if (priorityValue) priorityValue.textContent = t.priority || '—';
-                    }
-
-
-
+                    document.getElementById('ticketDetailsLoading')?.classList.add('d-none');
+                    document.getElementById('ticketDetailsContent')?.classList.remove('d-none');
                 } catch (err) {
-                    // no-op; modal remains
-                    console.error(err);
+                    document.getElementById('ticketDetailsLoading').textContent = 'Unable to load ticket details.';
+                    notify('error', 'Unable to load ticket details.');
                 }
             });
         });
+
+        @if($ticketId)
+            document.querySelector('.js-ticket-view[data-ticket-id="{{ $ticketId }}"]')?.click();
+        @endif
 
         // ASSIGN
         const assignModal = document.getElementById('ticketsAssignModal');
@@ -335,8 +353,11 @@
                 currentAssignTicketId = ticketId;
                 if (!ticketId) return;
 
+                document.getElementById('ticketsAssignLoading')?.classList.remove('d-none');
+                document.getElementById('ticketsAssignContent')?.classList.add('d-none');
+                document.getElementById('ticketsAssignError').style.display = 'none';
+
                 try {
-                    console.log('ASSIGN clicked ticketId=', ticketId);
                     const res = await fetch(`{{ url('/support/tickets') }}/${ticketId}/assign`, {
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
@@ -347,36 +368,35 @@
                     const data = await res.json();
 
 
-                    // Fill ticket number
-                    const ticketNoInput = assignModal.querySelector('input[readonly]');
-                    if (ticketNoInput) ticketNoInput.value = `TK-${data.ticket?.ticket_id ?? ticketId}`;
+                    document.getElementById('ticketsAssignTicketNumber').value = `TK-${data.ticket?.ticket_id ?? ticketId}`;
+                    document.getElementById('ticketsAssignModalSubtitle').textContent = `Ticket TK-${data.ticket?.ticket_id ?? ticketId}`;
+                    document.getElementById('ticketsAssignCustomer').textContent = data.ticket?.customer || '—';
+                    document.getElementById('ticketsAssignProduct').textContent = data.ticket?.product_name || '—';
 
-                    // Fill assigned employee select options
-                    const selects = assignModal.querySelectorAll('select.form-select');
-                    const employeeSelect = selects && selects.length >= 1 ? selects[0] : null; // [0]=Employee
-
-                    if (employeeSelect) {
+                    const employeeSelect = document.getElementById('ticketsAssignEmployee');
+                    const departmentSelect = document.getElementById('ticketsAssignDepartment');
+                    const employees = data.employees || [];
+                    const renderEmployees = () => {
+                        const department = departmentSelect.value;
                         employeeSelect.innerHTML = '';
-                        const currentId = data.currentEmployeeId;
-                        (data.employees || []).forEach(emp => {
-                            const opt = document.createElement('option');
-                            opt.value = emp.employee_id;
-                            opt.textContent = emp.employee_name;
-                            if (currentId != null && String(currentId) === String(emp.employee_id)) opt.selected = true;
-                            employeeSelect.appendChild(opt);
+                        employees.filter(employee => !department || employee.department === department).forEach(employee => {
+                            const option = new Option(`${employee.name}${employee.department ? ` — ${employee.department}` : ''}`, employee.employee_id, false, String(employee.employee_id) === String(data.currentEmployeeId ?? ''));
+                            employeeSelect.add(option);
                         });
-                    }
-
-                    // set priority
-                    const prioritySelect = selects && selects.length >= 3 ? selects[2] : null; // [2]=Priority
-                    if (prioritySelect && data.ticket?.priority) prioritySelect.value = data.ticket.priority;
-
-                    // due date
-                    const dueInput = assignModal.querySelector('input[type="date"]');
-                    if (dueInput && data.ticket?.due_date) dueInput.value = data.ticket.due_date;
+                    };
+                    departmentSelect.innerHTML = '<option value="">All departments</option>';
+                    [...new Set(employees.map(employee => employee.department).filter(Boolean))].forEach(department => departmentSelect.add(new Option(department, department)));
+                    departmentSelect.onchange = renderEmployees;
+                    renderEmployees();
+                    document.getElementById('ticketsAssignHistory').innerHTML = (data.assignmentHistory || []).length
+                        ? data.assignmentHistory.map(a => `<div>${a.name || '—'}${a.department ? ` · ${a.department}` : ''} · ${a.assigned_at || '—'} · ${a.status || '—'}</div>`).join('')
+                        : 'No assignment history is available.';
+                    document.getElementById('ticketsAssignLoading')?.classList.add('d-none');
+                    document.getElementById('ticketsAssignContent')?.classList.remove('d-none');
 
                 } catch (err) {
-                    console.error(err);
+                    document.getElementById('ticketsAssignLoading').textContent = 'Unable to load assignment options.';
+                    notify('error', 'Unable to load assignment options.');
                 }
             });
         });
@@ -386,10 +406,9 @@
 
         if (ticketsAssignSaveBtn) {
             ticketsAssignSaveBtn.addEventListener('click', async () => {
-                console.log('ASSIGN save clicked, currentAssignTicketId=', currentAssignTicketId);
                 if (!currentAssignTicketId) return;
 
-                const employeeSelect = assignModal?.querySelector('select[aria-label="Assigned employee"]');
+                const employeeSelect = document.getElementById('ticketsAssignEmployee');
                 const employeeId = employeeSelect?.value;
 
                 // Basic client-side guard
@@ -399,6 +418,8 @@
                 }
 
                 try {
+                    ticketsAssignSaveBtn.disabled = true;
+                    ticketsAssignSaveBtn.setAttribute('aria-busy', 'true');
                     const res = await fetch(`{{ url('/support/tickets') }}/${currentAssignTicketId}/assign`, {
                         method: 'POST',
                         headers: {
@@ -411,8 +432,9 @@
 
                     const data = await res.json().catch(() => ({}));
                     if (!res.ok) {
-                        console.error(data);
-                        notify('error', 'Unable to assign ticket.');
+                        const error = data.errors?.employee_id?.[0] || 'Unable to assign ticket.';
+                        document.getElementById('ticketsAssignError').textContent = error;
+                        document.getElementById('ticketsAssignError').style.display = 'block';
                         return;
                     }
 
@@ -422,7 +444,7 @@
                     if (row) {
                         const tds = row.querySelectorAll('td');
                         if (tds && tds.length >= 6) {
-                            tds[5].textContent = data.assignedEmployee?.employee_name || '—';
+                            tds[5].textContent = data.assignedEmployee?.name || '—';
                         }
                     }
 
@@ -433,8 +455,10 @@
                     notify('success', data.message || 'Assigned');
 
                 } catch (err) {
-                    console.error('ASSIGN save error', err);
                     notify('error', 'Unable to assign ticket.');
+                } finally {
+                    ticketsAssignSaveBtn.disabled = false;
+                    ticketsAssignSaveBtn.removeAttribute('aria-busy');
                 }
             });
         }
@@ -451,6 +475,7 @@
                 if (!ticketId) return;
 
                 document.getElementById('ticketStatusTicketId').value = ticketId;
+                document.getElementById('ticketStatusSubtitle').textContent = `Ticket TK-${ticketId}`;
                 document.getElementById('ticketStatusError').style.display = 'none';
 
                 // Preselect using the status badge from the row.
@@ -470,8 +495,11 @@
             statusSaveBtn.addEventListener('click', async () => {
                 const ticketId = document.getElementById('ticketStatusTicketId').value;
                 const status = document.getElementById('ticketStatusSelect').value;
+                if (!ticketId) return;
 
                 try {
+                    statusSaveBtn.disabled = true;
+                    statusSaveBtn.setAttribute('aria-busy', 'true');
                     const res = await fetch(`{{ url('/support/tickets') }}/${ticketId}/status`, {
                         method: 'POST',
                         headers: {
@@ -510,8 +538,10 @@
                     if (bsModal) bsModal.hide();
 
                 } catch (err) {
-                    console.error(err);
                     notify('error', 'Failed to update status.');
+                } finally {
+                    statusSaveBtn.disabled = false;
+                    statusSaveBtn.removeAttribute('aria-busy');
                 }
 
             });
@@ -519,7 +549,4 @@
     })();
 </script>
 
-@endsection
-
-
-
+@endpush

@@ -9,6 +9,7 @@ class SupportTicket extends Model
     protected $table = 'support_tickets';
 
     protected $primaryKey = 'ticket_id';
+
     public $incrementing = true;
 
     // Migration defines only created_at (no updated_at)
@@ -18,6 +19,7 @@ class SupportTicket extends Model
         'order_id',
         'customer_id',
         'product_id',
+        'service_contract_id',
         'ticket_type',
         'subject',
         'description',
@@ -51,9 +53,24 @@ class SupportTicket extends Model
         return $this->belongsTo(Product::class, 'product_id', 'product_id');
     }
 
+    public function serviceContract()
+    {
+        return $this->belongsTo(ServiceContract::class, 'service_contract_id', 'contract_id');
+    }
+
     public function ticketAssignments()
     {
-        return $this->hasMany(TicketAssignment::class, 'ticket_id', 'ticket_id');
+        return $this->hasMany(TicketAssignment::class, 'ticket_id', 'ticket_id')
+            ->orderByDesc('assigned_at')
+            ->orderByDesc('assignment_id');
+    }
+
+    public function latestAssignment()
+    {
+        return $this->hasOne(TicketAssignment::class, 'ticket_id', 'ticket_id')
+            ->whereRaw('LOWER(assignment_status) IN (?, ?)', ['assigned', 'active'])
+            ->orderByDesc('assigned_at')
+            ->orderByDesc('assignment_id');
     }
 
     public function warrantyClaims()
@@ -71,4 +88,3 @@ class SupportTicket extends Model
         return $this->hasMany(SatisfactionMonitoring::class, 'ticket_id', 'ticket_id');
     }
 }
-

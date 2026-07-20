@@ -55,7 +55,7 @@
                         <i class="bi bi-x-circle" style="color:#EF4444; font-size:20px;"></i>
                     </div>
                 </div>
-                <div class="mt-2"><span class="badge bg-danger">No coverage</span></div>
+                <div class="mt-2"><span class="badge bg-danger">Not approved</span></div>
             </div>
         </div>
         <div class="col-md-3">
@@ -77,7 +77,7 @@
 
     {{-- Filters + top actions --}}
     <div class="card p-3 mt-4" style="background: rgba(255,255,255,.7); border: 1px solid rgba(0,0,0,.06); box-shadow: none;">
-        <form method="GET" action="{{ route('support.warranty-claims') }}">
+        <form id="warrantyClaimsFiltersForm" method="GET" action="{{ route('support.warranty-claims') }}">
             <div class="row g-3" id="warrantyClaimsFilters">
                 <div class="col-12 col-lg-4">
                     <label class="form-label small text-muted">Search</label>
@@ -100,29 +100,63 @@
                     <label class="form-label small text-muted">Status</label>
                     <select name="status" class="form-select form-select-sm" aria-label="Status filter">
                         <option value="all" {{ ($status ?? 'all') === 'all' ? 'selected' : '' }}>Status: All</option>
-                        <option value="pending" {{ ($status ?? '') === 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="approved" {{ ($status ?? '') === 'approved' ? 'selected' : '' }}>Approved</option>
-                        <option value="rejected" {{ ($status ?? '') === 'rejected' ? 'selected' : '' }}>Rejected</option>
-                        <option value="completed" {{ ($status ?? '') === 'completed' ? 'selected' : '' }}>Completed</option>
+                        <option value="Pending" {{ ($status ?? '') === 'Pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="Approved" {{ ($status ?? '') === 'Approved' ? 'selected' : '' }}>Approved</option>
+                        <option value="Rejected" {{ ($status ?? '') === 'Rejected' ? 'selected' : '' }}>Rejected</option>
+                        <option value="Completed" {{ ($status ?? '') === 'Completed' ? 'selected' : '' }}>Completed</option>
                     </select>
                 </div>
 
                 <div class="col-6 col-lg-2">
                     <label class="form-label small text-muted">Customer</label>
                     <select name="customer" class="form-select form-select-sm" aria-label="Customer filter">
-                        <option value="all" {{ ($customer ?? 'all') === 'all' ? 'selected' : '' }}>All customers</option>
-                        <option value="ABC Corporation" {{ ($customer ?? '') === 'ABC Corporation' ? 'selected' : '' }}>ABC Corporation</option>
-                        <option value="XYZ Trading" {{ ($customer ?? '') === 'XYZ Trading' ? 'selected' : '' }}>XYZ Trading</option>
-                        <option value="Northwind Retail" {{ ($customer ?? '') === 'Northwind Retail' ? 'selected' : '' }}>Northwind Retail</option>
-                        <option value="John Smith" {{ ($customer ?? '') === 'John Smith' ? 'selected' : '' }}>John Smith</option>
+                        <option value="" {{ ($customer ?? '') === '' ? 'selected' : '' }}>All customers</option>
+                        @foreach($customers as $customerOption)
+                            <option value="{{ $customerOption->customer_id }}" {{ (string) ($customer ?? '') === (string) $customerOption->customer_id ? 'selected' : '' }}>{{ $customerOption->full_name }}</option>
+                        @endforeach
                     </select>
+                </div>
+
+                <div class="col-6 col-lg-2">
+                    <label class="form-label small text-muted">Warranty Record</label>
+                    <select name="warranty_id" class="form-select form-select-sm" aria-label="Warranty record filter">
+                        <option value="">All warranties</option>
+                        @foreach($warranties as $warrantyOption)
+                            <option value="{{ $warrantyOption->warranty_id }}" @selected((string) ($warrantyId ?? '') === (string) $warrantyOption->warranty_id)>
+                                {{ $warrantyOption->warranty_number ?? ('WR-' . $warrantyOption->warranty_id) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-6 col-lg-2">
+                    <label class="form-label small text-muted">Support Ticket</label>
+                    <select name="ticket_id" class="form-select form-select-sm" aria-label="Support ticket filter">
+                        <option value="">All tickets</option>
+                        @foreach($tickets as $ticketOption)
+                            <option value="{{ $ticketOption->ticket_id }}" @selected((string) ($ticketId ?? '') === (string) $ticketOption->ticket_id)>
+                                TK-{{ $ticketOption->ticket_id }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-6 col-lg-2">
+                    <label class="form-label small text-muted" for="warrantyClaimsFromDate">Submitted from</label>
+                    <input id="warrantyClaimsFromDate" type="date" name="from_date" class="form-control form-control-sm" value="{{ $fromDate ?? '' }}">
+                </div>
+
+                <div class="col-6 col-lg-2">
+                    <label class="form-label small text-muted" for="warrantyClaimsToDate">Submitted to</label>
+                    <input id="warrantyClaimsToDate" type="date" name="to_date" class="form-control form-control-sm" value="{{ $toDate ?? '' }}">
                 </div>
 
                 <div class="col-12 col-lg-4 d-flex align-items-end justify-content-lg-end">
                     <div class="d-flex gap-2 flex-wrap">
                         <button type="submit" class="btn btn-sm" style="background:#5347CE;color:#fff;border:1px solid rgba(255,255,255,.25);">
-                            <i class="bi bi-check2 me-1"></i> Review
+                            <i class="bi bi-funnel me-1"></i> Apply Filters
                         </button>
+                        <a href="{{ route('support.warranty-claims') }}" class="btn btn-sm btn-outline-secondary">Reset Filters</a>
                     </div>
                 </div>
 
@@ -155,12 +189,10 @@
     <div class="card p-4 mt-4">
         <div class="d-flex align-items-center justify-content-between mb-3">
             <h5 class="fw-bold mb-0">Claims</h5>
-                    <div id="supportWarrantyClaimsNotificationHost" class="text-muted small" style="display:none;"></div>
-
         </div>
 
         <div class="table-responsive" style="-webkit-overflow-scrolling: touch;">
-            <table class="table table-hover align-middle mb-0" style="width:100%;">
+            <table id="warrantyClaimsTable" class="table table-hover align-middle mb-0 warranty-claims-table" style="width:100%;">
                 <style>
                     @media (max-width: 575.98px) {
                         .warranty-claims-table th, .warranty-claims-table td { white-space: nowrap; }
@@ -185,16 +217,16 @@
                     @forelse($warrantyClaims as $claim)
                         <tr>
                             <td class="fw-semibold">WC-{{ $claim->claim_id }}</td>
-                            <td>{{ $claim->warrantyRecord->warranty_number ?? ('WR-' . $claim->warranty_id) }}</td>
-                            <td>{{ $claim->warrantyRecord->order->customer->customer_name ?? '—' }}</td>
-                            <td>{{ $claim->warrantyRecord->product->product_name ?? '—' }}</td>
+                            <td>{{ $claim->warrantyRecord?->warranty_number ?? ('WR-' . $claim->warranty_id) }}</td>
+                            <td>{{ $claim->warrantyRecord?->customer?->full_name ?? '—' }}</td>
+                            <td>{{ $claim->warrantyRecord?->product?->product_name ?? '—' }}</td>
                             <td class="text-muted">{{ $claim->claim_date ? $claim->claim_date->format('Y-m-d') : '—' }}</td>
                             <td>
                                 @php($cs = strtolower((string)($claim->claim_status ?? '')))
                                 @if($cs === 'pending')
                                     <span class="badge bg-warning text-dark">{{ $claim->claim_status }}</span>
                                 @elseif($cs === 'approved')
-                                    <span class="badge bg-primary">{{ $claim->claim_status }}</span>
+                                    <span class="badge bg-success">{{ $claim->claim_status }}</span>
                                 @elseif($cs === 'rejected')
                                     <span class="badge bg-danger">{{ $claim->claim_status }}</span>
                                 @elseif($cs === 'completed')
@@ -203,21 +235,22 @@
                                     <span class="badge bg-secondary">{{ $claim->claim_status ?? '—' }}</span>
                                 @endif
                             </td>
-                            <td>{{ optional($claim->supportTicket->ticketAssignments->first())->employee?->getFullNameAttribute() ?? '—' }}</td>
+                            <td>{{ $claim->supportTicket?->latestAssignment?->employee?->full_name ?? '—' }}</td>
                             <td class="text-end" style="white-space: nowrap;">
                                 <div class="d-flex align-items-center justify-content-end flex-nowrap gap-1 warranty-actions">
                                     <button
-                                        class="btn btn-sm btn-outline-warning js-warranty-claim-review"
+                                        class="btn btn-sm btn-outline-primary js-warranty-claim-review"
                                         type="button"
-                                        aria-label="Review"
+                                        title="View Claim Details"
+                                        aria-label="View Claim Details"
                                         data-claim-id="{{ $claim->claim_id }}"
                                         data-bs-toggle="modal"
                                         data-bs-target="#warrantyClaimModal">
-                                        <i class="bi bi-pencil"></i>
+                                        <i class="bi bi-eye"></i>
                                     </button>
 
-                                    <button class="btn btn-sm btn-outline-success" type="button" aria-label="Update Status" data-bs-toggle="modal" data-bs-target="#warrantyClaimStatusModal">
-                                        <i class="bi bi-arrow-repeat"></i>
+                                    <button class="btn btn-sm btn-outline-primary js-warranty-claim-status" type="button" title="Update Claim Status" aria-label="Update Claim Status" data-claim-id="{{ $claim->claim_id }}" data-bs-toggle="modal" data-bs-target="#warrantyClaimStatusModal">
+                                        <i class="bi bi-pencil"></i>
                                     </button>
                                 </div>
                             </td>
@@ -234,15 +267,20 @@
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mt-4">
             <div class="text-muted small">Showing results.</div>
             <nav aria-label="Claims pagination">
-                {{ $warrantyClaims->links() }}
+                {{ $warrantyClaims->links('pagination::bootstrap-5') }}
             </nav>
         </div>
     </div>
 @endsection
 
+@push('scripts')
 <script>
     (function () {
-        const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const csrf = '{{ csrf_token() }}';
+
+        document.querySelectorAll('[title="View Claim Details"], [title="Update Claim Status"]').forEach((button) => {
+            bootstrap.Tooltip.getOrCreateInstance(button);
+        });
 
         async function loadWarrantyClaimIntoModal(claimId) {
             const res = await fetch(`{{ url('/support/warranty-claims') }}/${claimId}/show`, {
@@ -259,7 +297,7 @@
             const assigned = data.assignedEmployee || {};
 
             const subtitle = document.getElementById('warrantyClaimModalSubtitle');
-            if (subtitle) subtitle.textContent = `WC-${c.claim_id ?? claimId} • ${w.customer?.customer_name || '—'}`;
+            if (subtitle) subtitle.textContent = `WC-${c.claim_id ?? claimId} • ${w.customer?.name || '—'}`;
 
             const statusEl = document.getElementById('warrantyClaimModalStatus');
             if (statusEl) {
@@ -278,19 +316,29 @@
             const warrantyNumberEl = document.getElementById('warrantyClaimModalWarrantyNumber');
             if (warrantyNumberEl) warrantyNumberEl.textContent = w.warranty_number || '—';
 
+            const claimNumberEl = document.getElementById('warrantyClaimModalNumber');
+            if (claimNumberEl) claimNumberEl.textContent = c.claim_id ? `WC-${c.claim_id}` : '—';
+
+            const ticketNumberEl = document.getElementById('warrantyClaimModalTicketNumber');
+            if (ticketNumberEl) ticketNumberEl.textContent = c.ticket_number || '—';
+
+            const customerEl = document.getElementById('warrantyClaimModalCustomer');
+            if (customerEl) customerEl.textContent = w.customer?.name || '—';
+
             const claimDateEl = document.getElementById('warrantyClaimModalClaimDate');
-            if (claimDateEl) claimDateEl.textContent = c.claim_date ? c.claim_date.split(' ')[0] : '—';
+            if (claimDateEl) claimDateEl.textContent = c.claim_date || '—';
+
+            const approvedDateEl = document.getElementById('warrantyClaimModalApprovedDate');
+            if (approvedDateEl) approvedDateEl.textContent = c.approved_date || '—';
 
             const productEl = document.getElementById('warrantyClaimModalProduct');
             if (productEl) productEl.textContent = w.product?.product_name || '—';
 
             const assignedEl = document.getElementById('warrantyClaimModalAssignedStaff');
-            if (assignedEl) assignedEl.textContent = assigned.employee_name || '—';
+            if (assignedEl) assignedEl.textContent = assigned.name || '—';
 
-            const notesTextarea = document.getElementById('warrantyClaimModalNotes');
-            if (notesTextarea && c.claim_reason !== undefined && c.claim_reason !== null) {
-                notesTextarea.value = c.claim_reason;
-            }
+            const departmentEl = document.getElementById('warrantyClaimModalAssignedDepartment');
+            if (departmentEl) departmentEl.textContent = assigned.department || '—';
         }
 
         document.querySelectorAll('button.js-warranty-claim-review').forEach(btn => {
@@ -298,7 +346,6 @@
                 const claimId = e.currentTarget.getAttribute('data-claim-id');
                 if (!claimId) return;
 
-                // Populate modal from server (replaces placeholder UI)
                 try {
                     await loadWarrantyClaimIntoModal(claimId);
                 } catch (err) {
@@ -307,13 +354,12 @@
             });
         });
 
-        document.querySelectorAll('button[aria-label="Update Status"]').forEach(btn => {
+        document.querySelectorAll('.js-warranty-claim-status').forEach(btn => {
             btn.addEventListener('click', (e) => {
+                const claimId = e.currentTarget.getAttribute('data-claim-id');
+                if (!claimId) return;
 
                 const row = e.currentTarget.closest('tr');
-                const wcText = row?.querySelector('td.fw-semibold')?.textContent?.trim() || '';
-                const claimId = wcText.replace(/^WC-/, '').trim();
-                if (!claimId) return;
 
                 const hiddenId = document.getElementById('warrantyClaimStatusTicketId');
                 if (hiddenId) hiddenId.value = claimId;
@@ -345,8 +391,11 @@
             statusSaveBtn.addEventListener('click', async () => {
                 const claimId = document.getElementById('warrantyClaimStatusTicketId')?.value;
                 const status = document.getElementById('warrantyClaimStatusSelect')?.value;
+                if (!claimId || !status) return;
 
                 try {
+                    statusSaveBtn.disabled = true;
+                    statusSaveBtn.setAttribute('aria-busy', 'true');
                     const res = await fetch(`{{ url('/support/warranty-claims') }}/${claimId}/status`, {
                         method: 'POST',
                         headers: {
@@ -373,7 +422,7 @@
                     let statusTd = null;
 
                     if (claimsTable) {
-                        // Prefer exact claimId match by the "WC-{{claim_id}}" cell in the same row.
+                        // Prefer the table row whose claim-number cell matches the selected claim.
                         const wcCell = Array.from(claimsTable.querySelectorAll('td.fw-semibold')).find(td => {
                             const wcText = (td.textContent || '').trim();
                             const foundId = wcText.replace(/^WC-/, '').trim();
@@ -387,7 +436,7 @@
                         const lower = (data.status || '').toString().toLowerCase();
                         let cls = 'bg-secondary';
                         if (lower === 'pending') cls = 'bg-warning text-dark';
-                        else if (lower === 'approved') cls = 'bg-primary';
+                        else if (lower === 'approved') cls = 'bg-success';
                         else if (lower === 'rejected') cls = 'bg-danger';
                         else if (lower === 'completed') cls = 'bg-success';
 
@@ -408,12 +457,21 @@
                     }
 
                 } catch (err) {
-                    console.error(err);
+                    const box = document.getElementById('warrantyClaimStatusError');
+                    if (box) {
+                        box.textContent = 'Unable to update claim status.';
+                        box.style.display = 'block';
+                    }
+                } finally {
+                    statusSaveBtn.disabled = false;
+                    statusSaveBtn.removeAttribute('aria-busy');
                 }
             });
         }
     })();
 </script>
+
+@endpush
 
 
 
