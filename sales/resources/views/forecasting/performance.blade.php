@@ -145,17 +145,17 @@
             @foreach ($performanceKpis as $performanceKpi)
                 <div class="col-md-6 col-lg-4">
                     <article
-                        class="card p-3 h-100 border-0 shadow-sm"
+                        class="card px-3 py-2 h-100 border-0 shadow-sm"
                         style="
                             background: linear-gradient(
                                 145deg,
                                 #ffffff 0%,
                                 #f8fafc 100%
                             );
-                            min-height: 112px;
+                            min-height: 92px;
                         "
                     >
-                        <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="d-flex align-items-center justify-content-between mb-1">
                             <span class="fw-semibold small text-muted">
                                 {{ $performanceKpi['label'] }}
                             </span>
@@ -163,8 +163,8 @@
                             <div
                                 class="rounded-circle d-flex align-items-center justify-content-center"
                                 style="
-                                    width: 36px;
-                                    height: 36px;
+                                    width: 32px;
+                                    height: 32px;
                                     background: {{ $performanceKpi['accent'] }};
                                 "
                             >
@@ -179,7 +179,7 @@
                             {{ $performanceKpi['value'] }}
                         </div>
 
-                        <p class="text-muted small mb-0 mt-2">
+                        <p class="text-muted small mb-0 mt-1">
                             Performance snapshot
                         </p>
                     </article>

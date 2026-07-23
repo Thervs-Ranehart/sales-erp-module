@@ -11,6 +11,7 @@ use App\Models\PricingRule;
 use App\Models\Product;
 use App\Models\SalesOrder;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -71,7 +72,7 @@ class SalesOrderController extends Controller
 
     public function show(SalesOrder $salesOrder): View
     {
-        $salesOrder->load(['customer', 'items.product']);
+        $salesOrder->load(['customer', 'employee', 'pricingRule', 'items.product', 'invoices']);
 
         return view('sales.profile', [
             'order' => $salesOrder,
@@ -124,6 +125,26 @@ class SalesOrderController extends Controller
         return redirect()
             ->route('sales.index')
             ->with('success', "Sales order {$orderNumber} deleted successfully.");
+    }
+
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'selected_order_ids' => ['required', 'array', 'min:1'],
+            'selected_order_ids.*' => ['required', 'integer', 'distinct', 'exists:sales_orders,order_id'],
+        ]);
+
+        $orders = SalesOrder::query()
+            ->whereKey($validated['selected_order_ids'])
+            ->get();
+
+        DB::transaction(function () use ($orders): void {
+            $orders->each->delete();
+        });
+
+        return redirect()
+            ->route('sales.index')
+            ->with('success', "{$orders->count()} sales order records deleted successfully.");
     }
 
     public function updateStatus(UpdateSalesOrderStatusRequest $request, SalesOrder $salesOrder): RedirectResponse

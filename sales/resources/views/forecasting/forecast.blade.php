@@ -32,10 +32,10 @@
         <div class="row g-4">
             @foreach ($kpiCards as $kpi)
                 <div class="col-12 col-md-6 col-lg-4">
-                    <article class="card p-3 h-100 border-0 shadow-sm" style="background: linear-gradient(145deg, #fff 0%, #f8fafc 100%); min-height: 112px;">
-                        <div class="d-flex justify-content-between align-items-center mb-3"><span class="fw-semibold small text-muted">{{ $kpi['label'] }}</span><span class="rounded-circle d-flex align-items-center justify-content-center bg-light" style="width:36px;height:36px"><i class="bi bi-{{ $kpi['icon'] }} {{ $kpi['tone'] }}"></i></span></div>
+                    <article class="card px-3 py-2 h-100 border-0 shadow-sm" style="background: linear-gradient(145deg, #fff 0%, #f8fafc 100%); min-height: 92px;">
+                        <div class="d-flex justify-content-between align-items-center mb-1"><span class="fw-semibold small text-muted">{{ $kpi['label'] }}</span><span class="rounded-circle d-flex align-items-center justify-content-center bg-light" style="width:32px;height:32px"><i class="bi bi-{{ $kpi['icon'] }} {{ $kpi['tone'] }}"></i></span></div>
                         <div class="fw-bold fs-4 {{ $kpi['tone'] }}">{{ $kpi['value'] }}</div>
-                        <p class="text-muted small mb-0 mt-2">Forecasting snapshot</p>
+                        <p class="text-muted small mb-0 mt-1">Forecasting snapshot</p>
                     </article>
                 </div>
             @endforeach

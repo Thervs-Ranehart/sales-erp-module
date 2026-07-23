@@ -4,13 +4,13 @@
 
 <section
     aria-labelledby="sales-by-representative-horizontal-bar-title"
-    class="w-100"
+    class="w-100 h-100"
     data-component="sales-by-representative-horizontal-bar"
     data-chart-id="{{ $chartId }}"
     data-chart-initial-data="{!! e(json_encode($initialData ?? null)) !!}"
 >
 
-    <div class="card border-0 shadow-sm rounded-4">
+    <div class="card border-0 shadow-sm rounded-4 h-100">
         <div class="card-body p-3 p-md-4">
             <div class="d-flex justify-content-between align-items-start gap-3 mb-3"><div><h3 id="sales-by-representative-horizontal-bar-title" class="fs-6 fw-bold mb-1">Sales by Representative</h3><p class="small text-muted mb-0">Individual revenue contribution and ranking.</p></div><i class="bi bi-people fs-4 text-success" aria-hidden="true"></i></div>
                 <div class="w-full position-relative" style="height: 300px;">

@@ -48,15 +48,15 @@
         <div class="row g-4">
             @foreach ($kpis as $kpi)
                 <div class="col-md-6 col-lg-4">
-                    <div class="card p-3 h-100 border-0 shadow-sm" style="background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%); min-height: 112px;">
-                        <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="card px-3 py-2 h-100 border-0 shadow-sm" style="background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%); min-height: 92px;">
+                        <div class="d-flex align-items-center justify-content-between mb-1">
                             <span class="fw-semibold small text-muted">{{ $kpi['label'] }}</span>
-                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: {{ $kpi['accent'] }};">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: {{ $kpi['accent'] }};">
                                 <i class="bi bi-{{ $kpi['icon'] }} fs-6 {{ $kpi['tone'] }}"></i>
                             </div>
                         </div>
                         <div class="fw-bold fs-4 {{ $kpi['tone'] }}">{{ $kpi['value'] }}</div>
-                        <p class="text-muted small mb-0 mt-2">Updated from live sales data</p>
+                        <p class="text-muted small mb-0 mt-1">Updated from live sales data</p>
                     </div>
                 </div>
             @endforeach

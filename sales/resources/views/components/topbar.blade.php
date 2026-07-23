@@ -7,16 +7,20 @@
         if ($employee && method_exists($employee, 'notifications')) {
             $notificationsUnread = (int) $employee->notifications()->where('is_read', false)->count();
         }
-        if (!$notificationsUnread && class_exists(\App\Models\Notification::class)) {
-            $notificationsUnread = (int) \App\Models\Notification::query()->where('employee_id', auth()->user()->employee_id ?? 0)->where('is_read', false)->count();
+        if (! $notificationsUnread && class_exists(\App\Models\Notification::class)) {
+            $notificationsUnread = (int) \App\Models\Notification::query()
+                ->where('employee_id', (int) session('employee_id', 0))
+                ->where('is_read', false)
+                ->count();
         }
     } catch (\Throwable $exception) {
         $notificationsUnread = 0;
     }
 
-    $employeeName = auth()->check() && isset(auth()->user()->employee)
-        ? auth()->user()->employee->getFullNameAttribute()
-        : (auth()->user()->name ?? 'Account');
+    $employeeName = session('employee_name')
+        ?: (auth()->check() && isset(auth()->user()->employee)
+            ? auth()->user()->employee->getFullNameAttribute()
+            : (auth()->user()->name ?? 'Account'));
 
     $searchItems = [
         ['label' => 'Main Dashboard', 'description' => 'Company overview', 'route' => 'dashboard', 'icon' => 'speedometer2'],

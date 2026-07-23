@@ -133,6 +133,7 @@ Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index
 Route::get('/sales-orders', [SalesOrderController::class, 'index'])->name('sales.index');
 Route::get('/sales-orders/create', [SalesOrderController::class, 'create'])->name('sales.create');
 Route::post('/sales-orders', [SalesOrderController::class, 'store'])->name('sales.store');
+Route::delete('/sales-orders', [SalesOrderController::class, 'bulkDestroy'])->name('sales.bulk-destroy');
 Route::get('/sales-orders/{salesOrder}/edit', [SalesOrderController::class, 'edit'])->name('sales.edit');
 Route::put('/sales-orders/{salesOrder}', [SalesOrderController::class, 'update'])->name('sales.update');
 Route::delete('/sales-orders/{salesOrder}', [SalesOrderController::class, 'destroy'])->name('sales.destroy');

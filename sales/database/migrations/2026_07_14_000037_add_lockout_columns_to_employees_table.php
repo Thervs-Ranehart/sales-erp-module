@@ -9,15 +9,26 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('employees', function (Blueprint $table) {
-            $table->unsignedTinyInteger('failed_login_attempts')->default(0)->after('employee_status');
-            $table->timestamp('locked_until')->nullable()->after('failed_login_attempts');
+            if (! Schema::hasColumn('employees', 'failed_login_attempts')) {
+                $table->unsignedTinyInteger('failed_login_attempts')->default(0)->after('employee_status');
+            }
+
+            if (! Schema::hasColumn('employees', 'locked_until')) {
+                $table->timestamp('locked_until')->nullable()->after('failed_login_attempts');
+            }
         });
     }
 
     public function down(): void
     {
         Schema::table('employees', function (Blueprint $table) {
-            $table->dropColumn(['failed_login_attempts', 'locked_until']);
+            if (Schema::hasColumn('employees', 'failed_login_attempts')) {
+                $table->dropColumn('failed_login_attempts');
+            }
+
+            if (Schema::hasColumn('employees', 'locked_until')) {
+                $table->dropColumn('locked_until');
+            }
         });
     }
 };
