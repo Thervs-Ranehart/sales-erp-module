@@ -14,7 +14,12 @@
     }
 
     function colors(values) {
-        return values.map((value) => Number(value) >= 100 ? 'rgba(16, 185, 129, 0.75)' : 'rgba(239, 68, 68, 0.7)');
+        return values.map((value) => {
+            const percentage = Number(value);
+            if (percentage <= 30) return 'rgba(239, 68, 68, 0.82)';
+            if (percentage < 70) return 'rgba(244, 180, 0, 0.82)';
+            return 'rgba(16, 185, 129, 0.82)';
+        });
     }
 
     function createChart(root) {
@@ -38,7 +43,9 @@
             fill: isLine,
             tension: 0.35,
             pointBackgroundColor: '#5347CE',
-            borderRadius: isLine ? 0 : 6,
+            borderRadius: isLine ? 0 : 8,
+            borderSkipped: false,
+            barThickness: isLine ? undefined : 18,
         };
 
         chartRegistry.set(chartId, new Chart(canvas, {
@@ -50,11 +57,11 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: { display: false },
-                    tooltip: { backgroundColor: '#0f172a', padding: 12, cornerRadius: 10, displayColors: false, callbacks: { label: (context) => `${context.raw ?? 0}% achievement` } },
+                    tooltip: { backgroundColor: '#0f172a', titleColor: '#fff', bodyColor: '#e2e8f0', padding: 12, cornerRadius: 10, displayColors: false, callbacks: { label: (context) => `${context.raw ?? 0}% achievement` } },
                 },
                 scales: {
-                    x: isLine ? { grid: { display: false }, ticks: { color: '#64748b' } } : { beginAtZero: true, grid: { color: 'rgba(15,23,42,.07)' }, ticks: { color: '#64748b', callback: (value) => `${value}%` } },
-                    y: isLine ? { suggestedMin: 60, suggestedMax: 120, grid: { color: 'rgba(15,23,42,.07)' }, ticks: { color: '#64748b', callback: (value) => `${value}%` } } : { grid: { display: false }, ticks: { color: '#475569' } },
+                    x: isLine ? { grid: { display: false }, ticks: { color: '#64748b' } } : { beginAtZero: true, suggestedMax: 100, border: { display: false }, grid: { color: 'rgba(148,163,184,.16)' }, ticks: { color: '#94a3b8', font: { size: 10 }, callback: (value) => `${value}%` } },
+                    y: isLine ? { suggestedMin: 60, suggestedMax: 120, grid: { color: 'rgba(15,23,42,.07)' }, ticks: { color: '#64748b', callback: (value) => `${value}%` } } : { border: { display: false }, grid: { display: false }, ticks: { color: '#475569', font: { size: 10, weight: '600' }, autoSkip: false } },
                 },
             },
             plugins: isLine ? [{

@@ -28,6 +28,10 @@ class CommunicationLog extends Model
         'notes',
         'follow_up_date',
         'communication_status',
+        'priority',
+        'automation_key',
+        'recurrence',
+        'retention_outcome',
     ];
 
     protected $casts = [

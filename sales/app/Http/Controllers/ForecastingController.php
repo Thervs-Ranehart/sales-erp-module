@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
 use App\Models\Employee;
+use App\Models\SalesForecast;
+use App\Models\SalesRegion;
 use App\Models\SalesTarget;
 use App\Services\ForecastingPersistenceService;
 use App\Services\SalesAnalyticsService;
@@ -102,12 +105,15 @@ class ForecastingController extends Controller
             'monthlyRevenue' => $this->chart($snapshot['labels'], $values),
             'topProducts' => $this->collectionChart($snapshot['productSales']),
             'salesByRegion' => $this->collectionChart($snapshot['regionalSales']),
+            'salesByWarehouse' => $this->collectionChart($snapshot['warehouseSales']),
             'salesByRepresentative' => $this->collectionChart($snapshot['representativeSales']),
             'selectedYear' => (int) $request->query('year', now()->year),
             'reportKpis' => $kpis,
             'monthlyReportRows' => $rows,
             'reportInsights' => $this->salesInsights($snapshot, $this->analytics->forecast($values)),
             'filterOptions' => $this->analytics->filterOptions(),
+            'salesRegions' => Schema::hasTable('sales_regions') ? SalesRegion::query()->withCount('customers')->orderBy('region_name')->get() : collect(),
+            'regionCustomers' => Schema::hasTable('sales_regions') ? Customer::query()->with('region')->orderBy('first_name')->get() : collect(),
         ]);
     }
 
@@ -170,7 +176,10 @@ class ForecastingController extends Controller
         $chartLabels = array_merge($snapshot['labels'], $futureLabels);
         $forecastSeries = array_merge($padding, [$connection], $futureValues);
         $quarter = (float) array_sum($futureValues);
-        $savedForecast = ($employeeId = $this->employeeId($request)) ? $this->persistence->saveForecast($snapshot, $calculation, $employeeId, $multiplier) : null;
+        $savedForecast = ($employeeId = $this->employeeId($request))
+            && Schema::hasColumn('sales_forecasts', 'version')
+            ? $this->persistence->saveForecast($snapshot, $calculation, $employeeId, $multiplier)
+            : null;
 
         return view('forecasting.forecast', [
             'forecastKpis' => ['latestActualRevenue' => $connection, 'nextMonthForecast' => $next, 'growthRate' => $calculation['growthRate'], 'quarterForecast' => $quarter, 'confidence' => $calculation['confidence'], 'status' => $this->direction($calculation['growthRate'])],
@@ -178,8 +187,8 @@ class ForecastingController extends Controller
                 'labels' => $chartLabels,
                 'actual' => array_merge($historicalValues, array_fill(0, $horizon, null)),
                 'forecast' => $forecastSeries,
-                'forecastLow' => array_map(fn ($value) => $value === null ? null : $value * .9, $forecastSeries),
-                'forecastHigh' => array_map(fn ($value) => $value === null ? null : $value * 1.1, $forecastSeries),
+                'forecastLow' => array_map(fn ($value) => $value === null ? null : max(0, $value - ($calculation['rmse'] * 1.96)), $forecastSeries),
+                'forecastHigh' => array_map(fn ($value) => $value === null ? null : $value + ($calculation['rmse'] * 1.96), $forecastSeries),
             ],
             'forecastSummary' => ['period' => "Next $horizon month(s)", 'expectedRevenue' => $quarter, 'expectedGrowth' => $calculation['growthRate'], 'projectedSalesGap' => $quarter - ($connection * $horizon), 'direction' => $this->direction($calculation['growthRate']), 'confidence' => $calculation['confidence']],
             'forecastByProduct' => $this->forecastBreakdown($snapshot['productSales'], $growthFactor * $multiplier, $calculation['growthRate']),
@@ -190,6 +199,16 @@ class ForecastingController extends Controller
             'planningRecommendations' => collect($this->recommendationsFrom($snapshot, $calculation))->pluck('action')->all(),
             'filterOptions' => $this->analytics->filterOptions(),
             'savedForecast' => $savedForecast,
+            'forecastAccuracy' => [
+                'method' => $calculation['method'],
+                'sampleSize' => $calculation['sampleSize'],
+                'lower' => $calculation['predictionLower'],
+                'upper' => $calculation['predictionUpper'],
+                'mae' => $calculation['mae'],
+                'mape' => $calculation['mape'],
+                'rmse' => $calculation['rmse'],
+            ],
+            'forecastRuns' => Schema::hasColumn('sales_forecasts', 'version') ? SalesForecast::query()->orderByDesc('generated_at')->take(10)->get() : collect(),
         ]);
     }
 
@@ -199,10 +218,13 @@ class ForecastingController extends Controller
         $forecast = $this->analytics->forecast($snapshot['monthlyRevenue']);
         $generated = $this->recommendationsFrom($snapshot, $forecast);
         $savedForecast = null;
-        if ($employeeId = $this->employeeId($request)) {
+        if (($employeeId = $this->employeeId($request))
+            && Schema::hasColumn('sales_forecasts', 'version')
+            && Schema::hasColumn('forecast_recommendations', 'assigned_to')) {
             $savedForecast = $this->persistence->saveForecast($snapshot, $forecast, $employeeId);
             $this->persistence->saveRecommendations($savedForecast, $generated, $employeeId);
         }
+        $savedRecommendations = $savedForecast?->recommendations()->with('assignee')->orderByDesc('created_at')->get() ?? collect();
         $rows = collect($generated)->filter(function (array $row) use ($request): bool {
             return $this->matches($row['category'], $request->query('category'), 'all-categories')
                 && $this->matches($row['priority'], $request->query('priority'), 'all-priorities')
@@ -217,10 +239,28 @@ class ForecastingController extends Controller
             'recommendationKpis' => ['total' => $rows->count(), 'highPriority' => $rows->where('priority', 'High')->count(), 'opportunities' => $rows->where('type', 'opportunity')->count(), 'risks' => $rows->where('type', 'risk')->count(), 'inventoryActions' => $rows->where('category', 'Inventory Planning')->count(), 'marketingActions' => $rows->where('category', 'Marketing')->count()],
             'priorityRecommendations' => $rows->sortBy(fn (array $row): int => $row['priority'] === 'High' ? 0 : 1)->take(4)->all(),
             'recommendationCategories' => $categories,
-            'recommendationRows' => $rows->map(fn (array $row): array => ['title' => $row['title'], 'category' => $row['category'], 'basis' => $row['metric'], 'priority' => $row['priority'], 'impact' => $row['impact'], 'responsible_team' => $row['team'], 'status' => $row['status']])->all(),
+            'recommendationRows' => $savedRecommendations->isNotEmpty()
+                ? $savedRecommendations->map(fn ($row): array => [
+                    'id' => $row->recommendation_id,
+                    'title' => $row->title,
+                    'category' => $row->recommendation_type,
+                    'basis' => $row->evidence,
+                    'priority' => $row->priority,
+                    'impact' => $row->description,
+                    'responsible_team' => $row->assigned_department,
+                    'assigned_to' => $row->assigned_to,
+                    'due_date' => $row->due_date?->toDateString(),
+                    'status' => $row->implementation_status,
+                    'decision_notes' => $row->decision_notes,
+                    'outcome' => $row->outcome,
+                ])->all()
+                : $rows->map(fn (array $row): array => ['id' => null, 'title' => $row['title'], 'category' => $row['category'], 'basis' => $row['metric'], 'priority' => $row['priority'], 'impact' => $row['impact'], 'responsible_team' => $row['team'], 'assigned_to' => null, 'due_date' => null, 'status' => $row['status'], 'decision_notes' => null, 'outcome' => null])->all(),
             'supportingInsights' => $this->salesInsights($snapshot, $forecast),
             'actionPlan' => ['Database-Generated Actions' => $rows->map(fn (array $row): array => ['action' => $row['action'], 'team' => $row['team'], 'timeline' => $row['priority'] === 'High' ? 'Within 7 days' : 'Within 30 days', 'result' => $row['impact']])->all()],
             'filterOptions' => $this->analytics->filterOptions(),
+            'employees' => Schema::hasTable('employees')
+                ? Employee::query()->where('employee_status', 'Active')->orderBy('first_name')->get()
+                : collect(),
         ]);
     }
 
@@ -278,7 +318,7 @@ class ForecastingController extends Controller
         if ($snapshot['regionalSales']->isNotEmpty()) {
             $name = (string) $snapshot['regionalSales']->keys()->last();
             $value = (float) $snapshot['regionalSales']->last();
-            $recommendations[] = ['title' => "Review sales activity in $name", 'category' => 'Marketing', 'priority' => 'Medium', 'insight' => "$name has the lowest revenue in the filtered period.", 'action' => 'Review local pipeline and prepare a targeted campaign.', 'impact' => 'Improve demand in the lowest-performing warehouse region.', 'metric' => '₱'.number_format($value, 2).' regional revenue', 'status' => 'New', 'team' => 'Marketing Team', 'type' => 'risk'];
+            $recommendations[] = ['title' => "Review sales activity in $name", 'category' => 'Marketing', 'priority' => 'Medium', 'insight' => "$name has the lowest revenue in the filtered period.", 'action' => 'Review local pipeline and prepare a targeted campaign.', 'impact' => 'Improve demand in the lowest-performing customer region.', 'metric' => '₱'.number_format($value, 2).' regional revenue', 'status' => 'New', 'team' => 'Marketing Team', 'type' => 'risk'];
         }
         if ($snapshot['representativeSales']->isNotEmpty()) {
             $name = (string) $snapshot['representativeSales']->keys()->last();
@@ -307,7 +347,7 @@ class ForecastingController extends Controller
             $insights[] = ['type' => 'success', 'text' => $snapshot['productSales']->keys()->first().' is the highest-revenue product in the selected data.'];
         }
         if ($snapshot['regionalSales']->isNotEmpty()) {
-            $insights[] = ['type' => 'information', 'text' => $snapshot['regionalSales']->keys()->first().' is the leading warehouse region in the selected data.'];
+            $insights[] = ['type' => 'information', 'text' => $snapshot['regionalSales']->keys()->first().' is the leading assigned customer region in the selected data.'];
         }
 
         return $insights;
@@ -383,6 +423,17 @@ class ForecastingController extends Controller
         }
 
         $employeeId = $request->session()->get('employee_id') ?? Employee::query()->value('employee_id');
+        if (! $employeeId) {
+            $employeeId = Employee::query()->create([
+                'username' => 'forecast-system',
+                'password_hash' => password_hash(Str::random(48), PASSWORD_BCRYPT),
+                'first_name' => 'Forecast',
+                'last_name' => 'System',
+                'department' => 'Management',
+                'role' => 'System',
+                'employee_status' => 'Active',
+            ])->employee_id;
+        }
 
         return $employeeId ? (int) $employeeId : null;
     }

@@ -25,6 +25,10 @@ class ServiceContract extends Model
         'contract_status',
         'created_at',
         'updated_at',
+        'service_limit',
+        'services_used',
+        'archived_at',
+        'archive_reason',
     ];
 
     protected $casts = [
@@ -32,6 +36,7 @@ class ServiceContract extends Model
         'service_end' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'archived_at' => 'datetime',
     ];
 
     public function customer()

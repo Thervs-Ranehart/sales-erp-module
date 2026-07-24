@@ -94,6 +94,11 @@ class Invoice extends Model
         );
     }
 
+    public function creditNotes(): HasMany
+    {
+        return $this->hasMany(CreditNote::class, 'invoice_id', 'invoice_id');
+    }
+
     public function getRouteKeyName(): string
     {
         return 'invoice_id';

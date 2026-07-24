@@ -5,6 +5,7 @@
     @php($subtitle = 'Support staff: verify contract coverage during case management')
 
     @include('components.page-header', ['title' => $title, 'subtitle' => $subtitle])
+    @include('support.operations-create-modal')
 
     {{-- Read-only contract details modal --}}
     @include('support.service-contract-view-modal')
@@ -190,6 +191,8 @@
                                 <button class="btn btn-sm btn-outline-primary js-service-contract-view" type="button" data-contract-id="{{ $contract->contract_id }}" data-bs-toggle="modal" data-bs-target="#serviceContractModal">
                                     <i class="bi bi-eye me-1"></i> View Coverage
                                 </button>
+                                <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#editContract{{ $contract->contract_id }}"><i class="bi bi-pencil"></i></button>
+                                @if(!$contract->archived_at)<form class="d-inline" method="POST" action="{{ route('support.service-contracts.archive', $contract) }}" onsubmit="return confirm('Archive this contract?')">@csrf @method('PATCH')<input type="hidden" name="archive_reason" value="Archived by support staff"><button class="btn btn-sm btn-outline-danger"><i class="bi bi-archive"></i></button></form>@endif
 
 
                             </td>
@@ -211,6 +214,17 @@
             </nav>
         </div>
     </div>
+
+@foreach($serviceContracts as $contract)
+<div class="modal fade" id="editContract{{ $contract->contract_id }}" tabindex="-1"><div class="modal-dialog"><form class="modal-content" method="POST" action="{{ route('support.service-contracts.update', $contract) }}">@csrf @method('PUT')
+<div class="modal-header"><h5 class="modal-title">Edit {{ $contract->contract_number }}</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3">
+<div class="col-6"><label class="form-label">Customer</label><select class="form-select" name="customer_id">@foreach($customers as $customerOption)<option value="{{ $customerOption->customer_id }}" @selected($contract->customer_id===$customerOption->customer_id)>{{ $customerOption->full_name }}</option>@endforeach</select></div>
+<div class="col-6"><label class="form-label">Product</label><select class="form-select" name="product_id">@foreach($products as $productOption)<option value="{{ $productOption->product_id }}" @selected($contract->product_id===$productOption->product_id)>{{ $productOption->product_name }}</option>@endforeach</select></div>
+<div class="col-8"><label class="form-label">Service Type</label><input class="form-control" name="service_type" value="{{ $contract->service_type }}" required></div><div class="col-4"><label class="form-label">Service Limit</label><input class="form-control" type="number" min="1" name="service_limit" value="{{ $contract->service_limit }}"></div>
+<div class="col-6"><label class="form-label">Start</label><input class="form-control" type="date" name="service_start" value="{{ $contract->service_start?->toDateString() }}" required></div><div class="col-6"><label class="form-label">End</label><input class="form-control" type="date" name="service_end" value="{{ $contract->service_end?->toDateString() }}" required></div>
+<div class="col-12"><label class="form-label">Status</label><select class="form-select" name="contract_status">@foreach(['Active','Suspended','Expired','Terminated'] as $option)<option @selected($contract->contract_status===$option)>{{ $option }}</option>@endforeach</select></div>
+</div></div><div class="modal-footer"><button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Cancel</button><button class="btn support-primary">Save Changes</button></div></form></div></div>
+@endforeach
 
 <script>
 (function(){

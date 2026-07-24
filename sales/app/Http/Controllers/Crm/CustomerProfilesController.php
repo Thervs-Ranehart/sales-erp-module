@@ -29,48 +29,48 @@ class CustomerProfilesController extends Controller
         $customers = $query->orderByDesc('customer_id')->paginate(10)->withQueryString();
 
         $selectedCustomer = null;
-$customer = null;
-$purchases = collect();
-$communications = collect();
-$behaviorAnalysis = null;
-$editMode = $request->boolean('edit');
+        $customer = null;
+        $purchases = collect();
+        $communications = collect();
+        $behaviorAnalysis = null;
+        $editMode = $request->boolean('edit');
 
-/*
-|--------------------------------------------------------------------------
-| Auto-select customer
-|--------------------------------------------------------------------------
-*/
-if ($customerId) {
+        /*
+        |--------------------------------------------------------------------------
+        | Auto-select customer
+        |--------------------------------------------------------------------------
+        */
+        if ($customerId) {
 
-    $selectedCustomer = Customer::with([
-        'profile',
-        'loyaltyProgram',
-        'segments',
-        'behaviorAnalyses',
-        'salesOrders.items.product',
-        'communicationLogs',
-    ])->where('customer_id', $customerId)->first();
+            $selectedCustomer = Customer::with([
+                'profile',
+                'loyaltyProgram',
+                'segments',
+                'behaviorAnalyses',
+                'salesOrders.items.product',
+                'communicationLogs',
+            ])->where('customer_id', $customerId)->first();
 
-} elseif ($search !== '' && $customers->count()) {
+        } elseif ($search !== '' && $customers->count()) {
 
-    // kapag search lang ang ginawa, unang result ang piliin
-    $selectedCustomer = Customer::with([
-        'profile',
-        'loyaltyProgram',
-        'segments',
-        'behaviorAnalyses',
-        'salesOrders.items.product',
-        'communicationLogs',
-    ])->where('customer_id', $customers->first()->customer_id)->first();
+            // kapag search lang ang ginawa, unang result ang piliin
+            $selectedCustomer = Customer::with([
+                'profile',
+                'loyaltyProgram',
+                'segments',
+                'behaviorAnalyses',
+                'salesOrders.items.product',
+                'communicationLogs',
+            ])->where('customer_id', $customers->first()->customer_id)->first();
 
-}
+        }
 
-if ($selectedCustomer) {
-    $customer = $this->formatCustomerProfile($selectedCustomer);
-    $purchases = $this->formatRecentPurchases($selectedCustomer);
-    $communications = $this->formatRecentCommunications($selectedCustomer);
-    $behaviorAnalysis = CustomerBehaviorAnalysis::generateFor($selectedCustomer);
-}
+        if ($selectedCustomer) {
+            $customer = $this->formatCustomerProfile($selectedCustomer);
+            $purchases = $this->formatRecentPurchases($selectedCustomer);
+            $communications = $this->formatRecentCommunications($selectedCustomer);
+            $behaviorAnalysis = CustomerBehaviorAnalysis::generateFor($selectedCustomer);
+        }
 
         return view('crm.customer-profiles', [
             'customers' => $customers,
@@ -133,7 +133,7 @@ if ($selectedCustomer) {
         }
 
         $profileFields = collect($data)->only([
-            'gender', 'birth_date', 'preferred_contact', 'preferred_product_category', 'marketing_consent',
+            'gender', 'birth_date', 'preferred_contact', 'preferred_product_category', 'marketing_consent', 'preferences',
         ])->all();
         $profileFields['marketing_consent'] = $request->boolean('marketing_consent');
 
@@ -174,6 +174,7 @@ if ($selectedCustomer) {
                 'preferred_contact' => $data['preferred_contact'] ?? null,
                 'preferred_product_category' => $data['preferred_product_category'] ?? null,
                 'marketing_consent' => $request->boolean('marketing_consent'),
+                'preferences' => $data['preferences'] ?? null,
             ]
         );
 
@@ -200,7 +201,7 @@ if ($selectedCustomer) {
             'email' => $selectedCustomer->email,
             'phone' => $selectedCustomer->contact_no,
             'address' => $selectedCustomer->address,
-            'preferences' => $selectedCustomer->preferences,
+            'preferences' => $selectedCustomer->profile?->preferences ?? $selectedCustomer->preferences,
             'gender' => $selectedCustomer->profile?->gender,
             'birthdate' => optional($selectedCustomer->profile?->birth_date)->format('Y-m-d'),
             'preferred_contact' => $selectedCustomer->profile?->preferred_contact,

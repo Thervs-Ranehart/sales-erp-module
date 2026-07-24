@@ -19,6 +19,8 @@ class TicketAssignment extends Model
         'employee_id',
         'assigned_at',
         'assignment_status',
+        'department',
+        'assignment_reason',
     ];
 
     protected $casts = [

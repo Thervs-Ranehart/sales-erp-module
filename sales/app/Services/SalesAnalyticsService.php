@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Employee;
 use App\Models\Product;
 use App\Models\SalesOrder;
+use App\Models\SalesRegion;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonPeriod;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,13 +30,13 @@ class SalesAnalyticsService
         }
 
         $orders = SalesOrder::query()
-            ->with(['items.product', 'employee', 'customer'])
+            ->with(['items.product', 'employee', 'customer.region'])
             ->whereBetween('order_date', [$start->toDateString(), $end->toDateString()])
             ->where(fn (Builder $query): Builder => $query
                 ->whereNull('order_status')
                 ->orWhereRaw('LOWER(order_status) != ?', ['cancelled']))
             ->when($this->selectedId($filters, 'representative'), fn (Builder $query, int $id): Builder => $query->where('employee_id', $id))
-            ->when($this->selectedValue($filters, 'region'), fn (Builder $query, string $warehouse): Builder => $query->where('warehouse', $warehouse))
+            ->when($this->selectedId($filters, 'region'), fn (Builder $query, int $regionId): Builder => $query->whereHas('customer', fn (Builder $customerQuery): Builder => $customerQuery->where('region_id', $regionId)))
             ->when($this->selectedId($filters, 'product'), fn (Builder $query, int $id): Builder => $query->whereHas('items', fn (Builder $itemQuery): Builder => $itemQuery->where('product_id', $id)))
             ->orderBy('order_date')
             ->get();
@@ -66,6 +67,10 @@ class SalesAnalyticsService
             ->groupBy(fn (SalesOrder $order): string => $order->employee?->full_name ?: 'Unassigned Representative')
             ->map(fn (Collection $group): int => $group->count());
         $regionalSales = $orders
+            ->groupBy(fn (SalesOrder $order): string => $order->customer?->region?->region_name ?: 'Unassigned Region')
+            ->map(fn (Collection $group): float => (float) $group->sum('total_amount'))
+            ->sortDesc();
+        $warehouseSales = $orders
             ->groupBy(fn (SalesOrder $order): string => $order->warehouse ?: 'Unassigned Warehouse')
             ->map(fn (Collection $group): float => (float) $group->sum('total_amount'))
             ->sortDesc();
@@ -106,6 +111,7 @@ class SalesAnalyticsService
             'representativeSales' => $representativeSales,
             'representativeOrders' => $representativeOrders,
             'regionalSales' => $regionalSales,
+            'warehouseSales' => $warehouseSales,
             'targets' => $targets,
             'totalRevenue' => (float) $orders->sum('total_amount'),
             'totalOrders' => $orders->count(),
@@ -123,16 +129,25 @@ class SalesAnalyticsService
         return [
             'products' => Product::query()->orderBy('product_name')->get(['product_id', 'product_name']),
             'representatives' => Employee::query()->whereHas('salesOrders')->orderBy('first_name')->get(['employee_id', 'first_name', 'last_name']),
-            'regions' => SalesOrder::query()->whereNotNull('warehouse')->distinct()->orderBy('warehouse')->pluck('warehouse'),
+            'regions' => Schema::hasTable('sales_regions')
+                ? SalesRegion::query()->where('status', 'Active')->orderBy('region_name')->get(['region_id', 'region_name'])
+                : collect(),
         ];
     }
 
-    /** @return array{nextMonth: float, growthRate: float, quarter: float, confidence: int} */
+    /** @return array{nextMonth: float, growthRate: float, quarter: float, confidence: int, predictionLower: float, predictionUpper: float, mae: float, mape: float, rmse: float, sampleSize: int, method: string} */
     public function forecast(array $monthlyRevenue): array
     {
-        $observed = collect($monthlyRevenue)->filter(fn ($value): bool => (float) $value > 0)->values();
+        $observed = collect($monthlyRevenue)->map(fn ($value): float => (float) $value)->values();
+        while ($observed->isNotEmpty() && $observed->first() === 0.0) {
+            $observed->shift();
+        }
         if ($observed->isEmpty()) {
-            return ['nextMonth' => 0, 'growthRate' => 0, 'quarter' => 0, 'confidence' => 0];
+            return [
+                'nextMonth' => 0, 'growthRate' => 0, 'quarter' => 0, 'confidence' => 0,
+                'predictionLower' => 0, 'predictionUpper' => 0, 'mae' => 0, 'mape' => 0,
+                'rmse' => 0, 'sampleSize' => 0, 'method' => 'insufficient-history',
+            ];
         }
 
         $recent = $observed->take(-3)->values();
@@ -146,14 +161,52 @@ class SalesAnalyticsService
             return $previous > 0 ? (((float) $value - $previous) / $previous) : 0;
         })->filter(fn ($value): bool => $value !== null);
         $growth = (float) ($growthRates->average() ?? 0);
-        $nextMonth = max(0, (float) $observed->last() * (1 + $growth));
+        $movingForecast = max(0, (float) $observed->last() * (1 + $growth));
+
+        $count = $observed->count();
+        $meanX = ($count - 1) / 2;
+        $meanY = (float) $observed->average();
+        $denominator = collect(range(0, $count - 1))->sum(fn (int $x): float => ($x - $meanX) ** 2);
+        $slope = $denominator > 0
+            ? collect(range(0, $count - 1))->sum(fn (int $x): float => ($x - $meanX) * ((float) $observed[$x] - $meanY)) / $denominator
+            : 0;
+        $intercept = $meanY - ($slope * $meanX);
+        $trendForecast = max(0, $intercept + ($slope * $count));
+
+        $seasonalFactors = collect(range(0, $count - 1))
+            ->groupBy(fn (int $index): int => $index % 12)
+            ->map(fn (Collection $indices): float => $meanY > 0
+                ? (float) $indices->average(fn (int $index): float => (float) $observed[$index]) / $meanY
+                : 1.0);
+        $seasonalFactor = (float) ($seasonalFactors[$count % 12] ?? 1.0);
+        $seasonalForecast = max(0, $trendForecast * $seasonalFactor);
+        $nextMonth = $count >= 6
+            ? (($movingForecast * .35) + ($trendForecast * .35) + ($seasonalForecast * .30))
+            : (($movingForecast + $trendForecast) / 2);
+
+        $fitted = collect(range(0, $count - 1))->map(fn (int $x): float => max(0, ($intercept + ($slope * $x)) * (float) ($seasonalFactors[$x % 12] ?? 1)));
+        $errors = $observed->map(fn (float $actual, int $index): float => $actual - (float) $fitted[$index]);
+        $mae = (float) $errors->map(fn (float $error): float => abs($error))->average();
+        $mapeValues = $errors->map(fn (float $error, int $index): ?float => $observed[$index] > 0 ? abs($error / $observed[$index]) * 100 : null)->filter(fn ($value): bool => $value !== null);
+        $mape = (float) ($mapeValues->average() ?? 0);
+        $rmse = sqrt((float) $errors->map(fn (float $error): float => $error ** 2)->average());
+        $standardError = $count > 2 ? sqrt((float) $errors->map(fn (float $error): float => $error ** 2)->sum() / ($count - 2)) : $rmse;
+        $margin = 1.96 * $standardError;
+
         $quarter = $nextMonth + ($nextMonth * (1 + $growth)) + ($nextMonth * ((1 + $growth) ** 2));
 
         return [
             'nextMonth' => round($nextMonth, 2),
             'growthRate' => round($growth * 100, 1),
             'quarter' => round($quarter, 2),
-            'confidence' => min(90, 60 + ($observed->count() * 3)),
+            'confidence' => $count >= 6 ? 95 : max(50, 60 + ($count * 5)),
+            'predictionLower' => round(max(0, $nextMonth - $margin), 2),
+            'predictionUpper' => round($nextMonth + $margin, 2),
+            'mae' => round($mae, 2),
+            'mape' => round($mape, 2),
+            'rmse' => round($rmse, 2),
+            'sampleSize' => $count,
+            'method' => $count >= 6 ? 'ensemble-trend-seasonal-moving-growth' : 'trend-moving-growth',
         ];
     }
 
@@ -185,7 +238,7 @@ class SalesAnalyticsService
             'year' => $start->year, 'start' => $start, 'end' => $end, 'orders' => collect(),
             'labels' => [], 'monthlyRevenue' => [], 'monthlyOrders' => [], 'monthlyTargets' => [],
             'productSales' => collect(), 'productUnits' => collect(), 'representativeSales' => collect(),
-            'representativeOrders' => collect(), 'regionalSales' => collect(), 'targets' => collect(),
+            'representativeOrders' => collect(), 'regionalSales' => collect(), 'warehouseSales' => collect(), 'targets' => collect(),
             'totalRevenue' => 0.0, 'totalOrders' => 0, 'activeCustomers' => 0,
         ];
     }

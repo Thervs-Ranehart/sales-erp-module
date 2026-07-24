@@ -763,13 +763,18 @@ Inactive
             <i class="bi bi-pencil"></i>
         </a>
 
-        <form method="POST" action="{{ route('crm.directory.destroy', ['customer' => $customer->customer_id]) }}" class="m-0" onsubmit="return confirm('Delete this customer?')">
-            @csrf
-            @method('DELETE')
-            <button class="btn btn-sm btn-outline-danger action-btn" type="submit" aria-label="Delete">
-                <i class="bi bi-trash"></i>
-            </button>
-        </form>
+        @if(($customer->customer_status ?? 'Active') === 'Archived')
+            <form method="POST" action="{{ route('crm.directory.restore', $customer) }}" class="m-0">
+                @csrf @method('PATCH')
+                <button class="btn btn-sm btn-outline-success action-btn" title="Restore customer"><i class="bi bi-arrow-counterclockwise"></i></button>
+            </form>
+        @else
+            <form method="POST" action="{{ route('crm.directory.archive', $customer) }}" class="m-0" onsubmit="return confirm('Archive this customer while retaining all history?')">
+                @csrf @method('PATCH')
+                <input type="hidden" name="archive_reason" value="Archived by CRM staff">
+                <button class="btn btn-sm btn-outline-danger action-btn" title="Archive customer"><i class="bi bi-archive"></i></button>
+            </form>
+        @endif
     </div>
 </td>
 

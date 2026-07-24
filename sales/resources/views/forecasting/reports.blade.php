@@ -32,14 +32,15 @@
                 </p>
             </div>
             <div>
-                <button
-                    type="button"
+                <a
+                    href="{{ route('forecasting.export', array_merge(['type' => 'reports', 'format' => 'csv'], request()->query())) }}"
                     class="hero-action-btn"
                     style="padding: 0.75rem 1.6rem;"
                 >
                     <i class="bi bi-download me-2" aria-hidden="true"></i>
                     Export Reports
-                </button>
+                </a>
+                <a href="{{ route('forecasting.export', array_merge(['type' => 'reports', 'format' => 'print'], request()->query())) }}" target="_blank" class="hero-secondary-btn ms-2"><i class="bi bi-printer me-2"></i>Print / PDF</a>
             </div>
         </div>
     </main>
@@ -114,6 +115,15 @@
                     </div>
         </div>
     </section>
+
+    <section class="mt-4" aria-labelledby="warehouse-sales-title"><div class="card border-0 shadow-sm rounded-4"><div class="card-body p-4"><h2 id="warehouse-sales-title" class="fs-5 fw-bold mb-1">Sales by Fulfillment Warehouse</h2><p class="small text-muted">Operational warehouse performance is reported separately from customer geography.</p><div class="row g-3 mt-1">@forelse($salesByWarehouse['labels'] as $index=>$warehouse)<div class="col-md-4"><div class="border rounded-3 p-3"><div class="small text-muted">{{ $warehouse }}</div><div class="fw-bold">₱{{ number_format($salesByWarehouse['values'][$index] ?? 0) }}</div></div></div>@empty<div class="text-muted">No warehouse values are available for this period.</div>@endforelse</div></div></div></section>
+
+    <section class="mt-5" aria-labelledby="region-management-title"><div class="card border-0 shadow-sm rounded-4"><div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2"><div><h2 id="region-management-title" class="fs-5 fw-bold mb-1">Sales Region Management</h2><p class="small text-muted mb-0">Regions are assigned to customers independently from fulfillment warehouses.</p></div><button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#createRegionModal"><i class="bi bi-plus-lg me-1"></i>Add Region</button></div>
+        <div class="row g-3 mt-2"><div class="col-lg-5"><h3 class="fs-6 fw-semibold">Configured Regions</h3><div class="list-group">@forelse($salesRegions as $region)<div class="list-group-item d-flex justify-content-between"><span>{{ $region->region_name }} <small class="text-muted">({{ $region->region_code }})</small></span><span class="badge text-bg-light">{{ $region->customers_count }} customers</span></div>@empty<div class="text-muted">No dedicated regions configured yet.</div>@endforelse</div></div>
+        <div class="col-lg-7"><h3 class="fs-6 fw-semibold">Customer Assignments</h3><div class="table-responsive" style="max-height:280px"><table class="table table-sm"><thead><tr><th>Customer</th><th>Region</th></tr></thead><tbody>@foreach($regionCustomers as $customer)<tr><td>{{ $customer->full_name }}</td><td><form method="POST" action="{{ route('forecasting.customers.region', $customer) }}">@csrf @method('PATCH')<select name="region_id" class="form-select form-select-sm" onchange="this.form.submit()"><option value="">Unassigned</option>@foreach($salesRegions as $region)<option value="{{ $region->region_id }}" @selected($customer->region_id===$region->region_id)>{{ $region->region_name }}</option>@endforeach</select></form></td></tr>@endforeach</tbody></table></div></div></div>
+    </div></div></section>
+    <div class="modal fade" id="createRegionModal" tabindex="-1"><div class="modal-dialog"><form class="modal-content" method="POST" action="{{ route('forecasting.regions.store') }}">@csrf<div class="modal-header"><h5 class="modal-title">Add Sales Region</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><label class="form-label">Region Code</label><input class="form-control mb-3" name="region_code" required><label class="form-label">Region Name</label><input class="form-control mb-3" name="region_name" required><label class="form-label">Country</label><input class="form-control" name="country" value="Philippines" required></div><div class="modal-footer"><button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary">Save Region</button></div></form></div></div>
 
     <section class="mt-5" aria-labelledby="monthly-report-title">
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden">

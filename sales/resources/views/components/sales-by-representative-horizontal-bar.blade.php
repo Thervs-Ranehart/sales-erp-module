@@ -4,16 +4,22 @@
 
 <section
     aria-labelledby="sales-by-representative-horizontal-bar-title"
-    class="w-100 h-100"
+    class="w-100 h-100 sales-breakdown-chart"
     data-component="sales-by-representative-horizontal-bar"
     data-chart-id="{{ $chartId }}"
     data-chart-initial-data="{!! e(json_encode($initialData ?? null)) !!}"
 >
 
-    <div class="card border-0 shadow-sm rounded-4 h-100">
-        <div class="card-body p-3 p-md-4">
-            <div class="d-flex justify-content-between align-items-start gap-3 mb-3"><div><h3 id="sales-by-representative-horizontal-bar-title" class="fs-6 fw-bold mb-1">Sales by Representative</h3><p class="small text-muted mb-0">Individual revenue contribution and ranking.</p></div><i class="bi bi-people fs-4 text-success" aria-hidden="true"></i></div>
-                <div class="w-full position-relative" style="height: 300px;">
+    <div class="sales-breakdown-chart__card h-100">
+        <div class="sales-breakdown-chart__body">
+            <div class="sales-breakdown-chart__header">
+                <span class="sales-breakdown-chart__icon" aria-hidden="true"><i class="bi bi-people"></i></span>
+                <div><h3 id="sales-by-representative-horizontal-bar-title">Sales by Representative</h3><p>Individual revenue contribution and ranking.</p></div>
+            </div>
+            <div class="sales-breakdown-chart__legend" aria-label="Revenue ranking colors">
+                <span><i class="is-low"></i>Lower</span><span><i class="is-mid"></i>Mid-range</span><span><i class="is-high"></i>Top</span>
+            </div>
+                <div class="sales-breakdown-chart__canvas">
                     <canvas
                         id="{{ $chartId }}"
                         class="w-full"
@@ -24,6 +30,7 @@
         </div>
     </div>
 
+    @include('components.horizontal-bar-chart-styles')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="{{ asset('js/sales-by-representative-horizontal-bar.js') }}"></script>
 

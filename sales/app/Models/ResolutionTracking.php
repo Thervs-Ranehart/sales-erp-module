@@ -23,11 +23,15 @@ class ResolutionTracking extends Model
         'qc_status',
         'resolution_time_hours',
         'resolved_at',
+        'resolution_status',
+        'approved_by',
+        'approved_at',
     ];
 
     protected $casts = [
         'resolution_time_hours' => 'decimal:2',
         'resolved_at' => 'datetime',
+        'approved_at' => 'datetime',
     ];
 
     public function supportTicket()
@@ -66,5 +70,10 @@ class ResolutionTracking extends Model
     public function employee()
     {
         return $this->belongsTo(Employee::class, 'resolved_by', 'employee_id');
+    }
+
+    public function approver()
+    {
+        return $this->belongsTo(Employee::class, 'approved_by', 'employee_id');
     }
 }

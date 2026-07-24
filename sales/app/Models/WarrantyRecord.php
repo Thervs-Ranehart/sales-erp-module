@@ -23,6 +23,8 @@ class WarrantyRecord extends Model
         'warranty_status',
         'created_at',
         'updated_at',
+        'archived_at',
+        'archive_reason',
     ];
 
     protected $casts = [
@@ -30,6 +32,7 @@ class WarrantyRecord extends Model
         'warranty_end' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'archived_at' => 'datetime',
     ];
 
     public function order()
@@ -61,7 +64,7 @@ class WarrantyRecord extends Model
 
     public function currentStatus(): string
     {
-        if ($this->warranty_status !== null && $this->warranty_status !== '') {
+        if (in_array($this->warranty_status, ['On Hold', 'Expired'], true)) {
             return $this->warranty_status;
         }
 

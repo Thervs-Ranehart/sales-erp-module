@@ -28,6 +28,9 @@ class CustomerBehaviorAnalysis extends Model
         'favorite_product_category',
         'customer_lifetime_value',
         'generated_at',
+        'spending_trend', 'trend_percentage', 'predicted_next_purchase',
+        'churn_risk_score', 'predicted_90_day_value',
+        'recommended_product_category', 'retention_recommendation',
     ];
 
     protected $casts = [
@@ -38,6 +41,9 @@ class CustomerBehaviorAnalysis extends Model
         'average_order_value' => 'decimal:2',
         'customer_lifetime_value' => 'decimal:2',
         'generated_at' => 'datetime',
+        'predicted_next_purchase' => 'date',
+        'churn_risk_score' => 'decimal:2',
+        'predicted_90_day_value' => 'decimal:2',
     ];
 
     public function customer()
@@ -74,6 +80,7 @@ class CustomerBehaviorAnalysis extends Model
 
         // --- Purchase frequency (how often they buy, based on average gap between orders) ---
         $purchaseFrequency = 'No Orders Yet';
+        $averageGapDays = null;
 
         if ($totalOrders === 1) {
             $purchaseFrequency = 'One-Time Buyer';
@@ -121,6 +128,23 @@ class CustomerBehaviorAnalysis extends Model
                 'total' => round((float) $total, 2),
             ];
         })->values();
+        $previousSpend = (float) $trend->take(3)->sum('total');
+        $recentSpend = (float) $trend->take(-3)->sum('total');
+        $trendPercentage = $previousSpend > 0 ? (($recentSpend - $previousSpend) / $previousSpend) * 100 : ($recentSpend > 0 ? 100 : 0);
+        $spendingTrend = $trendPercentage > 10 ? 'Increasing' : ($trendPercentage < -10 ? 'Declining' : 'Stable');
+        $predictedNextPurchase = $lastOrderDate && $averageGapDays
+            ? Carbon::parse($lastOrderDate)->addDays((int) round($averageGapDays))
+            : null;
+        $recencyRisk = $daysSinceLastOrder === null ? 100 : min(100, ($daysSinceLastOrder / max(30, $averageGapDays ?? 90)) * 60);
+        $trendRisk = $spendingTrend === 'Declining' ? 30 : ($spendingTrend === 'Stable' ? 10 : 0);
+        $churnRiskScore = min(100, round($recencyRisk + $trendRisk, 2));
+        $predicted90DayValue = $totalOrders > 0 ? round($averageOrderValue * (90 / max(30, $averageGapDays ?? 90)), 2) : 0;
+        $retentionRecommendation = match (true) {
+            $churnRiskScore >= 70 => 'Schedule a high-priority personal follow-up and targeted win-back offer.',
+            $spendingTrend === 'Declining' => 'Send a category-specific incentive and review recent service issues.',
+            $spendingTrend === 'Increasing' => 'Recommend complementary products and review loyalty-tier eligibility.',
+            default => 'Maintain regular communication and personalized product recommendations.',
+        };
 
         // --- Customer ranking: position by total lifetime spend vs. all customers ---
         $ranking = DB::table('sales_orders')
@@ -153,6 +177,13 @@ class CustomerBehaviorAnalysis extends Model
                 'favorite_product_category' => $favoriteCategory,
                 'customer_lifetime_value' => $lifetimeValue,
                 'generated_at' => Carbon::now(),
+                'spending_trend' => $spendingTrend,
+                'trend_percentage' => $trendPercentage,
+                'predicted_next_purchase' => $predictedNextPurchase?->toDateString(),
+                'churn_risk_score' => $churnRiskScore,
+                'predicted_90_day_value' => $predicted90DayValue,
+                'recommended_product_category' => $favoriteCategory,
+                'retention_recommendation' => $retentionRecommendation,
             ]
         );
 
@@ -169,6 +200,13 @@ class CustomerBehaviorAnalysis extends Model
             'percentile' => $percentile,
             'trend' => $trend,
             'generated_at' => Carbon::now(),
+            'spending_trend' => $spendingTrend,
+            'trend_percentage' => $trendPercentage,
+            'predicted_next_purchase' => $predictedNextPurchase,
+            'churn_risk_score' => $churnRiskScore,
+            'predicted_90_day_value' => $predicted90DayValue,
+            'recommended_product_category' => $favoriteCategory,
+            'retention_recommendation' => $retentionRecommendation,
         ];
     }
 }

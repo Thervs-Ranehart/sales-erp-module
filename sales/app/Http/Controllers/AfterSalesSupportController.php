@@ -6,6 +6,7 @@ use App\Models\Customer;
 use App\Models\Employee;
 use App\Models\Product;
 use App\Models\ResolutionTracking;
+use App\Models\SalesOrder;
 use App\Models\SatisfactionMonitoring;
 use App\Models\ServiceContract;
 use App\Models\ServiceRequest;
@@ -59,7 +60,7 @@ class AfterSalesSupportController extends Controller
             });
 
         $query = SupportTicket::query()
-            ->with(['customer', 'product', 'order', 'latestAssignment.employee']);
+            ->with(['customer', 'product', 'order', 'latestAssignment.employee', 'attachments']);
 
         if ($ticketId) {
             $query->where('ticket_id', $ticketId);
@@ -135,6 +136,8 @@ class AfterSalesSupportController extends Controller
             'toDate' => $toDate,
             'customers' => $customers,
             'employees' => Employee::query()->orderBy('first_name')->orderBy('last_name')->get(['employee_id', 'first_name', 'last_name']),
+            'salesOrders' => SalesOrder::query()->with(['customer', 'items.product'])->orderByDesc('order_date')->get(),
+            'serviceContracts' => ServiceContract::query()->whereNull('archived_at')->orderBy('contract_number')->get(),
         ]);
     }
 
@@ -199,6 +202,7 @@ class AfterSalesSupportController extends Controller
             'product' => $product,
             'products' => Product::query()->orderBy('product_name')->get(['product_id', 'product_name']),
             'customers' => Customer::query()->orderBy('first_name')->orderBy('last_name')->get(['customer_id', 'first_name', 'last_name']),
+            'salesOrders' => SalesOrder::query()->with(['customer', 'items.product'])->orderByDesc('order_date')->get(),
         ]);
     }
 
@@ -307,13 +311,13 @@ class AfterSalesSupportController extends Controller
             'completedClaims' => (int) ($claimCounts['completed'] ?? 0),
             'customers' => Customer::query()->orderBy('first_name')->orderBy('last_name')->get(['customer_id', 'first_name', 'last_name']),
             'warranties' => WarrantyRecord::query()
-                ->whereHas('warrantyClaims')
+                ->whereNull('archived_at')
                 ->orderBy('warranty_number')
                 ->get(['warranty_id', 'warranty_number']),
             'tickets' => SupportTicket::query()
-                ->whereHas('warrantyClaims')
+                ->whereNull('archived_at')
                 ->orderBy('ticket_id')
-                ->get(['ticket_id']),
+                ->get(['ticket_id', 'subject']),
         ]);
     }
 
@@ -420,6 +424,7 @@ class AfterSalesSupportController extends Controller
             'customers' => Customer::query()->orderBy('first_name')->orderBy('last_name')->get(['customer_id', 'first_name', 'last_name']),
             'openContractId' => $openContractId,
             'openContract' => $openContract,
+            'products' => Product::query()->orderBy('product_name')->get(['product_id', 'product_name']),
         ]);
     }
 
@@ -513,6 +518,7 @@ class AfterSalesSupportController extends Controller
             'scheduledServiceRequestsCount' => $scheduledServiceRequestsCount,
             'inProgressServiceRequestsCount' => $inProgressServiceRequestsCount,
             'completedServiceRequestsCount' => $completedServiceRequestsCount,
+            'tickets' => SupportTicket::query()->whereNull('archived_at')->orderByDesc('created_at')->get(['ticket_id', 'subject']),
         ]);
     }
 
@@ -592,6 +598,8 @@ class AfterSalesSupportController extends Controller
             'qcPassedCount' => $qcPassedCount,
             'qcFailedCount' => $qcFailedCount,
             'pendingQcCount' => $pendingQcCount,
+            'tickets' => SupportTicket::query()->whereNull('archived_at')->orderByDesc('created_at')->get(['ticket_id', 'subject']),
+            'employees' => Employee::query()->orderBy('first_name')->orderBy('last_name')->get(['employee_id', 'first_name', 'last_name']),
         ]);
     }
 

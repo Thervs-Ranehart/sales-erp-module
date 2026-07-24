@@ -215,6 +215,7 @@ $formAction = $isEdit
                 class="form-select"
                 name="order_id"
                 id="salesOrderSelect"
+                @if(! $isEdit) onchange="window.location='{{ route('invoices.create') }}?order_id='+this.value" @endif
                 required
             >
 
@@ -235,7 +236,7 @@ $formAction = $isEdit
         @selected(
             old(
                 'order_id',
-                $isEdit ? $invoice->order_id : null
+                $isEdit ? $invoice->order_id : request('order_id')
             ) == $order->order_id
         )
     >
@@ -359,6 +360,53 @@ $formAction = $isEdit
     </div>
 
 </div>
+
+@if(! $isEdit && $selectedOrder)
+<div class="custom-card">
+    <h5 class="card-title-custom">Invoice Items</h5>
+    <p class="text-muted small">Enter the quantities to invoice now. Remaining quantities stay available for a later invoice.</p>
+    <div class="table-responsive">
+        <table class="table invoice-table align-middle">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th class="text-center">Ordered</th>
+                    <th class="text-center">Previously invoiced</th>
+                    <th style="width:160px">Invoice now</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($selectedOrder->items as $item)
+                    @php
+                        $previouslyInvoiced = $selectedOrder->invoices
+                            ->where('payment_status', '!=', 'Cancelled')
+                            ->flatMap->items
+                            ->where('product_id', $item->product_id)
+                            ->sum('quantity');
+                        $remaining = max(0, $item->quantity - $previouslyInvoiced);
+                    @endphp
+                    @if($remaining > 0)
+                        <tr>
+                            <td>
+                                <strong>{{ $item->product?->product_name ?? 'Product #'.$item->product_id }}</strong>
+                                <div class="small text-muted">₱{{ number_format((float) $item->unit_price, 2) }} each</div>
+                            </td>
+                            <td class="text-center">{{ $item->quantity }}</td>
+                            <td class="text-center">{{ $previouslyInvoiced }}</td>
+                            <td>
+                                <input type="number" class="form-control"
+                                    name="quantities[{{ $item->order_item_id }}]"
+                                    value="{{ old('quantities.'.$item->order_item_id, $remaining) }}"
+                                    min="0" max="{{ $remaining }}">
+                            </td>
+                        </tr>
+                    @endif
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+@endif
 <!-- ================= INVOICE SUMMARY ================= -->
 
 <div class="custom-card">

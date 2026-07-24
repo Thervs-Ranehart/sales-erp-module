@@ -17,7 +17,19 @@ class Customer extends Model
         'contact_no',
         'address',
         'preferences',
+        'customer_status',
+        'archived_at',
+        'archived_by',
+        'archive_reason',
+        'region_id',
     ];
+
+    protected $casts = ['archived_at' => 'datetime'];
+
+    public function scopeAvailable($query)
+    {
+        return $query->where('customer_status', '!=', 'Archived');
+    }
 
     public function profile(): HasOne
     {
@@ -47,6 +59,11 @@ class Customer extends Model
     public function salesOrders(): HasMany
     {
         return $this->hasMany(SalesOrder::class, 'customer_id', 'customer_id');
+    }
+
+    public function region()
+    {
+        return $this->belongsTo(SalesRegion::class, 'region_id', 'region_id');
     }
 
     public function getFullNameAttribute(): string

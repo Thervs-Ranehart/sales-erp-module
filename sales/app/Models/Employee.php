@@ -31,6 +31,11 @@ class Employee extends Model
         return $this->hasMany(SalesOrder::class, 'employee_id', 'employee_id');
     }
 
+    public function ticketAssignments(): HasMany
+    {
+        return $this->hasMany(TicketAssignment::class, 'employee_id', 'employee_id');
+    }
+
     public function getFullNameAttribute(): string
     {
         return trim("{$this->first_name} {$this->last_name}");

@@ -12,11 +12,21 @@ class SalesForecast extends Model
 
     public $timestamps = false;
 
-    protected $fillable = ['forecast_period_start', 'forecast_period_end', 'forecast_method', 'predicted_orders', 'predicted_revenue', 'predicted_growth', 'confidence_level', 'generated_by', 'generated_at'];
+    protected $fillable = [
+        'forecast_period_start', 'forecast_period_end', 'forecast_method', 'predicted_orders',
+        'predicted_revenue', 'predicted_growth', 'confidence_level', 'generated_by', 'generated_at',
+        'version', 'assumptions', 'sample_size', 'prediction_lower', 'prediction_upper',
+        'actual_revenue', 'mae', 'mape', 'rmse', 'forecast_status',
+    ];
 
     protected function casts(): array
     {
-        return ['forecast_period_start' => 'date', 'forecast_period_end' => 'date', 'predicted_orders' => 'integer', 'predicted_revenue' => 'decimal:2', 'predicted_growth' => 'decimal:2', 'confidence_level' => 'decimal:2', 'generated_at' => 'datetime'];
+        return [
+            'forecast_period_start' => 'date', 'forecast_period_end' => 'date', 'predicted_orders' => 'integer',
+            'predicted_revenue' => 'decimal:2', 'predicted_growth' => 'decimal:2', 'confidence_level' => 'decimal:2',
+            'prediction_lower' => 'decimal:2', 'prediction_upper' => 'decimal:2', 'actual_revenue' => 'decimal:2',
+            'mae' => 'decimal:2', 'mape' => 'decimal:4', 'rmse' => 'decimal:2', 'generated_at' => 'datetime',
+        ];
     }
 
     public function recommendations(): HasMany

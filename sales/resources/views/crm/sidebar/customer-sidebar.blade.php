@@ -69,5 +69,11 @@
         Customer Segmentation
     </a>
 
+    <a href="{{ route('crm.campaigns') }}"
+       class="{{ request()->routeIs('crm.campaigns*') ? 'active' : '' }}">
+        <i class="bi bi-megaphone"></i>
+        Marketing Campaigns
+    </a>
+
 
 </div>

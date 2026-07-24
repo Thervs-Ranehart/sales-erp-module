@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Employee;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreInvoiceRequest extends FormRequest
@@ -14,10 +15,9 @@ class StoreInvoiceRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            // NOTE: auth() authenticates against the `users` table, which has
-            // no relationship to `employees`. Hardcoding until employee-based
-            // auth (or a users.employee_id link) is wired up.
-            'employee_id' => 1, // TODO: replace with real employee lookup
+            'employee_id' => $this->session()->get('employee_id')
+                ?? $this->input('employee_id')
+                ?? Employee::query()->value('employee_id'),
         ]);
     }
 
@@ -52,7 +52,7 @@ class StoreInvoiceRequest extends FormRequest
             ],
 
             'subtotal' => [
-                'required',
+                'nullable',
                 'numeric',
                 'min:0',
             ],
@@ -76,10 +76,13 @@ class StoreInvoiceRequest extends FormRequest
             ],
 
             'total_amount' => [
-                'required',
+                'nullable',
                 'numeric',
                 'min:0',
             ],
+
+            'quantities' => ['nullable', 'array'],
+            'quantities.*' => ['nullable', 'integer', 'min:0'],
 
         ];
     }

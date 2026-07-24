@@ -575,8 +575,8 @@
     border-radius:11px;
     color:#991b1b;
     background:#fff7f7;
-    font-size:11px;
-    line-height:1.45;
+    font-size:14px;
+    line-height:1.55;
     text-align:left;
 }
 
@@ -591,6 +591,8 @@
 }
 
 .sales-delete-countdown strong{
+    font-size:15px;
+    font-weight:800;
     white-space:nowrap;
 }
 

@@ -67,6 +67,11 @@ class Quotation extends Model
         return $this->hasMany(QuotationItem::class, 'quotation_id', 'quotation_id');
     }
 
+    public function salesOrders(): HasMany
+    {
+        return $this->hasMany(SalesOrder::class, 'quotation_id', 'quotation_id');
+    }
+
     public function statusCssClass(): string
     {
         return match (strtolower((string) $this->quotation_status)) {

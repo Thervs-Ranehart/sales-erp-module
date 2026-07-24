@@ -1172,6 +1172,44 @@ Edit
 
 @endforeach
 
+<div class="card loyalty-card p-4 mt-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+        <div><div class="section-title">Reward Redemption</div><div class="section-desc">Redeem rewards through the points ledger with automatic balance validation.</div></div>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#redeemRewardModal"><i class="bi bi-gift me-1"></i>Redeem Reward</button>
+    </div>
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead><tr><th>Reference</th><th>Customer</th><th>Reward</th><th>Points</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+            @forelse($recentRedemptions as $redemption)
+                <tr>
+                    <td>{{ $redemption->redemption_number }}</td>
+                    <td>{{ $redemption->loyalty?->customer?->display_name }}</td>
+                    <td>{{ $redemption->reward?->name }} × {{ $redemption->quantity }}</td>
+                    <td>{{ number_format($redemption->points_used) }}</td>
+                    <td><span class="badge {{ $redemption->status === 'Cancelled' ? 'bg-secondary' : 'bg-success' }}">{{ $redemption->status }}</span></td>
+                    <td>@if($redemption->status !== 'Cancelled')<form method="POST" action="{{ route('crm.redemptions.cancel', $redemption) }}">@csrf @method('PATCH')<button class="btn btn-sm btn-outline-danger" onclick="return confirm('Cancel and restore points?')">Cancel</button></form>@endif</td>
+                </tr>
+            @empty
+                <tr><td colspan="6" class="text-center text-muted py-3">No reward redemptions yet.</td></tr>
+            @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="redeemRewardModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+<form method="POST" action="{{ route('crm.redemptions.store') }}">@csrf
+<div class="modal-header"><h5 class="modal-title">Redeem Customer Reward</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+<div class="modal-body">
+    <div class="mb-3"><label class="form-label">Customer</label><select class="form-select" name="loyalty_id" required><option value="">Select member</option>@foreach($loyalties as $member)<option value="{{ $member->loyalty_id }}">{{ $member->customer?->display_name }} — {{ number_format($member->available_points) }} points</option>@endforeach</select></div>
+    <div class="mb-3"><label class="form-label">Reward</label><select class="form-select" name="reward_id" required><option value="">Select reward</option>@foreach($rewards->where('status','!=','unavailable') as $reward)<option value="{{ $reward->reward_id }}">{{ $reward->name }} — {{ number_format($reward->points_required) }} points</option>@endforeach</select></div>
+    <div class="mb-3"><label class="form-label">Quantity</label><input type="number" class="form-control" name="quantity" min="1" max="20" value="1" required></div>
+    <div><label class="form-label">Notes</label><textarea class="form-control" name="notes" rows="2"></textarea></div>
+</div>
+<div class="modal-footer"><button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary">Complete Redemption</button></div>
+</form></div></div></div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>

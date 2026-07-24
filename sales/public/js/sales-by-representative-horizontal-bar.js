@@ -104,8 +104,8 @@
         const bgColors = values.map((v) => {
             const num = Number(v);
 
-            if (num === minValue) return 'rgba(239, 68, 68, 0.35)';
-            if (num === maxValue) return 'rgba(16, 185, 129, 0.35)';
+            if (num === minValue) return 'rgba(239, 68, 68, 0.82)';
+            if (num === maxValue) return 'rgba(16, 185, 129, 0.82)';
 
             const t = (num - minValue) / (maxValue - minValue || 1);
 
@@ -127,7 +127,7 @@
                 b = Math.round(68 + (129 - 68) * p);
             }
 
-            return `rgba(${r}, ${g}, ${b}, 0.35)`;
+            return `rgba(${r}, ${g}, ${b}, 0.82)`;
         });
 
         const borderColors = values.map((v) => {
@@ -177,9 +177,9 @@
 
                         borderWidth: 1,
 
-                        borderRadius: 6,
+                        borderRadius: 8,
 
-                        maxBarThickness: 28,
+                        barThickness: 18,
                     },
                 ],
             },
@@ -208,7 +208,7 @@
                 scales: {
                     x: {
                         grid: {
-                            color: 'rgba(15, 23, 42, 0.08)',
+                            color: 'rgba(148, 163, 184, 0.16)',
                         },
 
                         ticks: {
@@ -216,7 +216,7 @@
                                 return formatPHP(value);
                             },
 
-                            color: '#4b5563',
+                            color: '#64748b',
                         },
                     },
 
@@ -226,7 +226,7 @@
                         },
 
                         ticks: {
-                            color: '#4b5563',
+                            color: '#64748b',
 
                             font: {
                                 size: 12,
@@ -323,14 +323,14 @@
         // Battery-like colors: lowest = red, highest = green.
         const bgColors = values.map((v) => {
             const num = Number(v);
-            if (num === minValue) return 'rgba(239, 68, 68, 0.35)'; // red
-            if (num === maxValue) return 'rgba(16, 185, 129, 0.35)'; // green
+            if (num === minValue) return 'rgba(239, 68, 68, 0.82)'; // red
+            if (num === maxValue) return 'rgba(16, 185, 129, 0.82)'; // green
 
             const t = (num - minValue) / (maxValue - minValue || 1); // 0..1
             const r = Math.round(239 + (16 - 239) * t);
             const g = Math.round(68 + (185 - 68) * t);
             const b = Math.round(68 + (129 - 68) * t);
-            return `rgba(${r}, ${g}, ${b}, 0.35)`;
+            return `rgba(${r}, ${g}, ${b}, 0.82)`;
         });
 
         const borderColors = values.map((v) => {
@@ -356,8 +356,8 @@
                         backgroundColor: bgColors,
                         borderColor: borderColors,
                         borderWidth: 1,
-                        borderRadius: 6,
-                        maxBarThickness: 28,
+                        borderRadius: 8,
+                        barThickness: 18,
                     },
                 ],
             },
@@ -378,18 +378,18 @@
                 },
                 scales: {
                     x: {
-                        grid: { color: 'rgba(15, 23, 42, 0.08)' },
+                        grid: { color: 'rgba(148, 163, 184, 0.16)' },
                         ticks: {
                             callback: function (value) {
                                 return formatPHP(value);
                             },
-                            color: '#4b5563',
+                            color: '#64748b',
                         },
                     },
                     y: {
                         grid: { display: false },
                         ticks: {
-                            color: '#4b5563',
+                            color: '#64748b',
                             font: { size: 12 },
                         },
                     },

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ServiceRequest;
 use App\Models\WarrantyClaim;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -69,6 +70,7 @@ class WarrantyClaimController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'claim_status' => ['required', 'in:Pending,Approved,Rejected,Completed'],
+            'decision_reason' => ['nullable', 'required_if:claim_status,Rejected', 'string', 'max:1000'],
         ]);
 
         if ($validator->fails()) {
@@ -82,8 +84,13 @@ class WarrantyClaimController extends Controller
         $claim = WarrantyClaim::query()->findOrFail($claimId);
         $status = $request->string('claim_status')->toString();
 
-        DB::transaction(function () use ($claim, $status): void {
+        if ($status === 'Approved' && $claim->eligibility_status === 'Ineligible') {
+            return back()->withErrors(['claim_status' => 'An ineligible claim cannot be approved.']);
+        }
+
+        DB::transaction(function () use ($claim, $status, $request): void {
             $claim->claim_status = $status;
+            $claim->decision_reason = $request->input('decision_reason');
 
             // Preserve the first approval timestamp as an audit record even if the claim is later rejected or completed.
             if ($status === 'Approved' && $claim->approved_date === null) {
@@ -91,6 +98,18 @@ class WarrantyClaimController extends Controller
             }
 
             $claim->save();
+
+            if ($status === 'Approved' && $claim->ticket_id) {
+                ServiceRequest::query()->firstOrCreate(
+                    ['ticket_id' => $claim->ticket_id, 'request_type' => 'Approved Warranty Claim'],
+                    [
+                        'request_number' => 'SR-'.now()->format('YmdHis').'-'.$claim->claim_id,
+                        'requested_at' => now(),
+                        'service_status' => 'Pending',
+                        'schedule_notes' => "Automatically created for warranty claim WC-{$claim->claim_id}.",
+                    ]
+                );
+            }
         });
 
         if (! $request->expectsJson()) {

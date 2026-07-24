@@ -20,10 +20,13 @@ class SatisfactionMonitoring extends Model
         'satisfaction_level',
         'comments',
         'submitted_at',
+        'survey_token',
+        'requested_at',
     ];
 
     protected $casts = [
         'submitted_at' => 'datetime',
+        'requested_at' => 'datetime',
     ];
 
     public function supportTicket()

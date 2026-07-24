@@ -5,6 +5,7 @@
     @php($subtitle = 'Review and process warranty claims')
 
     @include('components.page-header', ['title' => $title, 'subtitle' => $subtitle])
+    @include('support.operations-create-modal')
 
     @include('support.warranty-claim-view-modal')
     @include('support.warranty-claim-status-modal')
@@ -252,6 +253,7 @@
                                     <button class="btn btn-sm btn-outline-primary js-warranty-claim-status" type="button" title="Update Claim Status" aria-label="Update Claim Status" data-claim-id="{{ $claim->claim_id }}" data-bs-toggle="modal" data-bs-target="#warrantyClaimStatusModal">
                                         <i class="bi bi-pencil"></i>
                                     </button>
+                                    @if(!in_array($claim->claim_status, ['Completed','Cancelled']))<form class="d-inline" method="POST" action="{{ route('support.warranty-claims.cancel', $claim) }}" onsubmit="return confirm('Cancel this claim?')">@csrf @method('PATCH')<input type="hidden" name="decision_reason" value="Cancelled by support staff"><button class="btn btn-sm btn-outline-danger"><i class="bi bi-x-circle"></i></button></form>@endif
                                 </div>
                             </td>
                         </tr>
@@ -472,8 +474,6 @@
 </script>
 
 @endpush
-
-
 
 
 

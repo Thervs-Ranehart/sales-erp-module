@@ -39,5 +39,14 @@ class LoyaltyProgram extends Model
     {
         return 'loyalty_id';
     }
-}
 
+    public function pointTransactions()
+    {
+        return $this->hasMany(LoyaltyPointTransaction::class, 'loyalty_id', 'loyalty_id');
+    }
+
+    public function redemptions()
+    {
+        return $this->hasMany(RewardRedemption::class, 'loyalty_id', 'loyalty_id');
+    }
+}

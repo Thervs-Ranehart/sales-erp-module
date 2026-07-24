@@ -9,6 +9,7 @@ class WarrantyClaim extends Model
     protected $table = 'warranty_claims';
 
     protected $primaryKey = 'claim_id';
+
     public $incrementing = true;
 
     public $timestamps = false;
@@ -20,11 +21,16 @@ class WarrantyClaim extends Model
         'claim_status',
         'claim_date',
         'approved_date',
+        'eligibility_status',
+        'eligibility_notes',
+        'decision_reason',
+        'cancelled_at',
     ];
 
     protected $casts = [
         'claim_date' => 'datetime',
         'approved_date' => 'datetime',
+        'cancelled_at' => 'datetime',
     ];
 
     public function warrantyRecord()
@@ -37,4 +43,3 @@ class WarrantyClaim extends Model
         return $this->belongsTo(SupportTicket::class, 'ticket_id', 'ticket_id');
     }
 }
-

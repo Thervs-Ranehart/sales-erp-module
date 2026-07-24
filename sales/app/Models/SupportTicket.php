@@ -29,6 +29,13 @@ class SupportTicket extends Model
         'due_date',
         'resolved_at',
         'closed_at',
+        'department',
+        'first_response_due_at',
+        'resolution_due_at',
+        'escalation_level',
+        'last_escalated_at',
+        'archived_at',
+        'archive_reason',
     ];
 
     protected $casts = [
@@ -36,6 +43,10 @@ class SupportTicket extends Model
         'due_date' => 'datetime',
         'resolved_at' => 'datetime',
         'closed_at' => 'datetime',
+        'first_response_due_at' => 'datetime',
+        'resolution_due_at' => 'datetime',
+        'last_escalated_at' => 'datetime',
+        'archived_at' => 'datetime',
     ];
 
     public function order()
@@ -86,5 +97,26 @@ class SupportTicket extends Model
     public function satisfactionMonitorings()
     {
         return $this->hasMany(SatisfactionMonitoring::class, 'ticket_id', 'ticket_id');
+    }
+
+    public function caseEvents()
+    {
+        return $this->hasMany(SupportCaseEvent::class, 'ticket_id', 'ticket_id')->orderByDesc('created_at');
+    }
+
+    public function attachments()
+    {
+        return $this->hasMany(SupportAttachment::class, 'ticket_id', 'ticket_id')->orderByDesc('created_at');
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->whereNull('archived_at');
+    }
+
+    public function isSlaBreached(): bool
+    {
+        return ! in_array($this->status, ['Resolved', 'Closed'], true)
+            && $this->resolution_due_at?->isPast() === true;
     }
 }

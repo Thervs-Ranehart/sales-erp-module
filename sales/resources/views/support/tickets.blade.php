@@ -5,6 +5,7 @@
     @php($subtitle = 'Manage support tickets and case assignments')
 
     @include('components.page-header', ['title' => $title, 'subtitle' => $subtitle])
+    @include('support.operations-create-modal')
 
     @include('support.tickets-details-modal')
     @include('support.tickets-assign-modal')
@@ -205,7 +206,11 @@
                             <td>
                                 {{ $ticket->latestAssignment?->employee?->full_name ?? '—' }}
                             </td>
-                            <td class="text-muted">{{ optional($ticket->due_date)->format('Y-m-d') }}</td>
+                            <td class="text-muted">
+                                {{ optional($ticket->resolution_due_at ?? $ticket->due_date)->format('Y-m-d H:i') }}
+                                @if($ticket->isSlaBreached())<span class="badge bg-danger d-block mt-1">SLA Breached · L{{ $ticket->escalation_level }}</span>@endif
+                                @if($ticket->archived_at)<span class="badge bg-secondary d-block mt-1">Archived</span>@endif
+                            </td>
                             <td class="text-end" style="white-space: nowrap;">
                                 <div class="d-flex align-items-center justify-content-end flex-nowrap gap-1">
                                     <button class="btn btn-sm btn-outline-primary js-ticket-view" type="button" data-ticket-id="{{ $ticket->ticket_id }}" aria-label="View" data-bs-toggle="modal" data-bs-target="#ticketDetailsModal">
@@ -219,6 +224,13 @@
                                     <button class="btn btn-sm btn-outline-success js-ticket-assign" type="button" data-ticket-id="{{ $ticket->ticket_id }}" aria-label="Assign" data-bs-toggle="modal" data-bs-target="#ticketsAssignModal">
                                         <i class="bi bi-diagram-3"></i>
                                     </button>
+                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#editTicket{{ $ticket->ticket_id }}" title="Edit ticket details"><i class="bi bi-pencil-square"></i></button>
+                                    <button class="btn btn-sm btn-outline-info" type="button" data-bs-toggle="modal" data-bs-target="#ticketFiles{{ $ticket->ticket_id }}" title="Attachments"><i class="bi bi-paperclip"></i></button>
+                                    @if($ticket->archived_at)
+                                        <form method="POST" action="{{ route('support.tickets.restore', $ticket) }}">@csrf @method('PATCH')<button class="btn btn-sm btn-outline-success" title="Restore"><i class="bi bi-arrow-counterclockwise"></i></button></form>
+                                    @else
+                                        <form method="POST" action="{{ route('support.tickets.archive', $ticket) }}" onsubmit="return confirm('Archive this ticket while retaining its history?')">@csrf @method('PATCH')<input type="hidden" name="archive_reason" value="Archived by support staff"><button class="btn btn-sm btn-outline-danger" title="Archive"><i class="bi bi-archive"></i></button></form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -241,6 +253,18 @@
         </div>
     </div>
 
+@foreach($tickets as $ticket)
+<div class="modal fade" id="editTicket{{ $ticket->ticket_id }}" tabindex="-1"><div class="modal-dialog modal-lg"><form class="modal-content" method="POST" action="{{ route('support.tickets.update', $ticket) }}">@csrf @method('PUT')
+<div class="modal-header"><h5 class="modal-title">Edit TK-{{ $ticket->ticket_id }}</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3">
+<div class="col-6"><label class="form-label">Type</label><input class="form-control" name="ticket_type" value="{{ $ticket->ticket_type }}" required></div><div class="col-3"><label class="form-label">Priority</label><select class="form-select" name="priority">@foreach(['High','Medium','Low'] as $option)<option @selected($ticket->priority===$option)>{{ $option }}</option>@endforeach</select></div><div class="col-3"><label class="form-label">Queue</label><select class="form-select" name="department">@foreach(['After-Sales Support','Technical Support','Warranty','Field Service'] as $option)<option @selected($ticket->department===$option)>{{ $option }}</option>@endforeach</select></div>
+<div class="col-12"><label class="form-label">Subject</label><input class="form-control" name="subject" value="{{ $ticket->subject }}" required></div><div class="col-12"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="4" required>{{ $ticket->description }}</textarea></div>
+</div></div><div class="modal-footer"><button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Cancel</button><button class="btn support-primary">Save Changes</button></div></form></div></div>
+<div class="modal fade" id="ticketFiles{{ $ticket->ticket_id }}" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+<div class="modal-header"><h5 class="modal-title">Attachments · TK-{{ $ticket->ticket_id }}</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">
+<form method="POST" action="{{ route('support.tickets.attachments.store', $ticket) }}" enctype="multipart/form-data" class="mb-3">@csrf <label class="form-label">Add evidence or supporting document</label><div class="input-group"><input class="form-control" type="file" name="attachment" required><button class="btn support-primary">Upload</button></div><div class="form-text">PDF, image, Office document, or text file up to 10 MB.</div></form>
+<div class="list-group">@forelse($ticket->attachments as $attachment)<div class="list-group-item d-flex justify-content-between align-items-center"><span><i class="bi bi-file-earmark me-2"></i>{{ $attachment->original_name }}</span><form method="POST" action="{{ route('support.attachments.destroy', $attachment) }}" onsubmit="return confirm('Delete this attachment?')">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form></div>@empty<div class="text-muted">No attachments yet.</div>@endforelse</div>
+</div></div></div></div>
+@endforeach
 @endsection
 
 @push('scripts')
@@ -380,7 +404,7 @@
                         const department = departmentSelect.value;
                         employeeSelect.innerHTML = '';
                         employees.filter(employee => !department || employee.department === department).forEach(employee => {
-                            const option = new Option(`${employee.name}${employee.department ? ` — ${employee.department}` : ''}`, employee.employee_id, false, String(employee.employee_id) === String(data.currentEmployeeId ?? ''));
+                            const option = new Option(`${employee.name}${employee.department ? ` — ${employee.department}` : ''} · ${employee.active_ticket_count || 0} active`, employee.employee_id, false, String(employee.employee_id) === String(data.currentEmployeeId ?? ''));
                             employeeSelect.add(option);
                         });
                     };
@@ -427,7 +451,7 @@
                             'X-Requested-With': 'XMLHttpRequest',
                             ...(csrf ? {'X-CSRF-TOKEN': csrf} : {})
                         },
-                        body: JSON.stringify({ employee_id: employeeId })
+                        body: JSON.stringify({ employee_id: employeeId, assignment_reason: document.getElementById('ticketsAssignReason')?.value || null })
                     });
 
                     const data = await res.json().catch(() => ({}));

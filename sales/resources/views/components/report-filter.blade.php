@@ -48,7 +48,7 @@
                     <label class="rf-label" for="rf-region">Region</label>
                     <select id="rf-region" name="region" class="rf-select">
                         <option value="all">All regions</option>
-                        @foreach(($filterOptions['regions'] ?? []) as $region)<option value="{{ $region }}" @selected(request('region') === $region)>{{ $region }}</option>@endforeach
+                        @foreach(($filterOptions['regions'] ?? []) as $region)<option value="{{ $region->region_id }}" @selected((string) request('region') === (string) $region->region_id)>{{ $region->region_name }}</option>@endforeach
                     </select>
                 </div>
 

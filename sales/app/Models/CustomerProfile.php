@@ -21,6 +21,7 @@ class CustomerProfile extends Model
         'preferred_contact',
         'preferred_product_category',
         'marketing_consent',
+        'preferences',
     ];
 
     protected $casts = [
@@ -33,4 +34,3 @@ class CustomerProfile extends Model
         return $this->belongsTo(Customer::class, 'customer_id', 'customer_id');
     }
 }
-

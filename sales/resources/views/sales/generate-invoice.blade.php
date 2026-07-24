@@ -663,6 +663,59 @@
     </div>
 
 </div>
+
+<div class="card mt-4">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+            <div>
+                <h5 class="fw-bold mb-1">Credit Note / Product Return</h5>
+                <p class="text-muted small mb-0">Issue a controlled refund while restoring returned stock and recording the finance reversal.</p>
+            </div>
+            <span class="badge bg-light text-dark border">{{ $invoice->creditNotes->count() }} issued</span>
+        </div>
+
+        @foreach($invoice->creditNotes as $creditNote)
+            <div class="alert alert-light border d-flex justify-content-between gap-3">
+                <span><strong>{{ $creditNote->credit_note_number }}</strong> — {{ $creditNote->reason }}</span>
+                <strong>−₱{{ number_format((float) $creditNote->amount, 2) }}</strong>
+            </div>
+        @endforeach
+
+        @if($invoice->payment_status !== 'Cancelled')
+            <form method="POST" action="{{ route('invoices.credit-notes.store', $invoice) }}">
+                @csrf
+                <div class="table-responsive mb-3">
+                    <table class="table table-sm align-middle">
+                        <thead><tr><th>Product</th><th>Invoiced</th><th style="width:170px">Return quantity</th></tr></thead>
+                        <tbody>
+                            @foreach($invoice->items as $item)
+                                @php
+                                    $credited = $invoice->creditNotes->where('status', 'Issued')
+                                        ->flatMap->items
+                                        ->where('invoice_item_id', $item->invoice_item_id)
+                                        ->sum('quantity');
+                                    $refundable = max(0, $item->quantity - $credited);
+                                @endphp
+                                @if($refundable > 0)
+                                    <tr>
+                                        <td>{{ $item->product?->product_name ?? 'Product #'.$item->product_id }}</td>
+                                        <td>{{ $item->quantity }}</td>
+                                        <td><input type="number" class="form-control form-control-sm" name="quantities[{{ $item->invoice_item_id }}]" min="0" max="{{ $refundable }}" value="0"></td>
+                                    </tr>
+                                @endif
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div class="d-flex gap-2">
+                    <input class="form-control" name="reason" required placeholder="Reason for refund, return, or adjustment">
+                    <button class="btn btn-outline-danger text-nowrap" type="submit"><i class="bi bi-arrow-counterclockwise"></i> Issue credit note</button>
+                </div>
+            </form>
+        @endif
+    </div>
+</div>
+
 <div class="mt-4 d-flex justify-content-end gap-2">
 
     <a

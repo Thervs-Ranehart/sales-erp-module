@@ -217,6 +217,141 @@
             </div>
         </section>
 
+        <section class="card order-detail-card mb-4">
+            <div class="order-card-heading">
+                <span class="order-heading-icon"><i class="bi bi-truck"></i></span>
+                <div>
+                    <h5 class="fw-bold mb-1">Fulfillment & Shipments</h5>
+                    <p class="text-muted small mb-0">Create partial shipments, track carriers, and confirm delivery without leaving the familiar order page.</p>
+                </div>
+            </div>
+            <div class="p-4 pt-0">
+                @php
+                    $hasRemainingItems = $order->items->contains(
+                        fn ($item) => $order->shippedQuantityFor($item->order_item_id) < $item->quantity
+                    );
+                @endphp
+                @if($hasRemainingItems && !in_array(strtolower((string) $order->order_status), ['cancelled', 'delivered']))
+                    <form method="POST" action="{{ route('sales.shipments.store', $order) }}" class="border rounded-3 p-3 mb-4 bg-light">
+                        @csrf
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Carrier</label>
+                                <input class="form-control" name="carrier" placeholder="Courier or in-house">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Tracking number</label>
+                                <input class="form-control" name="tracking_number" placeholder="Optional">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Shipment status</label>
+                                <select class="form-select" name="shipment_status" required>
+                                    <option>Packed</option>
+                                    <option>Shipped</option>
+                                    <option>Delivered</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Proof of delivery</label>
+                                <input class="form-control" name="proof_of_delivery" placeholder="Receiver/reference">
+                            </div>
+                        </div>
+                        <div class="table-responsive mb-3">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead><tr><th>Product</th><th>Ordered</th><th>Fulfilled</th><th style="width:150px">Ship now</th></tr></thead>
+                                <tbody>
+                                    @foreach($order->items as $item)
+                                        @php($fulfilled = $order->shippedQuantityFor($item->order_item_id))
+                                        @php($remaining = max(0, $item->quantity - $fulfilled))
+                                        @if($remaining > 0)
+                                            <tr>
+                                                <td>{{ $item->product?->product_name ?? 'Product #'.$item->product_id }}</td>
+                                                <td>{{ $item->quantity }}</td>
+                                                <td>{{ $fulfilled }}</td>
+                                                <td><input type="number" class="form-control form-control-sm" name="quantities[{{ $item->order_item_id }}]" min="0" max="{{ $remaining }}" value="{{ $remaining }}"></td>
+                                            </tr>
+                                        @endif
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center gap-3">
+                            <input class="form-control" name="notes" placeholder="Packing or delivery notes">
+                            <button class="btn order-primary-button text-nowrap" type="submit"><i class="bi bi-plus-circle"></i>Create shipment</button>
+                        </div>
+                    </form>
+                @endif
+
+                @forelse($order->shipments->sortByDesc('shipment_id') as $shipment)
+                    <div class="border rounded-3 p-3 mb-3">
+                        <div class="d-flex flex-wrap justify-content-between gap-3 mb-3">
+                            <div>
+                                <strong>{{ $shipment->shipment_number }}</strong>
+                                <div class="small text-muted">{{ $shipment->carrier ?: 'Carrier not assigned' }} · {{ $shipment->tracking_number ?: 'No tracking number' }}</div>
+                            </div>
+                            <span class="badge text-bg-{{ $shipment->shipment_status === 'Delivered' ? 'success' : ($shipment->shipment_status === 'Cancelled' ? 'danger' : 'primary') }}">{{ $shipment->shipment_status }}</span>
+                        </div>
+                        <div class="small mb-3">
+                            {{ $shipment->items->map(fn ($item) => ($item->orderItem?->product?->product_name ?? 'Product').' × '.$item->quantity)->join(', ') }}
+                        </div>
+                        <form method="POST" action="{{ route('sales.shipments.update', $shipment) }}" class="row g-2 align-items-end">
+                            @csrf
+                            @method('PATCH')
+                            <div class="col-md-2"><label class="form-label small">Status</label><select class="form-select form-select-sm" name="shipment_status">@foreach(['Packed','Shipped','Delivered','Cancelled'] as $value)<option @selected($shipment->shipment_status === $value)>{{ $value }}</option>@endforeach</select></div>
+                            <div class="col-md-2"><label class="form-label small">Carrier</label><input class="form-control form-control-sm" name="carrier" value="{{ $shipment->carrier }}"></div>
+                            <div class="col-md-2"><label class="form-label small">Tracking</label><input class="form-control form-control-sm" name="tracking_number" value="{{ $shipment->tracking_number }}"></div>
+                            <div class="col-md-3"><label class="form-label small">Proof of delivery</label><input class="form-control form-control-sm" name="proof_of_delivery" value="{{ $shipment->proof_of_delivery }}"></div>
+                            <div class="col-md-2"><label class="form-label small">Notes</label><input class="form-control form-control-sm" name="notes" value="{{ $shipment->notes }}"></div>
+                            <div class="col-md-1"><button class="btn btn-sm btn-outline-primary w-100" title="Update shipment"><i class="bi bi-check-lg"></i></button></div>
+                        </form>
+                    </div>
+                @empty
+                    <p class="text-muted mb-0">No shipments yet. Create one when this order is ready for fulfillment.</p>
+                @endforelse
+            </div>
+        </section>
+
+        @if($auditLogs->isNotEmpty() || $approvals->isNotEmpty())
+            <section class="card order-detail-card mb-4">
+                <div class="order-card-heading">
+                    <span class="order-heading-icon"><i class="bi bi-clock-history"></i></span>
+                    <div><h5 class="fw-bold mb-1">Audit & Approvals</h5><p class="text-muted small mb-0">Accountability history for controlled sales actions.</p></div>
+                </div>
+                <div class="p-4 pt-0 table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead><tr><th>Date</th><th>Type</th><th>Action</th><th>Status / Reason</th></tr></thead>
+                        <tbody>
+                            @foreach($approvals as $approval)
+                                <tr>
+                                    <td>{{ $approval->created_at?->format('M d, Y g:i A') }}</td>
+                                    <td>Approval</td>
+                                    <td>{{ str($approval->action)->headline() }}</td>
+                                    <td>
+                                        <span class="badge text-bg-{{ $approval->status === 'Approved' ? 'success' : ($approval->status === 'Rejected' ? 'danger' : 'warning') }}">{{ $approval->status }}</span>
+                                        {{ $approval->reason }}
+                                        @if($approval->status === 'Pending' && in_array(strtolower((string) session('employee_role')), ['manager','administrator','admin','owner','supervisor']))
+                                            <div class="d-flex gap-1 mt-2">
+                                                @foreach(['Approved' => 'success', 'Rejected' => 'danger'] as $decision => $tone)
+                                                    <form method="POST" action="{{ route('sales.approvals.update', $approval) }}">
+                                                        @csrf @method('PATCH')
+                                                        <input type="hidden" name="status" value="{{ $decision }}">
+                                                        <button class="btn btn-sm btn-outline-{{ $tone }}">{{ $decision }}</button>
+                                                    </form>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                            @foreach($auditLogs as $log)
+                                <tr><td>{{ $log->created_at?->format('M d, Y g:i A') }}</td><td>Audit</td><td>{{ str($log->action)->headline() }}</td><td>{{ $log->reason ?: 'Recorded automatically' }}</td></tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        @endif
+
         <div class="row g-4">
             <div class="col-lg-7">
                 <section class="card order-detail-card h-100">

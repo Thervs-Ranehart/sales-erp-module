@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Employee;
 use App\Models\SupportTicket;
 use App\Models\TicketAssignment;
+use App\Services\AfterSalesAutomationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -20,6 +21,7 @@ class SupportTicketController extends Controller
             'serviceContract.customer',
             'latestAssignment.employee',
             'ticketAssignments.employee',
+            'caseEvents.employee',
         ])->findOrFail($ticketId);
 
         $assignedEmployee = $ticket->latestAssignment?->employee;
@@ -36,6 +38,11 @@ class SupportTicketController extends Controller
                 'due_date' => optional($ticket->due_date)->format('Y-m-d H:i'),
                 'resolved_at' => optional($ticket->resolved_at)->format('Y-m-d H:i'),
                 'closed_at' => optional($ticket->closed_at)->format('Y-m-d H:i'),
+                'department' => $ticket->department,
+                'first_response_due_at' => optional($ticket->first_response_due_at)->format('Y-m-d H:i'),
+                'resolution_due_at' => optional($ticket->resolution_due_at)->format('Y-m-d H:i'),
+                'sla_breached' => $ticket->isSlaBreached(),
+                'escalation_level' => $ticket->escalation_level,
                 'customer' => [
                     'name' => optional($ticket->customer)->full_name,
                     'email' => optional($ticket->customer)->email,
@@ -68,6 +75,12 @@ class SupportTicketController extends Controller
                 'assigned_at' => optional($assignment->assigned_at)->format('Y-m-d H:i'),
                 'status' => $assignment->assignment_status,
             ])->values(),
+            'caseTimeline' => $ticket->caseEvents->map(fn ($event): array => [
+                'type' => $event->event_type,
+                'description' => $event->description,
+                'employee' => $event->employee?->full_name,
+                'created_at' => $event->created_at?->format('Y-m-d H:i'),
+            ])->values(),
         ]);
     }
 
@@ -76,6 +89,7 @@ class SupportTicketController extends Controller
         $ticket = SupportTicket::with(['customer', 'product', 'latestAssignment.employee', 'ticketAssignments.employee'])->findOrFail($ticketId);
 
         $employees = Employee::query()
+            ->withCount(['ticketAssignments as active_ticket_count' => fn ($query) => $query->whereIn('assignment_status', ['Assigned', 'Active'])])
             ->orderBy('first_name')
             ->get(['employee_id', 'first_name', 'last_name', 'department']);
 
@@ -95,6 +109,7 @@ class SupportTicketController extends Controller
                     'employee_id' => $e->employee_id,
                     'name' => $e->full_name,
                     'department' => $e->department,
+                    'active_ticket_count' => $e->active_ticket_count,
                 ];
             })->values(),
             'currentEmployeeId' => optional($currentEmployee)->employee_id,
@@ -111,6 +126,7 @@ class SupportTicketController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'employee_id' => ['required', 'integer', 'exists:employees,employee_id'],
+            'assignment_reason' => ['nullable', 'string', 'max:1000'],
         ]);
 
         if ($validator->fails()) {
@@ -140,6 +156,8 @@ class SupportTicketController extends Controller
                     'employee_id' => (int) $request->input('employee_id'),
                     'assigned_at' => now(),
                     'assignment_status' => 'Active',
+                    'department' => $ticket->department,
+                    'assignment_reason' => $request->input('assignment_reason'),
                 ]),
             ];
         });
@@ -190,6 +208,16 @@ class SupportTicketController extends Controller
             }
 
             $ticket->save();
+            $ticket->caseEvents()->create([
+                'employee_id' => session('employee_id') ? (int) session('employee_id') : null,
+                'event_type' => 'Status Changed',
+                'description' => "Ticket status changed to {$status}.",
+                'created_at' => now(),
+            ]);
+
+            if (in_array($status, ['Resolved', 'Closed'], true)) {
+                app(AfterSalesAutomationService::class)->requestSatisfactionFeedback($ticket);
+            }
         });
 
         if (! $request->expectsJson()) {

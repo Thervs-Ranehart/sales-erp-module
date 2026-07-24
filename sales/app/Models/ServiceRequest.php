@@ -27,6 +27,8 @@ class ServiceRequest extends Model
         'schedule_notes',
         'completion_date',
         'service_status',
+        'service_result',
+        'cancelled_at',
     ];
 
     protected $casts = [
@@ -36,6 +38,7 @@ class ServiceRequest extends Model
         'scheduled_date' => 'datetime',
         'scheduled_end' => 'datetime',
         'completion_date' => 'datetime',
+        'cancelled_at' => 'datetime',
     ];
 
     public function supportTicket()

@@ -1,0 +1,4 @@
+<!doctype html><html><head><meta charset="utf-8"><title>{{ ucfirst($type) }} Export</title><style>body{font:14px Arial;margin:32px;color:#172033}h1{margin-bottom:4px}p{color:#64748b}table{width:100%;border-collapse:collapse;margin-top:24px}th,td{border:1px solid #dbe2ea;padding:8px;text-align:left}th{background:#f1f5f9}@media print{button{display:none}}</style></head><body>
+<button onclick="window.print()">Print / Save as PDF</button><h1>{{ ucfirst($type) }} Export</h1><p>Generated {{ now()->format('Y-m-d H:i') }} from live ERP records.</p>
+<table><thead><tr>@foreach($headers as $header)<th>{{ $header }}</th>@endforeach</tr></thead><tbody>@forelse($rows as $row)<tr>@foreach($row as $value)<td>{{ $value }}</td>@endforeach</tr>@empty<tr><td colspan="{{ count($headers) }}">No business records matched the selected filters.</td></tr>@endforelse</tbody></table>
+</body></html>

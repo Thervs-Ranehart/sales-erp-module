@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sales Quotation Management System | Login</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('cl-logo.svg') }}">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
@@ -21,7 +22,9 @@
         }
 
         body{
-            background:var(--light);
+            background:
+                linear-gradient(rgba(15,23,42,.18),rgba(15,23,42,.18)),
+                url("{{ asset('images/login_bg.jpeg') }}") center/cover no-repeat fixed;
             font-family:'Segoe UI',sans-serif;
             min-height:100vh;
             display:flex;

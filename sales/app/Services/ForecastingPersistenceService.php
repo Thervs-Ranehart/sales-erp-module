@@ -61,35 +61,68 @@ class ForecastingPersistenceService
         }
     }
 
-    /** @param array<string, mixed> $snapshot @param array{nextMonth: float, growthRate: float, quarter: float, confidence: int} $calculation */
+    /** @param array<string, mixed> $snapshot @param array<string, mixed> $calculation */
     public function saveForecast(array $snapshot, array $calculation, int $employeeId, float $scenarioMultiplier = 1): SalesForecast
     {
-        return SalesForecast::query()->updateOrCreate([
-            'forecast_period_start' => $snapshot['end']->addDay(),
-            'forecast_period_end' => $snapshot['end']->addMonths(3),
-            'forecast_method' => 'three-month-moving-growth',
-            'generated_by' => $employeeId,
-        ], [
-            'predicted_orders' => (int) round(($snapshot['totalOrders'] / max(1, count($snapshot['labels']))) * 3 * $scenarioMultiplier),
-            'predicted_revenue' => $calculation['quarter'] * $scenarioMultiplier,
-            'predicted_growth' => $calculation['growthRate'],
-            'confidence_level' => $calculation['confidence'],
-            'generated_at' => now(),
-        ]);
+        return DB::transaction(function () use ($snapshot, $calculation, $employeeId, $scenarioMultiplier): SalesForecast {
+            $latest = SalesForecast::query()
+                ->where('forecast_period_start', $snapshot['end']->addDay())
+                ->where('forecast_method', $calculation['method'])
+                ->where('generated_by', $employeeId)
+                ->orderByDesc('version')
+                ->first();
+
+            if ($latest !== null) {
+                return $latest;
+            }
+
+            $latestVersion = (int) SalesForecast::query()
+                ->where('forecast_period_start', $snapshot['end']->addDay())
+                ->max('version');
+
+            return SalesForecast::query()->create([
+                'forecast_period_start' => $snapshot['end']->addDay(),
+                'forecast_period_end' => $snapshot['end']->addMonths(3),
+                'forecast_method' => $calculation['method'],
+                'generated_by' => $employeeId,
+                'version' => $latestVersion + 1,
+                'predicted_orders' => (int) round(($snapshot['totalOrders'] / max(1, count($snapshot['labels']))) * 3 * $scenarioMultiplier),
+                'predicted_revenue' => $calculation['quarter'] * $scenarioMultiplier,
+                'predicted_growth' => $calculation['growthRate'],
+                'confidence_level' => $calculation['confidence'],
+                'prediction_lower' => $calculation['predictionLower'] * $scenarioMultiplier,
+                'prediction_upper' => $calculation['predictionUpper'] * $scenarioMultiplier,
+                'mae' => $calculation['mae'],
+                'mape' => $calculation['mape'],
+                'rmse' => $calculation['rmse'],
+                'sample_size' => $calculation['sampleSize'],
+                'assumptions' => json_encode([
+                    'scenario_multiplier' => $scenarioMultiplier,
+                    'history_start' => $snapshot['start']->toDateString(),
+                    'history_end' => $snapshot['end']->toDateString(),
+                    'excludes_cancelled_orders' => true,
+                    'external_market_variables' => false,
+                ], JSON_THROW_ON_ERROR),
+                'forecast_status' => 'Generated',
+                'generated_at' => now(),
+            ]);
+        });
     }
 
     /** @param array<int, array<string, string>> $recommendations */
     public function saveRecommendations(SalesForecast $forecast, array $recommendations, int $employeeId): void
     {
-        $forecast->recommendations()->delete();
         foreach ($recommendations as $recommendation) {
-            ForecastRecommendation::query()->create([
+            ForecastRecommendation::query()->firstOrCreate([
                 'forecast_id' => $forecast->forecast_id,
-                'recommendation_type' => $recommendation['category'],
                 'title' => $recommendation['title'],
+            ], [
+                'recommendation_type' => $recommendation['category'],
                 'description' => $recommendation['insight'].' Action: '.$recommendation['action'],
                 'priority' => $recommendation['priority'],
                 'implementation_status' => $recommendation['status'] ?? 'New',
+                'assigned_department' => $recommendation['team'],
+                'evidence' => $recommendation['metric'],
                 'created_by' => $employeeId,
                 'created_at' => now(),
             ]);

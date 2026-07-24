@@ -7,7 +7,8 @@
                 <div class="row g-3">
                     <div class="col-md-6"><label class="form-label small text-muted">Ticket Number</label><input id="ticketsAssignTicketNumber" type="text" class="form-control" readonly></div>
                     <div class="col-md-6"><label class="form-label small text-muted">Department</label><select id="ticketsAssignDepartment" class="form-select"><option value="">All departments</option></select></div>
-                    <div class="col-12"><label class="form-label small text-muted">Assigned Employee</label><select id="ticketsAssignEmployee" class="form-select" aria-label="Assigned employee"></select><div class="invalid-feedback d-block" id="ticketsAssignError" style="display:none;"></div></div>
+                    <div class="col-12"><label class="form-label small text-muted">Assigned Employee</label><select id="ticketsAssignEmployee" class="form-select" aria-label="Assigned employee"></select><div class="form-text">Active case counts help balance workload.</div><div class="invalid-feedback d-block" id="ticketsAssignError" style="display:none;"></div></div>
+                    <div class="col-12"><label class="form-label small text-muted">Assignment / reassignment reason</label><textarea id="ticketsAssignReason" class="form-control" rows="2"></textarea></div>
                     <div class="col-md-6"><div class="text-muted small">Customer</div><div class="fw-semibold" id="ticketsAssignCustomer">—</div></div>
                     <div class="col-md-6"><div class="text-muted small">Product</div><div class="fw-semibold" id="ticketsAssignProduct">—</div></div>
                 </div>

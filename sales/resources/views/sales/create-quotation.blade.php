@@ -111,6 +111,58 @@ body{
     border-radius:8px;
 }
 
+.quotation-add-product-btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    min-height:40px;
+    padding:9px 16px;
+    border:1px solid var(--primary);
+    border-radius:8px;
+    background:#fff;
+    color:var(--primary);
+    font-weight:600;
+    transition:background-color .18s ease,color .18s ease,box-shadow .18s ease,transform .18s ease;
+}
+
+.quotation-add-product-btn:hover,
+.quotation-add-product-btn:focus-visible{
+    background:var(--primary);
+    color:#fff;
+    box-shadow:0 6px 14px rgba(83,71,206,.22);
+    transform:translateY(-1px);
+}
+
+.quotation-remove-product-btn{
+    width:36px;
+    height:36px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:0;
+    border:1px solid #EF4444;
+    border-radius:8px;
+    background:#fff;
+    color:#EF4444;
+    transition:background-color .18s ease,color .18s ease,box-shadow .18s ease;
+}
+
+.quotation-remove-product-btn:hover,
+.quotation-remove-product-btn:focus-visible{
+    background:#EF4444;
+    color:#fff;
+    box-shadow:0 5px 12px rgba(239,68,68,.2);
+}
+
+.quotation-remove-product-btn:disabled{
+    border-color:#D1D5DB;
+    background:#F9FAFB;
+    color:#9CA3AF;
+    box-shadow:none;
+    cursor:not-allowed;
+}
+
 </style>
 
 <div class="page-content">
@@ -325,11 +377,11 @@ body{
 
             <button
                 type="button"
-                class="add-product-btn"
+                class="quotation-add-product-btn"
                 onclick="addProduct()"
             >
 
-                <i class="bi bi-plus-circle me-1"></i>
+                <i class="bi bi-plus-circle"></i>
 
                 Add Product
 
@@ -444,8 +496,10 @@ body{
 
         <button
             type="button"
-            class="remove-btn"
+            class="quotation-remove-product-btn"
             onclick="removeProduct(this)"
+            aria-label="Delete product row"
+            title="Delete product"
         >
 
             <i class="bi bi-trash"></i>
@@ -537,8 +591,10 @@ body{
 
         <button
             type="button"
-            class="remove-btn"
+            class="quotation-remove-product-btn"
             onclick="removeProduct(this)"
+            aria-label="Delete product row"
+            title="Delete product"
         >
 
             <i class="bi bi-trash"></i>
@@ -774,8 +830,10 @@ readonly>
 
 <button
 type="button"
-class="remove-btn"
-onclick="removeProduct(this)">
+class="quotation-remove-product-btn"
+onclick="removeProduct(this)"
+aria-label="Delete product row"
+title="Delete product">
 
 <i class="bi bi-trash"></i>
 
@@ -789,6 +847,8 @@ onclick="removeProduct(this)">
 document
 .getElementById('productRows')
 .insertAdjacentHTML('beforeend',row);
+
+updateRemoveButtons();
 }
 
 function removeProduct(button)
@@ -800,6 +860,21 @@ function removeProduct(button)
         button.closest('tr').remove();
         calculateTotals();
     }
+
+    updateRemoveButtons();
+}
+
+function updateRemoveButtons()
+{
+    let tbody=document.getElementById('productRows');
+    let isOnlyRow=tbody.rows.length<=1;
+
+    tbody
+        .querySelectorAll('.quotation-remove-product-btn')
+        .forEach(function(button){
+            button.disabled=isOnlyRow;
+            button.setAttribute('aria-disabled',isOnlyRow ? 'true' : 'false');
+        });
 }
 
 function updatePrice(select)
@@ -871,6 +946,8 @@ function calculateTotals()
 }
 
 document.addEventListener('DOMContentLoaded',function(){
+
+    updateRemoveButtons();
 
     document.querySelectorAll('.product-select').forEach(function(select){
 

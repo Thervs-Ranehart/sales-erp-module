@@ -29,14 +29,14 @@ class PricingRuleController extends Controller
     }
 
     public function create(): View
-{
-    $pricingRule = new PricingRule();
+    {
+        $pricingRule = new PricingRule;
 
-    return view(
-    'sales.create-pricing',
-    compact('pricingRule')
-);
-}
+        return view(
+            'sales.create-pricing',
+            compact('pricingRule')
+        );
+    }
 
     public function store(StorePricingRuleRequest $request): RedirectResponse
     {
@@ -54,13 +54,14 @@ class PricingRuleController extends Controller
         ]);
     }
 
-   public function edit(PricingRule $pricingRule): View
-{
-    return view(
-        'sales.create-pricing',
-        compact('pricingRule')
-    );
-}
+    public function edit(PricingRule $pricingRule): View
+    {
+        return view(
+            'sales.create-pricing',
+            compact('pricingRule')
+        );
+    }
+
     public function update(
         UpdatePricingRuleRequest $request,
         PricingRule $pricingRule
@@ -76,6 +77,13 @@ class PricingRuleController extends Controller
     public function destroy(
         PricingRule $pricingRule
     ): RedirectResponse {
+        if ($pricingRule->quotations()->exists() || $pricingRule->salesOrders()->exists()) {
+            $pricingRule->update(['status' => 'Inactive']);
+
+            return redirect()
+                ->route('pricing-rules.index')
+                ->with('success', 'Pricing Rule was deactivated because it is used by existing transactions.');
+        }
 
         $pricingRule->delete();
 

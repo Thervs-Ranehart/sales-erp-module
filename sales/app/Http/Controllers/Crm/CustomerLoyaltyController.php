@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\LoyaltyProgram;
 use App\Models\Reward;
+use App\Models\RewardRedemption;
 use Illuminate\Http\Request;
 
 class CustomerLoyaltyController extends Controller
@@ -14,7 +15,7 @@ class CustomerLoyaltyController extends Controller
     {
         $search = trim((string) $request->query('search', ''));
 
-        $query = LoyaltyProgram::query()->with(['customer']);
+        $query = LoyaltyProgram::query()->with(['customer', 'pointTransactions', 'redemptions.reward']);
 
         if ($search !== '') {
             $query->whereHas('customer', function ($cq) use ($search) {
@@ -51,6 +52,7 @@ class CustomerLoyaltyController extends Controller
             'expiringPoints' => $expiringPoints,
             'search' => $search,
             'rewards' => $rewards,
+            'recentRedemptions' => RewardRedemption::query()->with('loyalty.customer', 'reward')->latest()->take(20)->get(),
             'unenrolledCustomers' => $unenrolledCustomers,
         ], $this->tierCounts()));
     }
@@ -68,6 +70,7 @@ class CustomerLoyaltyController extends Controller
             'search' => '',
             'selectedLoyalty' => $loyalty,
             'rewards' => Reward::orderByDesc('created_at')->get(),
+            'recentRedemptions' => RewardRedemption::query()->with('loyalty.customer', 'reward')->latest()->take(20)->get(),
             'unenrolledCustomers' => Customer::whereDoesntHave('loyaltyProgram')
                 ->orderBy('first_name')
                 ->orderBy('last_name')

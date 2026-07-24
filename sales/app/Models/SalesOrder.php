@@ -80,6 +80,19 @@ class SalesOrder extends Model
         return $this->hasMany(Invoice::class, 'order_id', 'order_id');
     }
 
+    public function shipments(): HasMany
+    {
+        return $this->hasMany(Shipment::class, 'order_id', 'order_id');
+    }
+
+    public function shippedQuantityFor(int $orderItemId): int
+    {
+        return (int) ShipmentItem::query()
+            ->where('order_item_id', $orderItemId)
+            ->whereHas('shipment', fn ($query) => $query->where('shipment_status', '!=', 'Cancelled'))
+            ->sum('quantity');
+    }
+
     public function statusCssClass(): string
     {
         return match (strtolower((string) $this->order_status)) {

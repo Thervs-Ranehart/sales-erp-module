@@ -5,6 +5,7 @@
     @php($subtitle = 'Track warranty coverage by order and product')
 
     @include('components.page-header', ['title' => $title, 'subtitle' => $subtitle])
+    @include('support.operations-create-modal')
 
 @include('support.warranty-view-modal')
 
@@ -222,6 +223,8 @@
                                 >
                                     <i class="bi bi-eye me-1"></i> View
                                 </button>
+                                <button class="btn btn-sm btn-outline-warning" type="button" data-bs-toggle="modal" data-bs-target="#editWarranty{{ $warranty->warranty_id }}"><i class="bi bi-pencil"></i></button>
+                                @if(!$warranty->archived_at)<form class="d-inline" method="POST" action="{{ route('support.warranty-records.archive', $warranty) }}" onsubmit="return confirm('Archive this warranty?')">@csrf @method('PATCH')<input type="hidden" name="archive_reason" value="Archived by support staff"><button class="btn btn-sm btn-outline-danger"><i class="bi bi-archive"></i></button></form>@endif
 
                             </td>
                         </tr>
@@ -242,6 +245,7 @@
             </nav>
         </div>
     </div>
+    @foreach($warrantyRecords as $warranty)<div class="modal fade" id="editWarranty{{ $warranty->warranty_id }}" tabindex="-1"><div class="modal-dialog"><form class="modal-content" method="POST" action="{{ route('support.warranty-records.update', $warranty) }}">@csrf @method('PUT')<div class="modal-header"><h5 class="modal-title">Edit {{ $warranty->warranty_number }}</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><label class="form-label">Start</label><input class="form-control mb-3" type="date" name="warranty_start" value="{{ $warranty->warranty_start?->toDateString() }}" required><label class="form-label">End</label><input class="form-control mb-3" type="date" name="warranty_end" value="{{ $warranty->warranty_end?->toDateString() }}" required><label class="form-label">Status</label><select class="form-select" name="warranty_status">@foreach(['Active','On Hold','Expired'] as $option)<option @selected($warranty->warranty_status===$option)>{{ $option }}</option>@endforeach</select></div><div class="modal-footer"><button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Cancel</button><button class="btn support-primary">Save Changes</button></div></form></div></div>@endforeach
 
     </form>
 @endsection

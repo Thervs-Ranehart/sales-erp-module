@@ -31,6 +31,7 @@ $mainItems = [
         ['label' => 'Follow-Ups', 'route' => 'crm.followups', 'icon' => 'calendar-check'],
         ['label' => 'Loyalty Program', 'route' => 'crm.loyalty', 'icon' => 'award'],
         ['label' => 'Customer Segmentation', 'route' => 'crm.segmentation', 'icon' => 'diagram-3'],
+        ['label' => 'Marketing Campaigns', 'route' => 'crm.campaigns', 'icon' => 'megaphone'],
     ],
 ],
 
@@ -67,6 +68,7 @@ $mainItems = [
 $utilityItems = [
     ['label' => 'Notifications', 'route' => 'notifications.index', 'icon' => 'bell'],
     ['label' => 'Profile', 'route' => 'profile.index', 'icon' => 'person-circle'],
+    ['label' => 'About Us', 'route' => 'about.index', 'icon' => 'buildings'],
 ];
 @endphp
 

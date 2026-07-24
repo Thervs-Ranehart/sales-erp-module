@@ -137,7 +137,8 @@ class CustomerDirectoryController extends Controller
             'preferences' => ['nullable', 'string'],
         ]);
 
-        Customer::create($data);
+        $customer = Customer::create($data);
+        $customer->profile()->create(['preferences' => $data['preferences'] ?? null, 'marketing_consent' => false]);
 
         return redirect()->route('crm.directory')->with('success', 'Customer created successfully.');
     }
@@ -175,32 +176,38 @@ class CustomerDirectoryController extends Controller
         ]);
 
         $customer->update($data);
+        $customer->profile()->updateOrCreate(
+            ['customer_id' => $customer->customer_id],
+            ['preferences' => $data['preferences'] ?? null]
+        );
 
         return redirect()->route('crm.directory')->with('success', 'Customer updated successfully.');
     }
-public function destroy(Customer $customer)
-{
-    if ($customer->salesOrders()->exists()) {
+
+    public function destroy(Customer $customer)
+    {
+        if ($customer->salesOrders()->exists()) {
+            return redirect()->route('crm.directory')->with(
+                'error',
+                'This customer has sales history and cannot be deleted. Keep the record to preserve its linked transactions.'
+            );
+        }
+
+        DB::transaction(function () use ($customer) {
+            $customer->profile()->delete();
+            $customer->communicationLogs()->delete();
+            $customer->loyaltyProgram()->delete();
+            $customer->segments()->delete();
+            $customer->behaviorAnalyses()->delete();
+            $customer->delete();
+        });
+
         return redirect()->route('crm.directory')->with(
-            'error',
-            'This customer has sales history and cannot be deleted. Keep the record to preserve its linked transactions.'
+            'success',
+            'Customer deleted successfully.'
         );
     }
 
-    DB::transaction(function () use ($customer) {
-        $customer->profile()->delete();
-        $customer->communicationLogs()->delete();
-        $customer->loyaltyProgram()->delete();
-        $customer->segments()->delete();
-        $customer->behaviorAnalyses()->delete();
-        $customer->delete();
-    });
-
-    return redirect()->route('crm.directory')->with(
-        'success',
-        'Customer deleted successfully.'
-    );
-}
     private function formatCustomerProfile(Customer $selectedCustomer): array
     {
         return [

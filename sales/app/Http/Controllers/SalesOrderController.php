@@ -7,9 +7,14 @@ use App\Http\Requests\UpdateSalesOrderRequest;
 use App\Http\Requests\UpdateSalesOrderStatusRequest;
 use App\Models\Customer;
 use App\Models\Employee;
+use App\Models\Invoice;
 use App\Models\PricingRule;
 use App\Models\Product;
+use App\Models\SalesApproval;
+use App\Models\SalesAuditLog;
 use App\Models\SalesOrder;
+use App\Models\Shipment;
+use App\Services\PricingCalculator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +22,8 @@ use Illuminate\View\View;
 
 class SalesOrderController extends Controller
 {
+    public function __construct(private readonly PricingCalculator $pricingCalculator) {}
+
     public function index(): View
     {
         $orders = SalesOrder::query()
@@ -47,7 +54,7 @@ class SalesOrderController extends Controller
             $totals = $this->calculateTotals($request->validated());
 
             $order = SalesOrder::query()->create([
-                'order_number' => $this->generateOrderNumber(),
+                'order_number' => null,
                 'customer_id' => $request->integer('customer_id'),
                 'employee_id' => $this->resolveEmployeeId(),
                 'pricing_rule_id' => $request->input('pricing_rule_id') ?: null,
@@ -59,8 +66,11 @@ class SalesOrderController extends Controller
                 'shipping_fee' => 0,
                 'total_amount' => $totals['total'],
             ]);
+            $order->update([
+                'order_number' => 'SO-'.str_pad((string) $order->order_id, 5, '0', STR_PAD_LEFT),
+            ]);
 
-            $this->syncOrderItems($order, $request->validated());
+            $this->syncOrderItems($order, $totals['items']);
 
             return $order;
         });
@@ -72,10 +82,30 @@ class SalesOrderController extends Controller
 
     public function show(SalesOrder $salesOrder): View
     {
-        $salesOrder->load(['customer', 'employee', 'pricingRule', 'items.product', 'invoices']);
+        $salesOrder->load([
+            'customer', 'employee', 'pricingRule', 'items.product', 'invoices.items',
+            'shipments.items.orderItem.product', 'shipments.creator',
+        ]);
 
         return view('sales.profile', [
             'order' => $salesOrder,
+            'auditLogs' => SalesAuditLog::query()
+                ->whereIn('auditable_type', [SalesOrder::class, Shipment::class])
+                ->where(function ($query) use ($salesOrder): void {
+                    $query->where(fn ($orderQuery) => $orderQuery
+                        ->where('auditable_type', SalesOrder::class)
+                        ->where('auditable_id', $salesOrder->order_id))
+                        ->orWhere(fn ($shipmentQuery) => $shipmentQuery
+                            ->where('auditable_type', Shipment::class)
+                            ->whereIn('auditable_id', $salesOrder->shipments->pluck('shipment_id')));
+                })
+                ->latest('created_at')
+                ->get(),
+            'approvals' => SalesApproval::query()
+                ->where('approvable_type', Invoice::class)
+                ->whereIn('approvable_id', $salesOrder->invoices->pluck('invoice_id'))
+                ->latest()
+                ->get(),
         ]);
     }
 
@@ -91,6 +121,11 @@ class SalesOrderController extends Controller
 
     public function update(UpdateSalesOrderRequest $request, SalesOrder $salesOrder): RedirectResponse
     {
+        $transitionError = $this->statusTransitionError($salesOrder, (string) $request->input('status'));
+        if ($transitionError) {
+            return back()->withErrors(['status' => $transitionError])->withInput();
+        }
+
         DB::transaction(function () use ($request, $salesOrder): void {
             $totals = $this->calculateTotals($request->validated());
 
@@ -106,7 +141,7 @@ class SalesOrderController extends Controller
             ]);
 
             $salesOrder->items()->delete();
-            $this->syncOrderItems($salesOrder, $request->validated());
+            $this->syncOrderItems($salesOrder, $totals['items']);
         });
 
         return redirect()
@@ -149,9 +184,21 @@ class SalesOrderController extends Controller
 
     public function updateStatus(UpdateSalesOrderStatusRequest $request, SalesOrder $salesOrder): RedirectResponse
     {
+        $transitionError = $this->statusTransitionError($salesOrder, (string) $request->input('status'));
+        if ($transitionError) {
+            return back()->withErrors(['status' => $transitionError]);
+        }
+
+        $oldValues = ['order_status' => $salesOrder->order_status];
         $salesOrder->update([
             'order_status' => $request->input('status'),
         ]);
+        SalesAuditLog::record(
+            $salesOrder,
+            'order_status_updated',
+            $oldValues,
+            ['order_status' => $salesOrder->order_status]
+        );
 
         return redirect()
             ->route('sales.profile', $salesOrder)
@@ -162,6 +209,7 @@ class SalesOrderController extends Controller
     {
         return [
             'customers' => Customer::query()
+                ->available()
                 ->orderBy('first_name')
                 ->orderBy('last_name')
                 ->get(),
@@ -174,16 +222,9 @@ class SalesOrderController extends Controller
         ];
     }
 
-    private function generateOrderNumber(): string
-    {
-        $latestId = SalesOrder::query()->max('order_id') ?? 0;
-
-        return 'SO-'.str_pad((string) ($latestId + 1), 3, '0', STR_PAD_LEFT);
-    }
-
     private function resolveEmployeeId(): int
     {
-        return (int) (Employee::query()->value('employee_id') ?? 1);
+        return (int) (request()->session()->get('employee_id') ?? Employee::query()->value('employee_id') ?? 1);
     }
 
     /**
@@ -192,61 +233,48 @@ class SalesOrderController extends Controller
      */
     private function calculateTotals(array $data): array
     {
-        $subtotal = 0.0;
-
-        foreach ($data['product_id'] as $index => $productId) {
-            $quantity = (float) ($data['qty'][$index] ?? 0);
-            $unitPrice = (float) ($data['price'][$index] ?? 0);
-            $subtotal += $quantity * $unitPrice;
-        }
-
-        $discountPercent = (float) ($data['discount'] ?? 0);
-        $taxPercent = (float) ($data['tax'] ?? 12);
-
-        if (! empty($data['pricing_rule_id'])) {
-            $pricingRule = PricingRule::query()->find($data['pricing_rule_id']);
-
-            if ($pricingRule) {
-                if ($pricingRule->discount_value !== null && $discountPercent === 0.0) {
-                    $discountPercent = (float) $pricingRule->discount_value;
-                }
-
-                if ($pricingRule->tax_rate !== null && ($data['tax'] ?? null) === null) {
-                    $taxPercent = (float) $pricingRule->tax_rate;
-                }
-            }
-        }
-
-        $discountAmount = round($subtotal * ($discountPercent / 100), 2);
-        $taxableAmount = max($subtotal - $discountAmount, 0);
-        $taxAmount = round($taxableAmount * ($taxPercent / 100), 2);
-        $total = round($subtotal - $discountAmount + $taxAmount, 2);
-
-        return [
-            'subtotal' => round($subtotal, 2),
-            'discount' => $discountAmount,
-            'tax' => $taxAmount,
-            'total' => $total,
-        ];
+        return $this->pricingCalculator->calculate(
+            $data['product_id'],
+            $data['qty'],
+            $data['order_date'],
+            ! empty($data['pricing_rule_id']) ? (int) $data['pricing_rule_id'] : null,
+            isset($data['discount']) ? (float) $data['discount'] : null,
+            isset($data['tax']) ? (float) $data['tax'] : null,
+        );
     }
 
     /**
      * @param  array<string, mixed>  $data
      */
-    private function syncOrderItems(SalesOrder $order, array $data): void
+    private function syncOrderItems(SalesOrder $order, array $items): void
     {
-        foreach ($data['product_id'] as $index => $productId) {
-            $quantity = (int) ($data['qty'][$index] ?? 0);
-            $unitPrice = (float) ($data['price'][$index] ?? 0);
-            $lineSubtotal = round($quantity * $unitPrice, 2);
-
+        foreach ($items as $item) {
             $order->items()->create([
-                'product_id' => $productId,
-                'quantity' => $quantity,
-                'unit_price' => $unitPrice,
+                'product_id' => $item['product_id'],
+                'quantity' => $item['quantity'],
+                'unit_price' => $item['unit_price'],
                 'discount' => 0,
-                'subtotal' => $lineSubtotal,
+                'subtotal' => $item['subtotal'],
             ]);
         }
+    }
+
+    private function statusTransitionError(SalesOrder $salesOrder, string $requestedStatus): ?string
+    {
+        $allowedTransitions = [
+            'pending' => ['processed', 'cancelled'],
+            'processed' => ['shipped', 'cancelled'],
+            'shipped' => ['delivered'],
+            'delivered' => [],
+            'cancelled' => [],
+        ];
+        $currentStatus = strtolower((string) $salesOrder->order_status);
+        $newStatus = strtolower($requestedStatus);
+
+        if ($newStatus === $currentStatus || in_array($newStatus, $allowedTransitions[$currentStatus] ?? [], true)) {
+            return null;
+        }
+
+        return "An order cannot move from {$salesOrder->formattedStatus()} to ".ucfirst($newStatus).'.';
     }
 }
