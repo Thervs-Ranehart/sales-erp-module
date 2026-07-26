@@ -407,20 +407,22 @@
                 @yield('content')
             </main>
 
-            <footer class="app-footer" aria-label="Application footer">
-                <div class="app-footer__inner">
-                    <a class="app-footer__brand" href="{{ route('about.index') }}" aria-label="About Company Name">
-                        <img class="app-footer__mark" src="{{ asset('cl-logo.svg') }}" alt="" width="34" height="34">
-                        <span>
-                            <span class="app-footer__title">Company Name</span>
-                            <span class="app-footer__subtitle">Sales and Customer Management System</span>
-                        </span>
-                    </a>
-                    <p class="app-footer__meta">
-                        &copy; {{ now()->year }} Sales and Customer Management System &middot; Version 1.0
-                    </p>
-                </div>
-            </footer>
+            @if (! request()->routeIs(['sales.index', 'quotations.index']))
+                <footer class="app-footer" aria-label="Application footer">
+                    <div class="app-footer__inner">
+                        <a class="app-footer__brand" href="{{ route('about.index') }}" aria-label="About Company Name">
+                            <img class="app-footer__mark" src="{{ asset('cl-logo.svg') }}" alt="" width="34" height="34">
+                            <span>
+                                <span class="app-footer__title">Company Name</span>
+                                <span class="app-footer__subtitle">Sales and Customer Management System</span>
+                            </span>
+                        </a>
+                        <p class="app-footer__meta">
+                            &copy; {{ now()->year }} Sales and Customer Management System &middot; Version 1.0
+                        </p>
+                    </div>
+                </footer>
+            @endif
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

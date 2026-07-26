@@ -38,6 +38,75 @@
             padding:28px;
         }
 
+        .sales-orders-page-footer{
+            margin-top:24px;
+            padding:16px 24px;
+            background: rgba(255, 255, 255, .94);
+            border-top: 1px solid #e5e7eb;
+            color: #6B7280;
+        }
+
+        .sales-orders-page-footer__inner{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:16px;
+        }
+
+        .sales-orders-page-footer__brand{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            min-width:0;
+            color:inherit;
+            text-decoration:none;
+        }
+
+        .sales-orders-page-footer__mark{
+            display:block;
+            width:34px;
+            height:34px;
+            flex:0 0 34px;
+            border-radius:11px;
+            box-shadow:0 7px 16px rgba(83, 71, 206, .2);
+        }
+
+        .sales-orders-page-footer__title{
+            display:block;
+            color:#1F2937;
+            font-size:12px;
+            font-weight:700;
+            line-height:1.2;
+        }
+
+        .sales-orders-page-footer__subtitle,
+        .sales-orders-page-footer__meta{
+            font-size:10px;
+            line-height:1.5;
+        }
+
+        .sales-orders-page-footer__meta{
+            margin:0;
+            text-align:right;
+        }
+
+        @media (max-width: 575.98px) {
+            .sales-orders-page-footer{
+                padding:14px 16px;
+            }
+
+            .sales-orders-page-footer__inner{
+                align-items:flex-start;
+                flex-direction:column;
+                gap:8px;
+            }
+
+            .sales-orders-page-footer__meta{
+                padding-left:44px;
+                text-align:left;
+            }
+        }
+
         .page-header{
             display:flex;
             align-items:center;
@@ -954,6 +1023,21 @@ body.sales-delete-modal-open{
 
             </div>
 
+        </div>
+
+        <div class="sales-orders-page-footer">
+            <div class="sales-orders-page-footer__inner">
+                <a class="sales-orders-page-footer__brand" href="{{ route('about.index') }}" aria-label="About Company Name">
+                    <img class="sales-orders-page-footer__mark" src="{{ asset('cl-logo.svg') }}" alt="" width="34" height="34">
+                    <span>
+                        <span class="sales-orders-page-footer__title">Company Name</span>
+                        <span class="sales-orders-page-footer__subtitle">Sales and Customer Management System</span>
+                    </span>
+                </a>
+                <p class="sales-orders-page-footer__meta">
+                    &copy; {{ now()->year }} Sales and Customer Management System &middot; Version 1.0
+                </p>
+            </div>
         </div>
 
     </div>
