@@ -9,6 +9,7 @@ class Employee extends Model
 {
     protected $primaryKey = 'employee_id';
 
+
     protected $fillable = [
         'username',
         'password_hash',
@@ -22,30 +23,61 @@ class Employee extends Model
         'locked_until',
     ];
 
+
     protected $casts = [
         'locked_until' => 'datetime',
     ];
 
+
+
     public function salesOrders(): HasMany
     {
-        return $this->hasMany(SalesOrder::class, 'employee_id', 'employee_id');
+        return $this->hasMany(
+            SalesOrder::class,
+            'employee_id',
+            'employee_id'
+        );
     }
+
+
 
     public function ticketAssignments(): HasMany
     {
-        return $this->hasMany(TicketAssignment::class, 'employee_id', 'employee_id');
+        return $this->hasMany(
+            TicketAssignment::class,
+            'employee_id',
+            'employee_id'
+        );
     }
+
+
+
+    /**
+     * Follow-ups / communication logs assigned to this employee
+     */
+    public function communicationLogs(): HasMany
+    {
+        return $this->hasMany(
+            CommunicationLog::class,
+            'employee_id',
+            'employee_id'
+        );
+    }
+
+
 
     public function getFullNameAttribute(): string
     {
-        return trim("{$this->first_name} {$this->last_name}");
+        return trim(
+            "{$this->first_name} {$this->last_name}"
+        );
     }
 
-    /**
-     * Whether the account is currently under a failed-attempt lockout.
-     */
+
+
     public function isLocked(): bool
     {
-        return $this->locked_until !== null && $this->locked_until->isFuture();
+        return $this->locked_until !== null 
+            && $this->locked_until->isFuture();
     }
 }

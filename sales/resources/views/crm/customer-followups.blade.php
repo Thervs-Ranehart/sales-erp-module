@@ -211,11 +211,13 @@
             <thead>
                 <tr>
                     <th>Customer</th>
-                    <th>Subject</th>
-                    <th>Channel</th>
-                    <th>Follow-Up Date</th>
-                    <th class="text-center">Status</th>
-                    <th class="text-center">Actions</th>
+<th>Agent</th>
+<th>Subject</th>
+<th>Channel</th>
+<th>Priority</th>
+<th>Follow-Up Date</th>
+<th class="text-center">Status</th>
+<th class="text-center">Actions</th>
                 </tr>
             </thead>
 
@@ -235,9 +237,33 @@
                     @endphp
 
                     <tr>
-                        <td>{{ $customerName }}</td>
-                        <td>{{ $followUp->subject }}</td>
-                        <td>{{ $followUp->communication_channel }}</td>
+                        <td>
+    {{ $customerName }}
+</td>
+
+<td>
+    {{ $followUp->agent->name ?? 'Unassigned' }}
+</td>
+
+<td>
+    {{ $followUp->subject }}
+</td>
+
+<td>
+    {{ $followUp->communication_channel }}
+</td>
+<td>
+    @if($followUp->priority === 'High')
+        <span class="badge bg-danger">High</span>
+
+    @elseif($followUp->priority === 'Medium')
+        <span class="badge bg-warning text-dark">Medium</span>
+
+    @else
+        <span class="badge bg-success">Low</span>
+
+    @endif
+</td>
                         <td>{{ optional($followUp->follow_up_date)->format('M j, Y') }}</td>
 
                         <td class="text-center">
@@ -283,7 +309,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="text-center text-muted py-4">No follow-ups found.</td>
+                        <td colspan="8" class="text-center text-muted py-4">No follow-ups found.</td>
                     </tr>
                 @endforelse
 
@@ -309,6 +335,26 @@
             </div>
             <div class="modal-body">
                 <p><strong>Customer:</strong> {{ optional($followUp->customer)->display_name ?? 'Unknown' }}</p>
+                <p>
+<strong>Assigned Agent:</strong> 
+{{ $followUp->agent->name ?? 'Unassigned' }}
+</p>
+
+<p>
+<strong>Priority:</strong>
+
+@if($followUp->priority === 'High')
+<span class="badge bg-danger">High</span>
+
+@elseif($followUp->priority === 'Medium')
+<span class="badge bg-warning text-dark">Medium</span>
+
+@else
+<span class="badge bg-success">Low</span>
+
+@endif
+
+</p>
                 <p><strong>Subject:</strong> {{ $followUp->subject }}</p>
                 <p><strong>Channel:</strong> {{ $followUp->communication_channel }}</p>
                 <p><strong>Follow-up Date:</strong> {{ optional($followUp->follow_up_date)->format('M j, Y') }}</p>
@@ -341,6 +387,25 @@
                             </select>
                         </div>
                         <div class="col-md-6">
+    <label class="form-label">Assigned Agent</label>
+
+    <select name="agent_id" class="form-select" required>
+
+        <option value="">
+            Select Agent
+        </option>
+
+        @foreach($agents as $agent)
+
+        <option value="{{ $agent->id }}">
+            {{ $agent->name }}
+        </option>
+
+        @endforeach
+
+    </select>
+</div>
+                        <div class="col-md-6">
                             <label class="form-label">Channel</label>
                             <select name="communication_channel" class="form-select" required>
                                 <option value="Email">Email</option>
@@ -360,6 +425,29 @@
                             <label class="form-label">Follow-up Date</label>
                             <input type="date" name="follow_up_date" class="form-control" required>
                         </div>
+                        <div class="col-md-6">
+
+    <label class="form-label">
+        Priority
+    </label>
+
+    <select name="priority" class="form-select" required>
+
+        <option value="Low">
+            Low
+        </option>
+
+        <option value="Medium">
+            Medium
+        </option>
+
+        <option value="High">
+            High
+        </option>
+
+    </select>
+
+</div>
                         <div class="col-md-6">
                             <label class="form-label">Status</label>
                             <select name="communication_status" class="form-select" required>

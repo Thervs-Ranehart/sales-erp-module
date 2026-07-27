@@ -14,10 +14,8 @@ class CommunicationLog extends Model
 
     protected $keyType = 'int';
 
-    /**
-     * The communication_logs table intentionally has no created_at or updated_at columns.
-     */
     public $timestamps = false;
+
 
     protected $fillable = [
         'customer_id',
@@ -34,15 +32,32 @@ class CommunicationLog extends Model
         'retention_outcome',
     ];
 
+
     protected $casts = [
         'communication_date' => 'datetime',
         'follow_up_date' => 'datetime',
     ];
 
+
     public function customer()
     {
-        return $this->belongsTo(Customer::class, 'customer_id', 'customer_id');
+        return $this->belongsTo(
+            Customer::class,
+            'customer_id',
+            'customer_id'
+        );
     }
+
+
+    public function agent()
+    {
+        return $this->belongsTo(
+            Employee::class,
+            'employee_id',
+            'employee_id'
+        );
+    }
+
 
     public function getRouteKeyName(): string
     {
