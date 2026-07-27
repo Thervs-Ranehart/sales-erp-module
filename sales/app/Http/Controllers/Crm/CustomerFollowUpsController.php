@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Crm;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\CommunicationLog;
+use App\Models\Agent;
 use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -96,9 +97,9 @@ class CustomerFollowUpsController extends Controller
 
             'customers' => Customer::orderBy('first_name')->get(),
 
-            // Existing employees table used as agents
-            'agents' => Employee::where(
-                'employee_status',
+            // Agents table used for follow-up assignment
+            'agents' => Agent::where(
+                'status',
                 'Active'
             )
             ->orderBy('first_name')
@@ -171,9 +172,9 @@ class CustomerFollowUpsController extends Controller
                 'exists:customers,customer_id'
             ],
 
-            'employee_id' => [
+            'agent_id' => [
                 'required',
-                'exists:employees,employee_id'
+                'exists:agents,agent_id'
             ],
 
             'communication_channel'=>[
@@ -214,7 +215,7 @@ class CustomerFollowUpsController extends Controller
             'customer_id'=>$data['customer_id'],
 
             // Assigned Agent
-            'employee_id'=>$data['employee_id'],
+            'agent_id'=>$data['agent_id'],
 
             'communication_date'=>now(),
 
@@ -265,24 +266,24 @@ class CustomerFollowUpsController extends Controller
     public function assignAgent(Request $request, CommunicationLog $log)
     {
         $data = $request->validate([
-            'employee_id' => [
+            'agent_id' => [
                 'required',
-                'exists:employees,employee_id',
+                'exists:agents,agent_id',
             ],
         ]);
 
-        $agent = Employee::where('employee_id', $data['employee_id'])
-            ->where('employee_status', 'Active')
+        $agent = Agent::where('agent_id', $data['agent_id'])
+            ->where('status', 'Active')
             ->first();
 
         if (! $agent) {
             return back()->withErrors([
-                'employee_id' => 'Selected agent is not available.',
+                'agent_id' => 'Selected agent is not available.',
             ]);
         }
 
         $log->update([
-            'employee_id' => $agent->employee_id,
+            'agent_id' => $agent->agent_id,
         ]);
 
         return back()->with(
@@ -321,14 +322,14 @@ class CustomerFollowUpsController extends Controller
      */
     private function buildAgentAssignmentOptions(Collection $followUps): array
     {
-        $activeAgents = Employee::where('employee_status', 'Active')
+        $activeAgents = Agent::where('status', 'Active')
             ->orderBy('first_name')
             ->get();
 
         $pendingByAgent = CommunicationLog::where('communication_status', 'Pending')
-            ->whereNotNull('employee_id')
-            ->get(['employee_id', 'priority'])
-            ->groupBy('employee_id');
+            ->whereNotNull('agent_id')
+            ->get(['agent_id', 'priority'])
+            ->groupBy('agent_id');
 
         $options = [];
 
@@ -336,15 +337,15 @@ class CustomerFollowUpsController extends Controller
             $currentRank = $this->priorityRank($followUp->priority);
 
             $ranked = $activeAgents
-                ->map(function (Employee $agent) use ($pendingByAgent, $currentRank) {
-                    $agentPending = $pendingByAgent->get($agent->employee_id, collect());
+                ->map(function (Agent $agent) use ($pendingByAgent, $currentRank) {
+                    $agentPending = $pendingByAgent->get($agent->agent_id, collect());
 
                     $workload = $agentPending
                         ->filter(fn ($pending) => $this->priorityRank($pending->priority) >= $currentRank)
                         ->count();
 
                     return [
-                        'employee_id' => $agent->employee_id,
+                        'agent_id' => $agent->agent_id,
                         'name' => $agent->full_name,
                         'department' => $agent->department,
                         'workload' => $workload,

@@ -840,10 +840,10 @@
 
                             <input
                                 type="radio"
-                                name="employee_id"
-                                value="{{ $option['employee_id'] }}"
+                                name="agent_id"
+                                value="{{ $option['agent_id'] }}"
                                 class="form-check-input me-2"
-                                {{ ($followUp->employee_id === $option['employee_id'] || (! $followUp->employee_id && $option['recommended'])) ? 'checked' : '' }}
+                                {{ ($followUp->agent_id === $option['agent_id'] || (! $followUp->agent_id && $option['recommended'])) ? 'checked' : '' }}
                                 required>
 
                             {{ $option['name'] }}

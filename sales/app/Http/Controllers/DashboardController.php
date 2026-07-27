@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Agent;
+use App\Models\CommunicationLog;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\Notification;
@@ -77,6 +79,48 @@ class DashboardController extends Controller
             ? SalesForecast::query()->latest('generated_at')->first()
             : null;
 
+        $agentFollowUps = Agent::query()
+            ->where('status', 'Active')
+            ->withCount([
+                'communicationLogs as total_followups',
+                'communicationLogs as pending_followups' => function ($query) {
+                    $query->where('communication_status', 'Pending');
+                },
+                'communicationLogs as completed_followups' => function ($query) {
+                    $query->where('communication_status', 'Completed');
+                },
+                'communicationLogs as overdue_followups' => function ($query) {
+                    $query->whereDate('follow_up_date', '<', now()->toDateString())
+                        ->where('communication_status', '!=', 'Completed');
+                },
+            ])
+            ->whereHas('communicationLogs', function ($query) {
+                $query->whereNotNull('follow_up_date');
+            })
+            ->orderByDesc('pending_followups')
+            ->take(10)
+            ->get()
+            ->map(function ($agent) {
+                $nextFollowUp = CommunicationLog::where('agent_id', $agent->agent_id)
+                    ->whereDate('follow_up_date', '>=', now()->toDateString())
+                    ->where('communication_status', 'Pending')
+                    ->orderBy('follow_up_date')
+                    ->with('customer')
+                    ->first();
+
+                return (object) [
+                    'agent_id' => $agent->agent_id,
+                    'name' => $agent->full_name,
+                    'department' => $agent->department,
+                    'total_followups' => (int) $agent->total_followups,
+                    'pending_followups' => (int) $agent->pending_followups,
+                    'completed_followups' => (int) $agent->completed_followups,
+                    'overdue_followups' => (int) $agent->overdue_followups,
+                    'next_follow_up' => $nextFollowUp?->follow_up_date,
+                    'next_customer' => $nextFollowUp?->customer?->full_name ?? $nextFollowUp?->customer?->display_name ?? null,
+                ];
+            });
+
         return view('dashboard.index', [
             'period' => $period,
             'periodLabel' => $this->periodLabel($period, $start, $end),
@@ -107,6 +151,7 @@ class DashboardController extends Controller
             'topProductsChart' => $this->chartData($snapshot['productSales'], 5),
             'representativesChart' => $this->chartData($snapshot['representativeSales'], 5),
             'regionsChart' => $this->chartData($snapshot['regionalSales'], 5),
+            'agentFollowUps' => $agentFollowUps,
         ]);
     }
 

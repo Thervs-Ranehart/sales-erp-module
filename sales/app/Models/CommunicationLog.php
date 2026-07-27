@@ -15,6 +15,8 @@ class CommunicationLog extends Model
     protected $fillable = [
         'customer_id',
         'employee_id',
+        'agent_id',
+        'communication_date',
         'communication_channel',
         'subject',
         'notes',
@@ -42,6 +44,16 @@ class CommunicationLog extends Model
     }
 
     public function agent()
+    {
+        return $this->belongsTo(
+            Agent::class,
+            'agent_id',
+            'agent_id'
+        );
+    }
+
+
+    public function employee()
     {
         return $this->belongsTo(
             Employee::class,
