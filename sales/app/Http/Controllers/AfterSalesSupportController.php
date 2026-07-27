@@ -176,7 +176,24 @@ class AfterSalesSupportController extends Controller
         }
 
         if ($status !== null && $status !== '' && strtolower($status) !== 'all') {
-            $query->where('warranty_status', $status);
+            $today = today()->toDateString();
+            $expiringSoonDate = today()->addDays(30)->toDateString();
+
+            match ($status) {
+                'Active' => $query->where('warranty_status', 'Active')
+                    ->whereDate('warranty_end', '>', $expiringSoonDate),
+                'Expiring Soon' => $query->whereNotIn('warranty_status', ['On Hold', 'Expired'])
+                    ->whereDate('warranty_end', '>=', $today)
+                    ->whereDate('warranty_end', '<=', $expiringSoonDate),
+                'Expired' => $query->where(function (Builder $statusQuery) use ($today): void {
+                    $statusQuery->where('warranty_status', 'Expired')
+                        ->orWhere(function (Builder $dateQuery) use ($today): void {
+                            $dateQuery->whereNotIn('warranty_status', ['On Hold', 'Expired'])
+                                ->whereDate('warranty_end', '<', $today);
+                        });
+                }),
+                'On Hold' => $query->where('warranty_status', 'On Hold'),
+            };
         }
 
         if ($customer) {

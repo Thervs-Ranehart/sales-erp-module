@@ -25,6 +25,29 @@ class WarrantyWorkflowTest extends TestCase
         $this->assertNotNull($warrantyId);
     }
 
+    public function test_warranty_registry_filters_use_the_displayed_status_and_combine_with_search_and_pagination(): void
+    {
+        $this->seedWarrantyContext();
+
+        DB::table('warranty_records')->insert([
+            ['order_id' => 1, 'product_id' => 1, 'warranty_number' => 'WR-EXPIRING-1', 'warranty_start' => now()->subYear(), 'warranty_end' => now()->addDays(10), 'warranty_status' => 'Active', 'created_at' => now(), 'updated_at' => now()],
+            ['order_id' => 1, 'product_id' => 1, 'warranty_number' => 'WR-EXPIRING-2', 'warranty_start' => now()->subYear(), 'warranty_end' => now()->addDays(20), 'warranty_status' => 'Active', 'created_at' => now()->subMinute(), 'updated_at' => now()],
+            ['order_id' => 1, 'product_id' => 1, 'warranty_number' => 'WR-EXPIRED', 'warranty_start' => now()->subYears(2), 'warranty_end' => now()->subDay(), 'warranty_status' => 'Active', 'created_at' => now(), 'updated_at' => now()],
+            ['order_id' => 1, 'product_id' => 1, 'warranty_number' => 'WR-HOLD', 'warranty_start' => now()->subMonth(), 'warranty_end' => now()->addYear(), 'warranty_status' => 'On Hold', 'created_at' => now(), 'updated_at' => now()],
+        ]);
+
+        $this->get('/support/warranty-records?status=Expiring%20Soon&search=WR-EXPIRING&customer=1&product=1&per_page=1')
+            ->assertOk()
+            ->assertSee('WR-EXPIRING-')
+            ->assertDontSee('WR-EXPIRED')
+            ->assertDontSee('WR-HOLD')
+            ->assertSee('status=Expiring+Soon', false);
+
+        $this->get('/support/warranty-records?status=Expired')->assertOk()->assertSee('WR-EXPIRED')->assertDontSee('WR-EXPIRING-1');
+        $this->get('/support/warranty-records?status=On%20Hold')->assertOk()->assertSee('WR-HOLD')->assertDontSee('WR-EXPIRED');
+        $this->get('/support/warranty-records?product=all')->assertRedirect()->assertSessionHasErrors('product');
+    }
+
     public function test_warranty_claim_page_renders_one_table_and_each_modal_once(): void
     {
         $this->seedWarrantyContext();
