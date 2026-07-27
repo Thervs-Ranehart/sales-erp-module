@@ -10,34 +10,27 @@ class CommunicationLog extends Model
 
     protected $primaryKey = 'communication_id';
 
-    public $incrementing = true;
-
-    protected $keyType = 'int';
-
     public $timestamps = false;
-
 
     protected $fillable = [
         'customer_id',
         'employee_id',
-        'communication_date',
         'communication_channel',
         'subject',
         'notes',
-        'follow_up_date',
         'communication_status',
         'priority',
+        'communication_date',
+        'follow_up_date',
         'automation_key',
         'recurrence',
         'retention_outcome',
     ];
 
-
     protected $casts = [
         'communication_date' => 'datetime',
-        'follow_up_date' => 'datetime',
+        'follow_up_date' => 'date',
     ];
-
 
     public function customer()
     {
@@ -48,7 +41,6 @@ class CommunicationLog extends Model
         );
     }
 
-
     public function agent()
     {
         return $this->belongsTo(
@@ -56,11 +48,5 @@ class CommunicationLog extends Model
             'employee_id',
             'employee_id'
         );
-    }
-
-
-    public function getRouteKeyName(): string
-    {
-        return 'communication_id';
     }
 }
