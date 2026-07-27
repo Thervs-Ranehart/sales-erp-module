@@ -58,18 +58,13 @@ beforeEach(function (): void {
     $this->withSession(['employee_id' => $this->employee->employee_id, 'employee_role' => 'Manager']);
 });
 
-test('staff can create archive and restore a ticket with SLA deadlines', function (): void {
-    $this->post(route('support.tickets.store'), [
-        'order_id' => $this->order->order_id,
-        'product_id' => $this->product->product_id,
-        'ticket_type' => 'Technical',
-        'subject' => 'Product requires support',
-        'description' => 'Customer reported a repeatable issue.',
-        'priority' => 'High',
-        'department' => 'Technical Support',
-    ])->assertRedirect();
-
-    $ticket = SupportTicket::query()->firstOrFail();
+test('staff can archive and restore an existing ticket with its history intact', function (): void {
+    $ticket = createSupportTicket($this);
+    $ticket->caseEvents()->create([
+        'event_type' => 'Created',
+        'description' => 'Existing support ticket imported from a prior workflow.',
+        'created_at' => now(),
+    ]);
     expect($ticket->customer_id)->toBe($this->customer->customer_id)
         ->and($ticket->resolution_due_at)->not->toBeNull()
         ->and($ticket->caseEvents()->count())->toBe(1);
@@ -78,6 +73,26 @@ test('staff can create archive and restore a ticket with SLA deadlines', functio
     expect($ticket->fresh()->archived_at)->not->toBeNull();
     $this->patch(route('support.tickets.restore', $ticket))->assertRedirect();
     expect($ticket->fresh()->archived_at)->toBeNull();
+});
+
+test('ticket creation endpoint is unavailable', function (): void {
+    $this->post('/support/tickets')->assertStatus(405);
+    $this->get('/support/tickets/create')->assertStatus(405);
+    $this->get('/support/tickets')->assertOk()->assertDontSee('Add New');
+});
+
+test('after-sales record creation endpoints and controls are unavailable', function (): void {
+    foreach ([
+        '/support/warranty-records',
+        '/support/warranty-claims',
+        '/support/service-contracts',
+        '/support/service-requests',
+        '/support/resolution-tracking',
+    ] as $path) {
+        $this->post($path)->assertStatus(405);
+        expect($this->get($path.'/create')->status())->toBeIn([404, 405]);
+        $this->get($path)->assertOk()->assertDontSee('Add New');
+    }
 });
 
 test('warranty claims are validated and approved claims create service requests', function (): void {
@@ -91,13 +106,15 @@ test('warranty claims are validated and approved claims create service requests'
         'warranty_status' => 'Active',
     ]);
 
-    $this->post(route('support.warranty-claims.store'), [
+    $claim = \App\Models\WarrantyClaim::query()->create([
         'warranty_id' => $warranty->warranty_id,
         'ticket_id' => $ticket->ticket_id,
         'claim_reason' => 'Covered product failed.',
-    ])->assertRedirect();
-
-    $claim = $warranty->warrantyClaims()->firstOrFail();
+        'claim_status' => 'Pending',
+        'claim_date' => now(),
+        'eligibility_status' => 'Eligible',
+        'eligibility_notes' => 'Covered product and customer match the active warranty.',
+    ]);
     expect($claim->eligibility_status)->toBe('Eligible');
     $this->post(route('support.warranty-claims.status', $claim), ['claim_status' => 'Approved'])->assertRedirect();
     $this->assertDatabaseHas('service_requests', ['ticket_id' => $ticket->ticket_id, 'request_type' => 'Approved Warranty Claim']);

@@ -5,8 +5,6 @@
     @php($subtitle = 'Review and process warranty claims')
 
     @include('components.page-header', ['title' => $title, 'subtitle' => $subtitle])
-    @include('support.operations-create-modal')
-
     @include('support.warranty-claim-view-modal')
     @include('support.warranty-claim-status-modal')
 
@@ -474,7 +472,6 @@
 </script>
 
 @endpush
-
 
 
 

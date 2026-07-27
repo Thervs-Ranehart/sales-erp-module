@@ -5,8 +5,6 @@
     @php($subtitle = 'Track warranty coverage by order and product')
 
     @include('components.page-header', ['title' => $title, 'subtitle' => $subtitle])
-    @include('support.operations-create-modal')
-
 @include('support.warranty-view-modal')
 
     <div class="card p-4">

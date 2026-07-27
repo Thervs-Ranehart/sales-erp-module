@@ -136,8 +136,6 @@ class AfterSalesSupportController extends Controller
             'toDate' => $toDate,
             'customers' => $customers,
             'employees' => Employee::query()->orderBy('first_name')->orderBy('last_name')->get(['employee_id', 'first_name', 'last_name']),
-            'salesOrders' => SalesOrder::query()->with(['customer', 'items.product'])->orderByDesc('order_date')->get(),
-            'serviceContracts' => ServiceContract::query()->whereNull('archived_at')->orderBy('contract_number')->get(),
         ]);
     }
 
@@ -202,7 +200,6 @@ class AfterSalesSupportController extends Controller
             'product' => $product,
             'products' => Product::query()->orderBy('product_name')->get(['product_id', 'product_name']),
             'customers' => Customer::query()->orderBy('first_name')->orderBy('last_name')->get(['customer_id', 'first_name', 'last_name']),
-            'salesOrders' => SalesOrder::query()->with(['customer', 'items.product'])->orderByDesc('order_date')->get(),
         ]);
     }
 
@@ -598,8 +595,6 @@ class AfterSalesSupportController extends Controller
             'qcPassedCount' => $qcPassedCount,
             'qcFailedCount' => $qcFailedCount,
             'pendingQcCount' => $pendingQcCount,
-            'tickets' => SupportTicket::query()->whereNull('archived_at')->orderByDesc('created_at')->get(['ticket_id', 'subject']),
-            'employees' => Employee::query()->orderBy('first_name')->orderBy('last_name')->get(['employee_id', 'first_name', 'last_name']),
         ]);
     }
 

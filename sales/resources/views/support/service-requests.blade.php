@@ -2,7 +2,6 @@
 
 @section('content')
     @include('components.page-header', ['title' => 'Service Requests', 'subtitle' => 'Schedule and manage service requests'])
-    @include('support.operations-create-modal')
     @include('support.service-request-scheduling-modal')
     @include('support.service-request-view-modal')
 
