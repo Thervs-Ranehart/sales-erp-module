@@ -313,6 +313,83 @@
         </div>
     </section>
 
+    {{-- Agents Follow-Up Table --}}
+    <section class="row g-4 mt-4">
+        <div class="col-12">
+            <article class="card dashboard-panel">
+                <div class="dashboard-panel-header">
+                    <div>
+                        <span class="dashboard-panel-kicker">Agent activity</span>
+                        <h5 class="fw-bold mb-0">Follow-Ups by Agent</h5>
+                    </div>
+                    <a href="{{ route('crm.followups') }}" class="dashboard-panel-link">Manage follow-ups <i class="bi bi-arrow-right"></i></a>
+                </div>
+                <div class="p-3">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0" style="min-width: 700px;">
+                            <thead>
+                                <tr>
+                                    <th>Agent</th>
+                                    <th>Department</th>
+                                    <th class="text-center">Total</th>
+                                    <th class="text-center">Pending</th>
+                                    <th class="text-center">Completed</th>
+                                    <th class="text-center">Overdue</th>
+                                    <th>Next Follow-Up</th>
+                                    <th>Customer</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($agentFollowUps as $agent)
+                                    @php
+                                        $overdueClass = $agent->overdue_followups > 0 ? 'text-danger fw-bold' : '';
+                                        $pendingClass = $agent->pending_followups > 0 ? 'text-warning fw-bold' : '';
+                                    @endphp
+                                    <tr>
+                                        <td>
+                                            <strong>{{ $agent->name }}</strong>
+                                        </td>
+                                        <td>
+                                            <span class="text-muted">{{ $agent->department ?: '—' }}</span>
+                                        </td>
+                                        <td class="text-center">{{ $agent->total_followups }}</td>
+                                        <td class="text-center {{ $pendingClass }}">{{ $agent->pending_followups }}</td>
+                                        <td class="text-center text-success fw-bold">{{ $agent->completed_followups }}</td>
+                                        <td class="text-center {{ $overdueClass }}">{{ $agent->overdue_followups }}</td>
+                                        <td>
+                                            @if ($agent->next_follow_up)
+                                                <span>{{ $agent->next_follow_up->format('M j, Y') }}</span>
+                                            @else
+                                                <span class="text-muted">—</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($agent->next_customer)
+                                                <span>{{ $agent->next_customer }}</span>
+                                            @else
+                                                <span class="text-muted">—</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted py-4">
+                                            <i class="bi bi-info-circle me-2"></i>
+                                            No follow-up data available for agents.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                @if ($agentFollowUps->isNotEmpty())
+                    <a href="{{ route('crm.followups') }}" class="dashboard-view-all">View all follow-ups <i class="bi bi-arrow-right"></i></a>
+                @endif
+            </article>
+        </div>
+    </section>
+
     <style>
         .dashboard-header{display:flex;align-items:center;justify-content:space-between;gap:24px}.dashboard-eyebrow,.dashboard-panel-kicker{display:block;margin-bottom:5px;color:#5347ce;font-size:10px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}.dashboard-period-form{height:42px;display:flex;align-items:center;gap:8px;padding:0 12px;border:1px solid #e2e8f0;border-radius:12px;background:#fff;color:#64748b}.dashboard-period-form select{border:0;outline:0;background:transparent;color:#334155;font-size:12px;font-weight:600}.dashboard-action{height:42px;display:inline-flex;align-items:center;gap:7px;border:0;border-radius:12px;background:#5347ce;font-size:12px;font-weight:700}.dashboard-quick-actions{display:flex;align-items:center;gap:12px;padding:14px 16px;border:1px solid rgba(45,212,191,.48);border-radius:16px;background:linear-gradient(120deg,#7dd3fc 0%,#a7e7e0 52%,#a7f3d0 100%);overflow-x:auto;box-shadow:0 12px 28px rgba(14,116,144,.16)}.dashboard-quick-actions>span{color:#0c4a6e;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap}.dashboard-quick-actions a{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid rgba(14,116,144,.2);border-radius:11px;color:#0f4c5c;background:rgba(255,255,255,.72);font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap;box-shadow:0 4px 12px rgba(14,116,144,.1);backdrop-filter:blur(8px);transition:transform .2s ease,box-shadow .2s ease,color .2s ease,background .2s ease,border-color .2s ease}.dashboard-quick-actions a i{font-size:14px}.dashboard-quick-actions a:nth-of-type(2),.dashboard-quick-actions a:nth-of-type(3),.dashboard-quick-actions a:nth-of-type(4){color:#0f4c5c;background:rgba(255,255,255,.72);border-color:rgba(14,116,144,.2)}.dashboard-quick-actions a:hover,.dashboard-quick-actions a:focus-visible{color:#fff;background:#0f766e;border-color:#0f766e;box-shadow:0 10px 22px rgba(15,118,110,.26);transform:translateY(-3px)}.dashboard-kpi{height:100%;min-height:168px;display:flex;flex-direction:column;padding:18px;border:1px solid #e8eaf1;border-radius:17px;background:#fff;color:inherit;text-decoration:none;box-shadow:0 8px 22px rgba(15,23,42,.045);transition:.2s}.dashboard-kpi:hover{color:inherit;border-color:#d9d5ff;box-shadow:0 13px 28px rgba(83,71,206,.11);transform:translateY(-2px)}.dashboard-kpi-icon{width:38px;height:38px;display:grid;place-items:center;margin-bottom:14px;border-radius:11px;font-size:17px}.dashboard-kpi-icon.is-primary{color:#5347ce;background:#f0efff}.dashboard-kpi-icon.is-success{color:#059669;background:#ecfdf5}.dashboard-kpi-icon.is-info{color:#0284c7;background:#f0f9ff}.dashboard-kpi-icon.is-warning{color:#d97706;background:#fffbeb}.dashboard-kpi-icon.is-purple{color:#7c3aed;background:#f5f3ff}.dashboard-kpi-icon.is-danger{color:#dc2626;background:#fef2f2}.dashboard-kpi-label{color:#64748b;font-size:11px;font-weight:600}.dashboard-kpi>strong{margin:4px 0 8px;color:#172033;font-size:22px;line-height:1.15}.dashboard-kpi>small{margin-top:auto;color:#64748b;font-size:9px}.dashboard-panel{overflow:hidden;border:1px solid #e8eaf1;box-shadow:0 8px 22px rgba(15,23,42,.045)}.dashboard-panel-header{min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 22px;border-bottom:1px solid #eef2f7}.dashboard-count-badge{padding:5px 9px;border-radius:999px;background:#f0efff;color:#5347ce;font-size:10px;font-weight:800}.dashboard-panel-link{color:#5347ce;font-size:10px;font-weight:700;text-decoration:none}.dashboard-attention-list,.dashboard-activity-list,.dashboard-notification-list{padding:6px 20px}.dashboard-attention-item,.dashboard-activity-item,.dashboard-notification-item{display:flex;align-items:center;gap:12px;padding:13px 2px;border-bottom:1px solid #f1f5f9;color:inherit;text-decoration:none}.dashboard-attention-item:last-child,.dashboard-activity-item:last-child,.dashboard-notification-item:last-child{border-bottom:0}.dashboard-attention-item:hover,.dashboard-activity-item:hover,.dashboard-notification-item:hover{color:#4338ca}.dashboard-list-icon{width:36px;height:36px;display:grid;place-items:center;flex:0 0 36px;border-radius:11px}.dashboard-attention-item strong,.dashboard-attention-item small,.dashboard-activity-item strong,.dashboard-activity-item small,.dashboard-notification-item strong,.dashboard-notification-item small,.dashboard-notification-item time{display:block}.dashboard-attention-item strong,.dashboard-activity-item strong,.dashboard-notification-item strong{font-size:11px}.dashboard-attention-item small,.dashboard-activity-item small,.dashboard-notification-item small,.dashboard-notification-item time{margin-top:2px;color:#64748b;font-size:9px}.dashboard-item-count{min-width:27px;height:27px;display:grid;place-items:center;border-radius:8px;background:#fff7ed;color:#c2410c;font-size:11px;font-weight:800}.dashboard-empty{min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;color:#64748b;text-align:center}.dashboard-empty>span{width:46px;height:46px;display:grid;place-items:center;margin-bottom:11px;border-radius:14px;background:#ecfdf5;color:#059669;font-size:20px}.dashboard-empty strong{color:#334155;font-size:12px}.dashboard-empty small{margin-top:4px;font-size:10px}.dashboard-progress-track{height:12px;overflow:hidden;border-radius:999px;background:#eef2f7}.dashboard-progress-track span{height:100%;display:block;border-radius:999px;background:linear-gradient(90deg,#5347ce,#887cfd);transition:width .5s ease}.dashboard-mini-stat{padding:13px;border-radius:12px;background:#f8fafc}.dashboard-mini-stat span,.dashboard-mini-stat strong{display:block}.dashboard-mini-stat span{color:#64748b;font-size:10px}.dashboard-mini-stat strong{margin-top:3px;color:#1e293b;font-size:15px}.dashboard-forecast{background:linear-gradient(150deg,#fff 50%,#f4f2ff)}.dashboard-forecast-value span,.dashboard-forecast-value strong,.dashboard-forecast-value small{display:block}.dashboard-forecast-value span{color:#64748b;font-size:10px}.dashboard-forecast-value strong{margin:4px 0;color:#312e81;font-size:28px}.dashboard-forecast-value small{color:#64748b;font-size:10px}.dashboard-forecast-stat{height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid #e7e5ff;border-radius:13px;background:rgba(255,255,255,.75);text-align:center}.dashboard-forecast-stat i{color:#5347ce}.dashboard-forecast-stat strong{margin-top:4px;color:#1e293b;font-size:13px}.dashboard-forecast-stat span{color:#64748b;font-size:8px}.dashboard-activity-meta{flex:0 0 auto;text-align:right}.dashboard-activity-meta em{display:inline-block;padding:3px 7px;border-radius:999px;background:#f1f5f9;color:#475569;font-size:8px;font-style:normal;font-weight:700}.dashboard-notification-item{align-items:flex-start}.dashboard-notification-dot{width:7px;height:7px;flex:0 0 7px;margin-top:5px;border-radius:50%;background:#cbd5e1}.dashboard-notification-item.is-unread .dashboard-notification-dot{background:#5347ce;box-shadow:0 0 0 4px rgba(83,71,206,.1)}.dashboard-notification-item.is-unread strong{color:#312e81}.dashboard-view-all{display:flex;align-items:center;justify-content:center;gap:8px;padding:15px;border-top:1px solid #eef2f7;color:#5347ce;font-size:13px;font-weight:700;text-decoration:none;transition:background .2s ease,color .2s ease}.dashboard-view-all:hover{color:#4338ca;background:#f5f3ff}@media(max-width:991.98px){.dashboard-header{align-items:flex-start;flex-direction:column}}@media(max-width:575.98px){.dashboard-header .d-flex{width:100%}.dashboard-period-form{flex:1}.dashboard-action{padding-inline:11px}.dashboard-quick-actions{margin-inline:-4px}.dashboard-panel-header{padding:16px}.dashboard-attention-list,.dashboard-activity-list,.dashboard-notification-list{padding-inline:14px}.dashboard-activity-meta{display:none}}
         .dashboard-quick-actions {
@@ -404,6 +481,21 @@
         .dashboard-order-achievement.is-green span,
         .dashboard-order-achievement.is-green strong {
             color: #15803d;
+        }
+
+        .dashboard-followup-table th {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            background: #f8f9fa;
+            color: #495057;
+            font-weight: 600;
+        }
+
+        .dashboard-followup-table td {
+            padding: 12px 8px;
+            vertical-align: middle;
+            font-size: 13px;
         }
     </style>
 @endsection

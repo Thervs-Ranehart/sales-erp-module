@@ -29,6 +29,11 @@ class StorePricingRuleRequest extends FormRequest
                 'required',
                 'numeric',
                 'min:0',
+                function ($attribute, $value, $fail) {
+                    if ($this->input('discount_type') === 'Percentage' && $value > 100) {
+                        $fail('The discount value cannot exceed 100 for percentage type.');
+                    }
+                },
             ],
 
             'tax_rate' => [

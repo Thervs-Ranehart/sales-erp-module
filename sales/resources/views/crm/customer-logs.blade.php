@@ -10,16 +10,24 @@ $subtitle = 'Manage customer information and relationship data.';
 @if (session('success'))
 
 <div class="alert alert-success alert-dismissible fade show" role="alert">
+
     {{ session('success') }}
 
-```
+    <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="alert"
+        aria-label="Close">
+    </button>
+
+</div>
 <button
     type="button"
     class="btn-close"
     data-bs-dismiss="alert"
     aria-label="Close">
 </button>
-```
+
 
 </div>
 @endif
@@ -153,7 +161,7 @@ $subtitle = 'Manage customer information and relationship data.';
 
 <div class="d-flex justify-content-between align-items-center mb-4">
 
-```
+
 <div>
 
     <h4 class="fw-semibold mb-1">
@@ -176,7 +184,7 @@ $subtitle = 'Manage customer information and relationship data.';
     New Communication
 
 </button>
-```
+
 
 </div>
 
@@ -184,7 +192,6 @@ $subtitle = 'Manage customer information and relationship data.';
 
 @php
 
-```
 $logsCollection = collect($logs->items());
 
 $totalForPage = $logsCollection->count();
@@ -212,13 +219,12 @@ $phonePct = $totalForPage > 0
 $smsPct = $totalForPage > 0
     ? round(($smsCount / $totalForPage) * 100)
     : 0;
-```
 
 @endphp
 
 <div class="row g-3 mb-4">
 
-```
+
 <div class="col-md-3">
 
     <div class="summary-box">
@@ -285,7 +291,7 @@ $smsPct = $totalForPage > 0
     </div>
 
 </div>
-```
+
 
 </div>
 
@@ -293,7 +299,7 @@ $smsPct = $totalForPage > 0
 
 <div class="row g-4 mb-4">
 
-```
+
 <div class="col-md-7">
 
     <div class="card communication-card p-4">
@@ -433,7 +439,7 @@ $smsPct = $totalForPage > 0
     </div>
 
 </div>
-```
+
 
 </div>
 
@@ -441,7 +447,7 @@ $smsPct = $totalForPage > 0
 
 <div class="card communication-card p-3 mb-4">
 
-```
+
 <form
     method="GET"
     action="{{ route('crm.logs') }}">
@@ -560,7 +566,7 @@ $smsPct = $totalForPage > 0
     </div>
 
 </form>
-```
+
 
 </div>
 
@@ -568,7 +574,7 @@ $smsPct = $totalForPage > 0
 
 <div class="card communication-card p-4">
 
-```
+
 <h5 class="fw-semibold mb-3">
     Interaction Records
 </h5>
@@ -830,15 +836,15 @@ $smsPct = $totalForPage > 0
     </table>
 
 </div>
-```
+
 
 </div>
 
 <div class="mt-3">
 
-```
+
 {{ $logs->links() }}
-```
+
 
 </div>
 
@@ -846,7 +852,7 @@ $smsPct = $totalForPage > 0
 
 @foreach($logs as $log)
 
-```
+
 @php
 
     $modalFollowUpDate = $log->follow_up_date
@@ -975,7 +981,6 @@ $smsPct = $totalForPage > 0
     </div>
 
 </div>
-```
 
 @endforeach
 
@@ -986,7 +991,7 @@ $smsPct = $totalForPage > 0
     id="newCommunicationModal"
     tabindex="-1">
 
-```
+
 <div class="modal-dialog modal-lg">
 
     <div class="modal-content">
@@ -1179,7 +1184,7 @@ $smsPct = $totalForPage > 0
     </div>
 
 </div>
-```
+
 
 </div>
 

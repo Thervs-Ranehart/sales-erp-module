@@ -8,10 +8,20 @@
 @include('sales.partials.alerts')
 
 @php
-    $isEdit = isset($salesOrder);
-    $orderItems = $isEdit ? $salesOrder->items : collect();
-    $discountPercent = $isEdit ? $salesOrder->discountPercent() : old('discount', 0);
-    $taxPercent = $isEdit ? $salesOrder->taxPercent() : old('tax', 12);
+$isEdit = isset($salesOrder);
+$orderItems = $isEdit ? $salesOrder->items : collect();
+
+$selectedRule = $isEdit ? $salesOrder->pricingRule : null;
+
+if ($isEdit && $selectedRule) {
+    $discountValue = $selectedRule->discount_value;
+    $discountType = strtolower($selectedRule->discount_type);
+} else {
+    $discountValue = old('discount', 0);
+    $discountType = 'percentage';
+}
+
+$taxPercent = $isEdit ? $salesOrder->taxPercent() : old('tax', 12);
 @endphp
 
 <style>
@@ -203,6 +213,8 @@ required>
 
 <td>
 
+
+
 <input
 type="number"
 step="0.01"
@@ -264,14 +276,15 @@ Pricing
 
     @foreach ($pricingRules as $rule)
 
-        <option
-            value="{{ $rule->pricing_rule_id }}"
-            data-discount="{{ $rule->discount_value ?? 0 }}"
-            data-tax="{{ $rule->tax_rate ?? 12 }}"
-            @selected(old('pricing_rule_id', $isEdit ? $salesOrder->pricing_rule_id : null) == $rule->pricing_rule_id)
-        >
-            {{ $rule->rule_name }}
-        </option>
+       <option
+    value="{{ $rule->pricing_rule_id }}"
+    data-discount="{{ $rule->discount_value ?? 0 }}"
+    data-discount-type="{{ $rule->discount_type }}"
+    data-tax="{{ $rule->tax_rate ?? 12 }}"
+    @selected(old('pricing_rule_id', $isEdit ? $salesOrder->pricing_rule_id : null) == $rule->pricing_rule_id)
+>
+    {{ $rule->rule_name }}
+</option>
 
     @endforeach
 
@@ -280,17 +293,16 @@ Pricing
 
 <div class="col-md-4">
 
-<label>Discount (%)</label>
+<label id="discountLabel">Discount (%)</label>
 
 <input
 type="number"
 step="0.01"
 min="0"
-max="100"
 class="form-control"
 name="discount"
 id="discountInput"
-value="{{ $discountPercent }}">
+value="{{ $discountValue }}">
 
 </div>
 
@@ -421,6 +433,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const discountInput = document.getElementById('discountInput');
     const taxInput = document.getElementById('taxInput');
     const pricingRuleSelect = document.getElementById('pricingRuleSelect');
+    const discountLabel = document.getElementById('discountLabel');
+
+let discountType = "percentage";
 
     function formatCurrency(value) {
         return '₱' + Number(value || 0).toLocaleString('en-PH', {
@@ -445,12 +460,28 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        const discountPercent = parseFloat(discountInput.value || 0);
-        const taxPercent = parseFloat(taxInput.value || 0);
-        const discountAmount = subtotal * (discountPercent / 100);
-        const taxableAmount = Math.max(subtotal - discountAmount, 0);
-        const taxAmount = taxableAmount * (taxPercent / 100);
-        const total = subtotal - discountAmount + taxAmount;
+        const discountValue = parseFloat(discountInput.value || 0);
+const taxPercent = parseFloat(taxInput.value || 0);
+
+let discountAmount = 0;
+
+if (discountType.toLowerCase() === "fixed") {
+
+    discountAmount = discountValue;
+
+} else {
+
+    discountAmount = subtotal * (discountValue / 100);
+
+}
+
+discountAmount = Math.min(discountAmount, subtotal);
+
+const taxableAmount = subtotal - discountAmount;
+
+const taxAmount = taxableAmount * (taxPercent / 100);
+
+const total = taxableAmount + taxAmount;
 
         document.getElementById('summarySubtotal').textContent = formatCurrency(subtotal);
         document.getElementById('summaryDiscount').textContent = formatCurrency(discountAmount);
@@ -459,16 +490,18 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function bindRowEvents(row) {
-        row.querySelector('.product-select')?.addEventListener('change', function () {
-            const selected = this.options[this.selectedIndex];
-            const priceInput = row.querySelector('.price-input');
+       row.querySelector('.product-select')?.addEventListener('change', function () {
 
-            if (selected && selected.dataset.price && priceInput && !priceInput.value) {
-                priceInput.value = selected.dataset.price;
-            }
+    const selected = this.options[this.selectedIndex];
+    const priceInput = row.querySelector('.price-input');
 
-            recalculateTotals();
-        });
+    if (selected && selected.dataset.price && priceInput && !priceInput.value) {
+        priceInput.value = selected.dataset.price;
+    }
+
+    recalculateTotals();
+});
+           
 
         row.querySelector('.qty-input')?.addEventListener('input', recalculateTotals);
         row.querySelector('.price-input')?.addEventListener('input', recalculateTotals);
@@ -491,26 +524,38 @@ document.addEventListener('DOMContentLoaded', function () {
         recalculateTotals();
     });
 
-    pricingRuleSelect.addEventListener('change', function () {
-        const selected = this.options[this.selectedIndex];
+   pricingRuleSelect.addEventListener('change', function () {
 
-        if (selected && selected.value) {
-            if (selected.dataset.discount) {
-                discountInput.value = selected.dataset.discount;
-            }
+    const selected = this.options[this.selectedIndex];
 
-            if (selected.dataset.tax) {
-                taxInput.value = selected.dataset.tax;
-            }
-        }
+    if (selected.value) {
 
-        recalculateTotals();
-    });
+        discountInput.value = selected.dataset.discount || 0;
+        taxInput.value = selected.dataset.tax || 12;
 
-    discountInput.addEventListener('input', recalculateTotals);
-    taxInput.addEventListener('input', recalculateTotals);
+        discountType = selected.dataset.discountType || "percentage";
 
+    } else {
+
+        discountInput.value = 0;
+        taxInput.value = 12;
+        discountType = "percentage";
+
+    }
+
+   discountLabel.textContent =
+    discountType.toLowerCase() === "fixed"
+        ? "Discount (₱)"
+        : "Discount (%)";
     recalculateTotals();
+
+});
+
+  discountInput.addEventListener('input', recalculateTotals);
+taxInput.addEventListener('input', recalculateTotals);
+
+
+recalculateTotals();
 });
 </script>
 
