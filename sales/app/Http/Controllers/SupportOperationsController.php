@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\ResolutionTracking;
-use App\Models\SalesOrder;
 use App\Models\SatisfactionMonitoring;
 use App\Models\ServiceContract;
 use App\Models\ServiceRequest;
@@ -20,37 +19,6 @@ use Illuminate\Validation\ValidationException;
 class SupportOperationsController extends Controller
 {
     public function __construct(private AfterSalesAutomationService $automation) {}
-
-    public function storeTicket(Request $request): RedirectResponse
-    {
-        $data = $request->validate([
-            'order_id' => ['required', 'exists:sales_orders,order_id'],
-            'product_id' => ['required', 'exists:products,product_id'],
-            'service_contract_id' => ['nullable', 'exists:service_contracts,contract_id'],
-            'ticket_type' => ['required', 'string', 'max:100'],
-            'subject' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string'],
-            'priority' => ['required', 'in:High,Medium,Low'],
-            'department' => ['required', 'string', 'max:100'],
-        ]);
-        $order = SalesOrder::query()->with('items')->findOrFail($data['order_id']);
-        if (! $order->items->contains('product_id', (int) $data['product_id'])) {
-            throw ValidationException::withMessages(['product_id' => 'The product must belong to the selected order.']);
-        }
-
-        DB::transaction(function () use ($data, $order): void {
-            $ticket = SupportTicket::query()->create([
-                ...$data,
-                'customer_id' => $order->customer_id,
-                'status' => 'Open',
-                'created_at' => now(),
-                ...$this->automation->deadlines($data['priority']),
-            ]);
-            $ticket->caseEvents()->create($this->event('Created', 'Support ticket created.'));
-        });
-
-        return back()->with('success', 'Support ticket created successfully.');
-    }
 
     public function updateTicket(Request $request, SupportTicket $ticket): RedirectResponse
     {
@@ -87,27 +55,6 @@ class SupportOperationsController extends Controller
         return back()->with('success', 'Support ticket restored.');
     }
 
-    public function storeWarranty(Request $request): RedirectResponse
-    {
-        $data = $request->validate([
-            'order_id' => ['required', 'exists:sales_orders,order_id'],
-            'product_id' => ['required', 'exists:products,product_id'],
-            'warranty_start' => ['required', 'date'],
-            'warranty_end' => ['required', 'date', 'after_or_equal:warranty_start'],
-            'warranty_status' => ['required', 'in:Active,On Hold,Expired'],
-        ]);
-        $order = SalesOrder::query()->with('items')->findOrFail($data['order_id']);
-        if (! $order->items->contains('product_id', (int) $data['product_id'])) {
-            throw ValidationException::withMessages(['product_id' => 'The product must belong to the selected order.']);
-        }
-        $record = WarrantyRecord::query()->create([
-            ...$data,
-            'warranty_number' => 'WR-'.now()->format('YmdHis').'-'.random_int(100, 999),
-        ]);
-
-        return back()->with('success', "Warranty {$record->warranty_number} created.");
-    }
-
     public function updateWarranty(Request $request, WarrantyRecord $warranty): RedirectResponse
     {
         $warranty->update($request->validate([
@@ -127,53 +74,12 @@ class SupportOperationsController extends Controller
         return back()->with('success', 'Warranty archived without removing its claim history.');
     }
 
-    public function storeClaim(Request $request): RedirectResponse
-    {
-        $data = $request->validate([
-            'warranty_id' => ['required', 'exists:warranty_records,warranty_id'],
-            'ticket_id' => ['required', 'exists:support_tickets,ticket_id'],
-            'claim_reason' => ['required', 'string'],
-        ]);
-        $warranty = WarrantyRecord::query()->findOrFail($data['warranty_id']);
-        $ticket = SupportTicket::query()->findOrFail($data['ticket_id']);
-        if (WarrantyClaim::query()
-            ->where('warranty_id', $data['warranty_id'])
-            ->where('ticket_id', $data['ticket_id'])
-            ->whereNotIn('claim_status', ['Rejected', 'Cancelled'])
-            ->exists()) {
-            throw ValidationException::withMessages(['warranty_id' => 'An active claim already exists for this warranty and ticket.']);
-        }
-        $eligibility = $this->automation->warrantyEligibility($warranty, $ticket);
-        WarrantyClaim::query()->create([
-            ...$data,
-            'claim_status' => $eligibility['eligible'] ? 'Pending' : 'Rejected',
-            'eligibility_status' => $eligibility['eligible'] ? 'Eligible' : 'Ineligible',
-            'eligibility_notes' => $eligibility['reason'],
-            'decision_reason' => $eligibility['eligible'] ? null : $eligibility['reason'],
-            'claim_date' => now(),
-        ]);
-
-        return back()->with('success', 'Warranty claim submitted and eligibility checked automatically.');
-    }
-
     public function cancelClaim(Request $request, WarrantyClaim $claim): RedirectResponse
     {
         $data = $request->validate(['decision_reason' => ['required', 'string', 'max:1000']]);
         $claim->update(['claim_status' => 'Cancelled', 'cancelled_at' => now(), 'decision_reason' => $data['decision_reason']]);
 
         return back()->with('success', 'Warranty claim cancelled.');
-    }
-
-    public function storeContract(Request $request): RedirectResponse
-    {
-        $data = $this->contractData($request);
-        ServiceContract::query()->create([
-            ...$data,
-            'contract_number' => 'SC-'.now()->format('YmdHis').'-'.random_int(100, 999),
-            'services_used' => 0,
-        ]);
-
-        return back()->with('success', 'Service contract created.');
     }
 
     public function updateContract(Request $request, ServiceContract $contract): RedirectResponse
@@ -189,24 +95,6 @@ class SupportOperationsController extends Controller
         $contract->update(['archived_at' => now(), 'archive_reason' => $data['archive_reason'], 'contract_status' => 'Terminated']);
 
         return back()->with('success', 'Service contract archived.');
-    }
-
-    public function storeServiceRequest(Request $request): RedirectResponse
-    {
-        $data = $request->validate([
-            'ticket_id' => ['required', 'exists:support_tickets,ticket_id'],
-            'request_type' => ['required', 'string', 'max:255'],
-            'technician_id' => ['nullable', 'exists:employees,employee_id'],
-            'schedule_notes' => ['nullable', 'string'],
-        ]);
-        ServiceRequest::query()->create([
-            ...$data,
-            'request_number' => 'SR-'.now()->format('YmdHis').'-'.random_int(100, 999),
-            'requested_at' => now(),
-            'service_status' => 'Pending',
-        ]);
-
-        return back()->with('success', 'Service request created.');
     }
 
     public function updateServiceRequest(Request $request, ServiceRequest $serviceRequest): RedirectResponse
@@ -243,14 +131,6 @@ class SupportOperationsController extends Controller
         $serviceRequest->update(['service_status' => 'Cancelled', 'cancelled_at' => now(), 'service_result' => $data['service_result']]);
 
         return back()->with('success', 'Service request cancelled.');
-    }
-
-    public function storeResolution(Request $request): RedirectResponse
-    {
-        $data = $this->resolutionData($request);
-        ResolutionTracking::query()->create([...$data, 'resolution_status' => 'Draft']);
-
-        return back()->with('success', 'Resolution record created.');
     }
 
     public function updateResolution(Request $request, ResolutionTracking $resolution): RedirectResponse

@@ -106,7 +106,6 @@ Route::get('/support/tickets/{ticket}/show', [SupportTicketController::class, 's
 Route::get('/support/tickets/{ticket}/assign', [SupportTicketController::class, 'assignForm'])->name('support.tickets.assign.form');
 Route::post('/support/tickets/{ticket}/assign', [SupportTicketController::class, 'assign'])->name('support.tickets.assign');
 Route::post('/support/tickets/{ticket}/status', [SupportTicketController::class, 'updateStatus'])->name('support.tickets.status');
-Route::post('/support/tickets', [SupportOperationsController::class, 'storeTicket'])->name('support.tickets.store');
 Route::put('/support/tickets/{ticket}', [SupportOperationsController::class, 'updateTicket'])->name('support.tickets.update');
 Route::patch('/support/tickets/{ticket}/archive', [SupportOperationsController::class, 'archiveTicket'])->name('support.tickets.archive');
 Route::patch('/support/tickets/{ticket}/restore', [SupportOperationsController::class, 'restoreTicket'])->name('support.tickets.restore');
@@ -115,14 +114,12 @@ Route::delete('/support/attachments/{attachment}', [SupportAttachmentController:
 
 // Warranty Records (AJAX View)
 Route::get('/support/warranty-records/{warranty}/show', [WarrantyRecordController::class, 'show'])->name('support.warranty-records.show');
-Route::post('/support/warranty-records', [SupportOperationsController::class, 'storeWarranty'])->name('support.warranty-records.store');
 Route::put('/support/warranty-records/{warranty}', [SupportOperationsController::class, 'updateWarranty'])->name('support.warranty-records.update');
 Route::patch('/support/warranty-records/{warranty}/archive', [SupportOperationsController::class, 'archiveWarranty'])->name('support.warranty-records.archive');
 
 // Warranty Claims (AJAX modal workflow)
 Route::get('/support/warranty-claims/{claim}/show', [WarrantyClaimController::class, 'show'])->name('support.warranty-claims.show');
 Route::post('/support/warranty-claims/{claim}/status', [WarrantyClaimController::class, 'updateStatus'])->name('support.warranty-claims.status');
-Route::post('/support/warranty-claims', [SupportOperationsController::class, 'storeClaim'])->name('support.warranty-claims.store');
 Route::patch('/support/warranty-claims/{claim}/cancel', [SupportOperationsController::class, 'cancelClaim'])->name('support.warranty-claims.cancel');
 
 Route::get('/support/warranty-records', [AfterSalesSupportController::class, 'warrantyRecordsIndex'])->name('support.warranty-records');
@@ -130,20 +127,17 @@ Route::get('/support/warranty-claims', [AfterSalesSupportController::class, 'war
 
 Route::get('/support/service-contracts', [AfterSalesSupportController::class, 'serviceContractsIndex'])->name('support.service-contracts');
 Route::get('/support/service-contracts/{contract}/show', [AfterSalesSupportController::class, 'serviceContractShow'])->name('support.service-contracts.show');
-Route::post('/support/service-contracts', [SupportOperationsController::class, 'storeContract'])->name('support.service-contracts.store');
 Route::put('/support/service-contracts/{contract}', [SupportOperationsController::class, 'updateContract'])->name('support.service-contracts.update');
 Route::patch('/support/service-contracts/{contract}/archive', [SupportOperationsController::class, 'archiveContract'])->name('support.service-contracts.archive');
 
 Route::get('/support/service-requests', [AfterSalesSupportController::class, 'serviceRequestsIndex'])->name('support.service-requests');
 Route::get('/support/service-requests/{request}/show', [AfterSalesSupportController::class, 'serviceRequestShow'])->name('support.service-requests.show');
 Route::patch('/support/service-requests/{request}/schedule', [AfterSalesSupportController::class, 'scheduleServiceRequest'])->name('support.service-requests.schedule');
-Route::post('/support/service-requests', [SupportOperationsController::class, 'storeServiceRequest'])->name('support.service-requests.store');
 Route::put('/support/service-requests/{serviceRequest}', [SupportOperationsController::class, 'updateServiceRequest'])->name('support.service-requests.update');
 Route::patch('/support/service-requests/{serviceRequest}/cancel', [SupportOperationsController::class, 'cancelServiceRequest'])->name('support.service-requests.cancel');
 
 Route::get('/support/resolution-tracking', [AfterSalesSupportController::class, 'resolutionTrackingIndex'])->name('support.resolution-tracking');
 Route::get('/support/resolution-tracking/{resolution}/show', [AfterSalesSupportController::class, 'resolutionShow'])->name('support.resolution-tracking.show');
-Route::post('/support/resolution-tracking', [SupportOperationsController::class, 'storeResolution'])->name('support.resolution-tracking.store');
 Route::put('/support/resolution-tracking/{resolution}', [SupportOperationsController::class, 'updateResolution'])->name('support.resolution-tracking.update');
 Route::patch('/support/resolution-tracking/{resolution}/approve', [SupportOperationsController::class, 'approveResolution'])->name('support.resolution-tracking.approve');
 

@@ -5,8 +5,6 @@
     @php($subtitle = 'Support staff: verify contract coverage during case management')
 
     @include('components.page-header', ['title' => $title, 'subtitle' => $subtitle])
-    @include('support.operations-create-modal')
-
     {{-- Read-only contract details modal --}}
     @include('support.service-contract-view-modal')
     @if($openContract ?? null)

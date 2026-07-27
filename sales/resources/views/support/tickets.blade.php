@@ -5,8 +5,6 @@
     @php($subtitle = 'Manage support tickets and case assignments')
 
     @include('components.page-header', ['title' => $title, 'subtitle' => $subtitle])
-    @include('support.operations-create-modal')
-
     @include('support.tickets-details-modal')
     @include('support.tickets-assign-modal')
     @include('support.ticket-status-modal')

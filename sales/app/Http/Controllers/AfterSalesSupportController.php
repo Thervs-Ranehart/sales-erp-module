@@ -136,8 +136,6 @@ class AfterSalesSupportController extends Controller
             'toDate' => $toDate,
             'customers' => $customers,
             'employees' => Employee::query()->orderBy('first_name')->orderBy('last_name')->get(['employee_id', 'first_name', 'last_name']),
-            'salesOrders' => SalesOrder::query()->with(['customer', 'items.product'])->orderByDesc('order_date')->get(),
-            'serviceContracts' => ServiceContract::query()->whereNull('archived_at')->orderBy('contract_number')->get(),
         ]);
     }
 
@@ -178,7 +176,24 @@ class AfterSalesSupportController extends Controller
         }
 
         if ($status !== null && $status !== '' && strtolower($status) !== 'all') {
-            $query->where('warranty_status', $status);
+            $today = today()->toDateString();
+            $expiringSoonDate = today()->addDays(30)->toDateString();
+
+            match ($status) {
+                'Active' => $query->where('warranty_status', 'Active')
+                    ->whereDate('warranty_end', '>', $expiringSoonDate),
+                'Expiring Soon' => $query->whereNotIn('warranty_status', ['On Hold', 'Expired'])
+                    ->whereDate('warranty_end', '>=', $today)
+                    ->whereDate('warranty_end', '<=', $expiringSoonDate),
+                'Expired' => $query->where(function (Builder $statusQuery) use ($today): void {
+                    $statusQuery->where('warranty_status', 'Expired')
+                        ->orWhere(function (Builder $dateQuery) use ($today): void {
+                            $dateQuery->whereNotIn('warranty_status', ['On Hold', 'Expired'])
+                                ->whereDate('warranty_end', '<', $today);
+                        });
+                }),
+                'On Hold' => $query->where('warranty_status', 'On Hold'),
+            };
         }
 
         if ($customer) {
@@ -202,7 +217,6 @@ class AfterSalesSupportController extends Controller
             'product' => $product,
             'products' => Product::query()->orderBy('product_name')->get(['product_id', 'product_name']),
             'customers' => Customer::query()->orderBy('first_name')->orderBy('last_name')->get(['customer_id', 'first_name', 'last_name']),
-            'salesOrders' => SalesOrder::query()->with(['customer', 'items.product'])->orderByDesc('order_date')->get(),
         ]);
     }
 
@@ -598,8 +612,6 @@ class AfterSalesSupportController extends Controller
             'qcPassedCount' => $qcPassedCount,
             'qcFailedCount' => $qcFailedCount,
             'pendingQcCount' => $pendingQcCount,
-            'tickets' => SupportTicket::query()->whereNull('archived_at')->orderByDesc('created_at')->get(['ticket_id', 'subject']),
-            'employees' => Employee::query()->orderBy('first_name')->orderBy('last_name')->get(['employee_id', 'first_name', 'last_name']),
         ]);
     }
 
