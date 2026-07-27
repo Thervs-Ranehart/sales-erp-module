@@ -803,10 +803,12 @@ class AfterSalesSupportController extends Controller
         $filters = $request->validate([
             'search' => ['nullable', 'string', 'max:255'],
             'rating' => ['nullable', 'in:all,1,2,3,4,5'],
+            'sort' => ['nullable', 'in:newest,oldest,rating_desc,rating_asc'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
         ]);
         $search = $filters['search'] ?? null;
         $rating = $filters['rating'] ?? null;
+        $sort = $filters['sort'] ?? 'newest';
         $perPage = (int) ($filters['per_page'] ?? 10);
 
         $query = SatisfactionMonitoring::query()
@@ -830,13 +832,16 @@ class AfterSalesSupportController extends Controller
         }
 
         if ($rating !== null && strtolower($rating) !== 'all') {
-            $query->where('rating', (int) $rating);
+            $query->whereNotNull('submitted_at')->where('rating', (int) $rating);
         }
 
-        $metricsQuery = clone $query;
-        $satisfactions = $query
-            ->orderByDesc('submitted_at')
-            ->paginate($perPage)
+        $metricsQuery = (clone $query)->whereNotNull('submitted_at');
+        $satisfactions = (match ($sort) {
+            'oldest' => $query->orderBy('submitted_at'),
+            'rating_desc' => $query->orderByDesc('rating')->orderByDesc('submitted_at'),
+            'rating_asc' => $query->orderBy('rating')->orderByDesc('submitted_at'),
+            default => $query->orderByDesc('submitted_at'),
+        })->paginate($perPage)
             ->withQueryString();
 
         $stats = (clone $metricsQuery)->selectRaw('COUNT(*) as responses, AVG(rating) as average_rating, SUM(CASE WHEN rating IN (4, 5) THEN 1 ELSE 0 END) as satisfied, SUM(CASE WHEN rating IN (1, 2) THEN 1 ELSE 0 END) as dissatisfied')->first();
@@ -846,16 +851,19 @@ class AfterSalesSupportController extends Controller
         $dissatisfiedCount = (int) ($stats->dissatisfied ?? 0);
         $satisfactionPct = $responsesCount > 0 ? round(($satisfiedCount / $responsesCount) * 100, 0) : 0;
         $ratingDistribution = (clone $metricsQuery)->selectRaw('rating, COUNT(*) as aggregate')->whereNotNull('rating')->groupBy('rating')->pluck('aggregate', 'rating');
+        $satisfactionLevelCounts = (clone $metricsQuery)->selectRaw('satisfaction_level, COUNT(*) as aggregate')->whereNotNull('satisfaction_level')->groupBy('satisfaction_level')->pluck('aggregate', 'satisfaction_level');
 
         return view('support.customer-satisfaction', [
             'satisfactions' => $satisfactions,
             'search' => $search,
             'rating' => $rating,
+            'sort' => $sort,
             'averageRating' => $averageRating,
             'satisfactionPct' => (int) $satisfactionPct,
             'dissatisfiedCount' => $dissatisfiedCount,
             'responsesCount' => $responsesCount,
             'ratingDistribution' => $ratingDistribution,
+            'satisfactionLevelCounts' => $satisfactionLevelCounts,
         ]);
     }
 

@@ -54,6 +54,28 @@ class ResolutionAndSatisfactionWorkflowTest extends TestCase
 
     }
 
+    public function test_pending_feedback_is_read_only_and_excluded_from_metrics(): void
+    {
+        $this->seedContext();
+        DB::table('satisfaction_monitoring')->insert([
+            'feedback_id' => 3,
+            'ticket_id' => 1,
+            'rating' => 4,
+            'satisfaction_level' => 'Satisfied',
+            'comments' => 'Pending-only feedback must not be displayed.',
+            'requested_at' => now(),
+        ]);
+
+        $this->get('/support/customer-satisfaction')
+            ->assertOk()
+            ->assertSee('Pending Customer Feedback')
+            ->assertDontSee('Pending-only feedback must not be displayed.')
+            ->assertDontSee('Feedback Link')
+            ->assertDontSee('Submit Feedback')
+            ->assertViewHas('responsesCount', 2)
+            ->assertViewHas('satisfactionLevelCounts');
+    }
+
     private function seedContext(): void
     {
         DB::table('customers')->insert(['customer_id' => 1, 'first_name' => 'Jane', 'last_name' => 'Smith', 'email' => 'jane@example.com', 'created_at' => now(), 'updated_at' => now()]);

@@ -142,7 +142,6 @@ Route::put('/support/resolution-tracking/{resolution}', [SupportOperationsContro
 Route::patch('/support/resolution-tracking/{resolution}/approve', [SupportOperationsController::class, 'approveResolution'])->name('support.resolution-tracking.approve');
 
 Route::get('/support/customer-satisfaction', [AfterSalesSupportController::class, 'customerSatisfactionIndex'])->name('support.customer-satisfaction');
-Route::patch('/support/customer-satisfaction/{feedback}/submit', [SupportOperationsController::class, 'submitFeedback'])->name('support.customer-satisfaction.submit');
 
 Route::get('/forecasting', [ForecastingController::class, 'index'])->name('forecasting.index');
 Route::get('/forecasting/reports', [ForecastingController::class, 'reports'])->name('forecasting.reports');

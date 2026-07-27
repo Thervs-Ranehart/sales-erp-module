@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\ResolutionTracking;
-use App\Models\SatisfactionMonitoring;
 use App\Models\ServiceContract;
 use App\Models\ServiceRequest;
 use App\Models\SupportTicket;
@@ -157,18 +156,6 @@ class SupportOperationsController extends Controller
         });
 
         return back()->with('success', 'Resolution approved and satisfaction feedback requested.');
-    }
-
-    public function submitFeedback(Request $request, SatisfactionMonitoring $feedback): RedirectResponse
-    {
-        $data = $request->validate([
-            'rating' => ['required', 'integer', 'between:1,5'],
-            'comments' => ['nullable', 'string', 'max:2000'],
-        ]);
-        $levels = [1 => 'Very Dissatisfied', 2 => 'Dissatisfied', 3 => 'Neutral', 4 => 'Satisfied', 5 => 'Very Satisfied'];
-        $feedback->update([...$data, 'satisfaction_level' => $levels[$data['rating']], 'submitted_at' => now()]);
-
-        return back()->with('success', 'Customer satisfaction feedback submitted.');
     }
 
     /** @return array<string, mixed> */
