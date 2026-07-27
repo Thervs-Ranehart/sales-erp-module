@@ -9,42 +9,53 @@
     @include('support.tickets-assign-modal')
     @include('support.ticket-status-modal')
 
+    <style>
+        .support-tickets-page { --tt-primary:#5347ce; --tt-border:#e7eaf0; --tt-muted:#6b7280; }
+        .support-tickets-page .tt-card { background:#fff; border:1px solid var(--tt-border); border-radius:16px; box-shadow:0 8px 22px rgba(31,41,55,.055); padding:1.35rem; }
+        .support-tickets-page .tt-filter-card { background:#fafbfe; border:1px solid var(--tt-border); border-radius:12px; margin-bottom:1.35rem; padding:1rem 1.1rem; }
+        .support-tickets-page .tt-filter-grid { align-items:end; display:grid; gap:1rem; grid-template-columns:minmax(230px,1.8fr) repeat(4,minmax(115px,.8fr)) minmax(125px,.85fr) minmax(125px,.85fr) auto; }
+        .support-tickets-page .tt-filter-grid > :nth-child(1) { order:1; }.support-tickets-page .tt-filter-grid > :nth-child(2) { order:2; }.support-tickets-page .tt-filter-grid > :nth-child(3) { order:3; }.support-tickets-page .tt-filter-grid > :nth-child(4) { order:4; }.support-tickets-page .tt-assigned-employee { order:5; }.support-tickets-page .tt-from-date { order:6; }.support-tickets-page .tt-to-date { order:7; }.support-tickets-page .tt-filter-actions { order:8; }
+        .support-tickets-page .tt-filter-label { color:var(--tt-muted); font-size:.75rem; font-weight:600; margin-bottom:.4rem; }
+        .support-tickets-page .tt-filter-grid .form-control, .support-tickets-page .tt-filter-grid .form-select, .support-tickets-page .tt-filter-grid .input-group-text, .support-tickets-page .tt-filter-actions .btn { height:38px; }
+        .support-tickets-page .tt-filter-grid .form-control, .support-tickets-page .tt-filter-grid .form-select { border-color:#dfe3eb; font-size:.84rem; }
+        .support-tickets-page .tt-filter-grid .form-control:focus, .support-tickets-page .tt-filter-grid .form-select:focus { border-color:var(--tt-primary); box-shadow:0 0 0 .2rem rgba(83,71,206,.12); }
+        .support-tickets-page .tt-search .input-group-text { background:#fff; border-color:#dfe3eb; color:#878e9c; }
+        .support-tickets-page .tt-filter-actions { display:flex; gap:.5rem; white-space:nowrap; }.support-tickets-page .tt-filter-actions .btn { align-items:center; display:inline-flex; font-size:.83rem; font-weight:600; justify-content:center; padding-inline:.9rem; }
+        .support-tickets-page .tt-apply { background:var(--tt-primary); border-color:var(--tt-primary); box-shadow:0 4px 10px rgba(83,71,206,.18); color:#fff; }.support-tickets-page .tt-reset { border-color:#d4d8e1; color:#4b5563; }
+        .support-tickets-page .tt-table-wrap { border:1px solid var(--tt-border); border-radius:13px; overflow:hidden; }.support-tickets-page .tickets-table { margin:0; min-width:1080px; }
+        .support-tickets-page .tickets-table thead th { background:#f8f9fc; border-bottom:1px solid var(--tt-border); color:var(--tt-muted); font-size:.71rem; font-weight:700; letter-spacing:.035em; padding:.9rem 1.1rem; text-transform:uppercase; white-space:nowrap; }
+        .support-tickets-page .tickets-table tbody td { border-color:#eff1f5; color:#374151; font-size:.84rem; padding:.82rem 1.1rem; vertical-align:middle; }.support-tickets-page .tickets-table tbody tr { transition:background-color .16s ease; }.support-tickets-page .tickets-table tbody tr:hover { background:#fafaff; }
+        .support-tickets-page .tt-number { color:var(--tt-primary); font-weight:700; }
+        .support-tickets-page .tt-badge { align-items:center; border-radius:999px; display:inline-flex; font-size:.72rem; font-weight:700; height:26px; justify-content:center; min-width:80px; padding:0 .65rem; }
+        .support-tickets-page .tickets-table td:nth-child(4) .badge, .support-tickets-page .tickets-table td:nth-child(5) .badge { align-items:center; border-radius:999px; display:inline-flex; font-size:.72rem!important; font-weight:700; height:26px; justify-content:center; min-width:80px; padding:0 .65rem!important; }
+        .support-tickets-page .tt-action-head, .support-tickets-page .tt-action-cell { min-width:180px; text-align:center; }.support-tickets-page .tt-action-group { align-items:center; display:flex; gap:.5rem; justify-content:center; white-space:nowrap; }.support-tickets-page .tt-action-group form { margin:0; order:4; }.support-tickets-page .tt-edit-btn { order:2; }.support-tickets-page .js-ticket-assign { order:3; }
+        .support-tickets-page .tt-action-btn, .support-tickets-page .tt-action-group form .btn { align-items:center; border-radius:8px; display:inline-flex; font-size:.8rem; height:34px; justify-content:center; min-width:34px; padding:.4rem .65rem; }.support-tickets-page .tt-action-btn:hover, .support-tickets-page .tt-action-group form .btn:hover { box-shadow:0 4px 10px rgba(31,41,55,.1); transform:translateY(-1px); }
+        @media (max-width:1599.98px) { .support-tickets-page .tt-filter-grid { grid-template-columns:minmax(230px,1.6fr) repeat(3,minmax(135px,1fr)); } }
+        @media (max-width:575.98px) { .support-tickets-page .tt-card, .support-tickets-page .tt-filter-card { padding:1rem; }.support-tickets-page .tt-filter-grid { grid-template-columns:1fr; }.support-tickets-page .tt-filter-actions { grid-column:auto; }.support-tickets-page .tt-filter-actions .btn { flex:1; } }
+        .ticket-edit-modal .modal-content { border:0; border-radius:16px; box-shadow:0 18px 45px rgba(31,41,55,.16); overflow:hidden; }.ticket-edit-modal .modal-header { align-items:flex-start; background:#fafbfe; border-bottom:1px solid #e8eaf0; padding:1.25rem 1.5rem; }.ticket-edit-modal .modal-title { color:#1f2937; font-size:1.05rem; font-weight:700; }.ticket-edit-modal .modal-body { padding:1.5rem; }.ticket-edit-modal .form-label { color:#596273; font-size:.78rem; font-weight:600; margin-bottom:.4rem; }.ticket-edit-modal .form-control, .ticket-edit-modal .form-select { border-color:#dfe3eb; font-size:.86rem; min-height:38px; }.ticket-edit-modal textarea.form-control { min-height:130px; padding-top:.65rem; }.ticket-edit-modal .modal-footer { border-top:1px solid #e8eaf0; padding:1rem 1.5rem; }.ticket-edit-modal .modal-footer .btn { align-items:center; display:inline-flex; font-size:.84rem; font-weight:600; height:38px; justify-content:center; padding-inline:1rem; }
+    </style>
 
-        <div class="card p-4" id="ticketsPageCard">
+    <div class="support-tickets-page">
+        <div class="tt-card" id="ticketsPageCard">
             <div id="supportTicketsNotificationHost" class="mb-3"></div>
 
-        {{-- Top section: page title + breadcrumb + actions --}}
-        <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3 mb-4">
-            <div>
-                <h5 class="fw-bold mb-1">Support Tickets</h5>
-                
-            </div>
-        </div>
-
         {{-- Search + Filters --}}
-        <div class="card p-3 mb-4" style="background: rgba(255,255,255,.7); border: 1px solid rgba(0,0,0,.06); box-shadow: none;">
+        <div class="tt-filter-card">
             <form id="ticketFiltersForm" method="GET" action="{{ route('support.tickets') }}">
-                <div class="row g-3" id="ticketsFilters">
-                    <div class="col-12 col-lg-4">
-                        {{-- Keep a dense, single-row form on small screens --}}
-                        <style>
-                            @media (max-width: 575.98px) {
-                                #ticketFiltersForm .form-label { font-size: 0.75rem !important; }
-                                #ticketFiltersForm .input-group-sm .input-group-text { padding: .35rem .5rem !important; }
-                            }
-                        </style>
-                        <label class="form-label small text-muted">Search</label>
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text" style="background: rgba(83,71,206,.08); border-color: rgba(83,71,206,.2);">
+                <div class="tt-filter-grid" id="ticketsFilters">
+                    <div>
+                        <label class="form-label tt-filter-label">Search</label>
+                        <div class="input-group tt-search">
+                            <span class="input-group-text">
                                 <i class="bi bi-search"></i>
                             </span>
                             <input type="text" name="search" class="form-control" placeholder="Ticket number, customer, subject..." aria-label="Search tickets" value="{{ $search ?? '' }}" />
                         </div>
                     </div>
 
-                    <div class="col-6 col-lg-2">
-                        <label class="form-label small text-muted">Status</label>
-                        <select class="form-select form-select-sm" aria-label="Status filter" name="status">
+                    <div>
+                        <label class="form-label tt-filter-label">Status</label>
+                        <select class="form-select" aria-label="Status filter" name="status">
                             <option value="all" {{ ($status ?? '') === '' || ($status ?? '') === 'all' ? 'selected' : '' }}>Status: All</option>
                             <option value="Open" {{ ($status ?? '') === 'Open' ? 'selected' : '' }}>Open</option>
                             <option value="Pending" {{ ($status ?? '') === 'Pending' ? 'selected' : '' }}>Pending</option>
@@ -55,9 +66,9 @@
                         </select>
                     </div>
 
-                <div class="col-6 col-lg-2">
-                    <label class="form-label small text-muted">Priority</label>
-                    <select class="form-select form-select-sm" aria-label="Priority filter" name="priority">
+                <div>
+                    <label class="form-label tt-filter-label">Priority</label>
+                    <select class="form-select" aria-label="Priority filter" name="priority">
                         <option value="all" {{ ($priority ?? '') === '' || ($priority ?? '') === 'all' ? 'selected' : '' }}>Priority: All</option>
                         <option value="High" {{ ($priority ?? '') === 'High' ? 'selected' : '' }}>High</option>
                         <option value="Medium" {{ ($priority ?? '') === 'Medium' ? 'selected' : '' }}>Medium</option>
@@ -66,9 +77,9 @@
 
                 </div>
 
-                    <div class="col-12 col-lg-2">
-                    <label class="form-label small text-muted">Customer</label>
-                    <select class="form-select form-select-sm" aria-label="Customer filter" name="customer">
+                    <div>
+                    <label class="form-label tt-filter-label">Customer</label>
+                    <select class="form-select" aria-label="Customer filter" name="customer">
                         <option value="all" {{ ($customer ?? 'all') === 'all' ? 'selected' : '' }}>All Customers</option>
                         @foreach($customers as $customerOption)
                             <option value="{{ $customerOption->customer_id }}" {{ (string) ($customer ?? 'all') === (string) $customerOption->customer_id ? 'selected' : '' }}>{{ $customerOption->name }}</option>
@@ -77,66 +88,38 @@
 
                 </div>
 
-                <div class="col-6 col-lg-1">
-                    <label class="form-label small text-muted">From</label>
-                    <input type="date" class="form-control form-control-sm" aria-label="Start date" name="from_date" value="{{ $fromDate ?? '' }}" />
+                <div class="tt-from-date">
+                    <label class="form-label tt-filter-label">From Date</label>
+                    <input type="date" class="form-control" aria-label="Start date" name="from_date" value="{{ $fromDate ?? '' }}" />
                 </div>
-                <div class="col-6 col-lg-1">
-                    <label class="form-label small text-muted">To</label>
-                    <input type="date" class="form-control form-control-sm" aria-label="End date" name="to_date" value="{{ $toDate ?? '' }}" />
+                <div class="tt-to-date">
+                    <label class="form-label tt-filter-label">To Date</label>
+                    <input type="date" class="form-control" aria-label="End date" name="to_date" value="{{ $toDate ?? '' }}" />
                 </div>
 
-                    <div class="col-6 col-lg-2">
-                        <label class="form-label small text-muted">Assigned employee</label>
-                        <select class="form-select form-select-sm" aria-label="Assigned employee filter" name="assigned_employee">
+                    <div class="tt-assigned-employee">
+                        <label class="form-label tt-filter-label">Assigned Employee</label>
+                        <select class="form-select" aria-label="Assigned employee filter" name="assigned_employee">
                             <option value="">All employees</option>
                             @foreach($employees as $employeeOption)
                                 <option value="{{ $employeeOption->employee_id }}" {{ (string) ($assignedEmployee ?? '') === (string) $employeeOption->employee_id ? 'selected' : '' }}>{{ $employeeOption->full_name }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-12 d-flex justify-content-end">
-                        <button class="btn btn-sm" type="submit" style="background:#5347CE;color:#fff;border:1px solid rgba(255,255,255,.25);">
+                    <div class="tt-filter-actions">
+                        <button class="btn tt-apply" type="submit">
                             <i class="bi bi-funnel me-1"></i> Apply Filters
                         </button>
+                        <a class="btn btn-outline-secondary tt-reset" data-support-reset="1" href="{{ route('support.tickets') }}">Reset</a>
                     </div>
                 </div>
-                <style>
-                    @media (max-width: 575.98px) {
-                        /* Stack filter inputs vertically on mobile */
-                        #ticketsFilters .col-6,
-                        #ticketsFilters .col-12 {
-                            flex: 0 0 100%;
-                            max-width: 100%;
-                        }
-                        #ticketsFilters .form-control,
-                        #ticketsFilters .form-select {
-                            width: 100% !important;
-                        }
-                        #ticketsFilters .input-group {
-                            width: 100% !important;
-                        }
-                        #ticketsFilters .btn {
-                            width: 100%;
-                        }
-                    }
-                </style>
                 </form>
         </div>
 
 
         {{-- Main table --}}
-                <div class="table-responsive" style="-webkit-overflow-scrolling: touch;">
-            <table id="supportTicketsTable" class="table table-hover align-middle mb-0 tickets-table" style="width: 100%;">
-                {{-- Keep Bootstrap table-responsive and allow horizontal scrolling on small screens --}}
-                <style>
-                            @media (max-width: 575.98px) {
-                                .tickets-table th, .tickets-table td { white-space: nowrap; }
-                                .tickets-actions .btn { padding: .25rem .35rem; }
-                            }
-
-                </style>
-
+                <div class="table-responsive tt-table-wrap" style="-webkit-overflow-scrolling: touch;">
+            <table id="supportTicketsTable" class="table table-hover align-middle tickets-table">
                 <colgroup>
                     <col style="width: 1%;">
                     <col style="width: 18%;">
@@ -158,13 +141,13 @@
                         <th>Status</th>
                         <th>Assigned Employee</th>
                         <th>Due Date</th>
-                        <th class="text-end">Actions</th>
+                        <th class="tt-action-head">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($tickets as $ticket)
-                        <tr>
-                            <td class="fw-semibold">{{ 'TK-' . $ticket->ticket_id }}</td>
+                        <tr data-ticket-id="{{ $ticket->ticket_id }}">
+                            <td class="tt-number">{{ 'TK-' . $ticket->ticket_id }}</td>
                             <td>{{ $ticket->customer?->full_name ?? '—' }}</td>
                             <td style="max-width: 260px;">
                                 <span class="d-block text-truncate" title="{{ $ticket->subject ?? '—' }}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $ticket->subject ?? '—' }}</span>
@@ -172,11 +155,11 @@
                             <td>
                                 @php($priorityBadge = $ticket->priority)
                                 @if(strtolower((string)$priorityBadge) === 'high')
-                                    <span class="badge bg-danger px-2 py-1 fs-6">{{ $ticket->priority }}</span>
+                                    <span class="badge bg-danger tt-badge">{{ $ticket->priority }}</span>
                                 @elseif(strtolower((string)$priorityBadge) === 'medium')
-                                    <span class="badge bg-warning text-dark px-2 py-1 fs-6">{{ $ticket->priority }}</span>
+                                    <span class="badge bg-warning text-dark tt-badge">{{ $ticket->priority }}</span>
                                 @elseif(strtolower((string)$priorityBadge) === 'low')
-                                    <span class="badge bg-success px-2 py-1 fs-6">{{ $ticket->priority }}</span>
+                                    <span class="badge bg-success tt-badge">{{ $ticket->priority }}</span>
                                 @else
                                     <span class="badge bg-secondary px-2 py-1 fs-6">{{ $ticket->priority ?? '—' }}</span>
                                 @endif
@@ -184,19 +167,19 @@
                             <td>
                                 @php($statusBadge = $ticket->status)
                                 @if(strtolower((string)$statusBadge) === 'open')
-                                    <span class="badge bg-secondary px-2 py-1 fs-6">{{ $ticket->status }}</span>
+                                    <span class="badge bg-secondary tt-badge">{{ $ticket->status }}</span>
                                 @elseif(strtolower((string)$statusBadge) === 'pending')
-                                    <span class="badge bg-warning text-dark px-2 py-1 fs-6">{{ $ticket->status }}</span>
+                                    <span class="badge bg-warning text-dark tt-badge">{{ $ticket->status }}</span>
                                 @elseif(strtolower((string)$statusBadge) === 'in progress')
-                                    <span class="badge bg-primary px-2 py-1 fs-6">{{ $ticket->status }}</span>
+                                    <span class="badge bg-primary tt-badge">{{ $ticket->status }}</span>
                                 @elseif(strtolower((string)$statusBadge) === 'resolved')
-                                    <span class="badge bg-success px-2 py-1 fs-6">{{ $ticket->status }}</span>
+                                    <span class="badge bg-success tt-badge">{{ $ticket->status }}</span>
 
                                 @elseif(strtolower((string)$statusBadge) === 'closed')
-                                    <span class="badge bg-dark px-2 py-1 fs-6">{{ $ticket->status }}</span>
+                                    <span class="badge bg-secondary tt-badge">{{ $ticket->status }}</span>
 
                                 @elseif(strtolower((string)$statusBadge) === 'escalated')
-                                    <span class="badge bg-danger px-2 py-1 fs-6">{{ $ticket->status }}</span>
+                                    <span class="badge bg-danger tt-badge">{{ $ticket->status }}</span>
                                 @else
                                     <span class="badge bg-secondary px-2 py-1 fs-6">{{ $ticket->status ?? '—' }}</span>
                                 @endif
@@ -209,21 +192,16 @@
                                 @if($ticket->isSlaBreached())<span class="badge bg-danger d-block mt-1">SLA Breached · L{{ $ticket->escalation_level }}</span>@endif
                                 @if($ticket->archived_at)<span class="badge bg-secondary d-block mt-1">Archived</span>@endif
                             </td>
-                            <td class="text-end" style="white-space: nowrap;">
-                                <div class="d-flex align-items-center justify-content-end flex-nowrap gap-1">
-                                    <button class="btn btn-sm btn-outline-primary js-ticket-view" type="button" data-ticket-id="{{ $ticket->ticket_id }}" aria-label="View" data-bs-toggle="modal" data-bs-target="#ticketDetailsModal">
+                            <td class="tt-action-cell">
+                                <div class="tt-action-group">
+                                    <button class="btn btn-outline-primary tt-action-btn js-ticket-view" type="button" data-ticket-id="{{ $ticket->ticket_id }}" aria-label="View" title="View ticket" data-bs-toggle="modal" data-bs-target="#ticketDetailsModal">
                                         <i class="bi bi-eye"></i>
                                     </button>
 
-                                    <button class="btn btn-sm btn-outline-warning js-ticket-status" type="button" data-ticket-id="{{ $ticket->ticket_id }}" aria-label="Change Status" data-bs-toggle="modal" data-bs-target="#ticketStatusModal">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-
-                                    <button class="btn btn-sm btn-outline-success js-ticket-assign" type="button" data-ticket-id="{{ $ticket->ticket_id }}" aria-label="Assign" data-bs-toggle="modal" data-bs-target="#ticketsAssignModal">
+                                    <button class="btn btn-outline-success tt-action-btn js-ticket-assign" type="button" data-ticket-id="{{ $ticket->ticket_id }}" aria-label="Assign or reassign employee" title="Assign employee" data-bs-toggle="modal" data-bs-target="#ticketsAssignModal">
                                         <i class="bi bi-diagram-3"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#editTicket{{ $ticket->ticket_id }}" title="Edit ticket details"><i class="bi bi-pencil-square"></i></button>
-                                    <button class="btn btn-sm btn-outline-info" type="button" data-bs-toggle="modal" data-bs-target="#ticketFiles{{ $ticket->ticket_id }}" title="Attachments"><i class="bi bi-paperclip"></i></button>
+                                    <button class="btn btn-outline-warning tt-action-btn tt-edit-btn" type="button" data-bs-toggle="modal" data-bs-target="#editTicket{{ $ticket->ticket_id }}" title="Edit ticket details" aria-label="Edit ticket details"><i class="bi bi-pencil-square"></i></button>
                                     @if($ticket->archived_at)
                                         <form method="POST" action="{{ route('support.tickets.restore', $ticket) }}">@csrf @method('PATCH')<button class="btn btn-sm btn-outline-success" title="Restore"><i class="bi bi-arrow-counterclockwise"></i></button></form>
                                     @else
@@ -241,22 +219,16 @@
             </table>
         </div>
 
-        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mt-4">
-            <div class="text-muted small">Showing results.</div>
-
-                <nav aria-label="Tickets pagination">
-                    {{ $tickets->links('pagination::bootstrap-5') }}
-                </nav>
-
-        </div>
+        <x-support-pagination :paginator="$tickets" />
+    </div>
     </div>
 
 @foreach($tickets as $ticket)
-<div class="modal fade" id="editTicket{{ $ticket->ticket_id }}" tabindex="-1"><div class="modal-dialog modal-lg"><form class="modal-content" method="POST" action="{{ route('support.tickets.update', $ticket) }}">@csrf @method('PUT')
-<div class="modal-header"><h5 class="modal-title">Edit TK-{{ $ticket->ticket_id }}</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3">
-<div class="col-6"><label class="form-label">Type</label><input class="form-control" name="ticket_type" value="{{ $ticket->ticket_type }}" required></div><div class="col-3"><label class="form-label">Priority</label><select class="form-select" name="priority">@foreach(['High','Medium','Low'] as $option)<option @selected($ticket->priority===$option)>{{ $option }}</option>@endforeach</select></div><div class="col-3"><label class="form-label">Queue</label><select class="form-select" name="department">@foreach(['After-Sales Support','Technical Support','Warranty','Field Service'] as $option)<option @selected($ticket->department===$option)>{{ $option }}</option>@endforeach</select></div>
-<div class="col-12"><label class="form-label">Subject</label><input class="form-control" name="subject" value="{{ $ticket->subject }}" required></div><div class="col-12"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="4" required>{{ $ticket->description }}</textarea></div>
-</div></div><div class="modal-footer"><button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Cancel</button><button class="btn support-primary">Save Changes</button></div></form></div></div>
+<div class="modal fade ticket-edit-modal" id="editTicket{{ $ticket->ticket_id }}" tabindex="-1"><div class="modal-dialog modal-lg"><form class="modal-content" method="POST" action="{{ route('support.tickets.update', $ticket) }}">@csrf @method('PUT')
+<div class="modal-header"><div><h5 class="modal-title">Edit Ticket — TK-{{ $ticket->ticket_id }}</h5><div class="text-muted small mt-1">Update the ticket details below.</div></div><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3">
+<div class="col-md-6"><label class="form-label">Type</label><input class="form-control" name="ticket_type" value="{{ $ticket->ticket_type }}" required></div><div class="col-md-3"><label class="form-label">Priority</label><select class="form-select" name="priority">@foreach(['High','Medium','Low'] as $option)<option @selected($ticket->priority===$option)>{{ $option }}</option>@endforeach</select></div><div class="col-md-3"><label class="form-label">Queue</label><select class="form-select" name="department">@foreach(['After-Sales Support','Technical Support','Warranty','Field Service'] as $option)<option @selected($ticket->department===$option)>{{ $option }}</option>@endforeach</select></div>
+<div class="col-12"><label class="form-label">Subject</label><input class="form-control" name="subject" value="{{ $ticket->subject }}" required></div><div class="col-12"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="5" required>{{ $ticket->description }}</textarea></div>
+</div></div><div class="modal-footer justify-content-end gap-2"><button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Cancel</button><button class="btn support-primary">Save Changes</button></div></form></div></div>
 <div class="modal fade" id="ticketFiles{{ $ticket->ticket_id }}" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
 <div class="modal-header"><h5 class="modal-title">Attachments · TK-{{ $ticket->ticket_id }}</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">
 <form method="POST" action="{{ route('support.tickets.attachments.store', $ticket) }}" enctype="multipart/form-data" class="mb-3">@csrf <label class="form-label">Add evidence or supporting document</label><div class="input-group"><input class="form-control" type="file" name="attachment" required><button class="btn support-primary">Upload</button></div><div class="form-text">PDF, image, Office document, or text file up to 10 MB.</div></form>
@@ -319,6 +291,7 @@
                     const t = data.ticket || {};
 
                     // Fill modal (no page reload)
+                    document.getElementById('ticketDetailsNumber').textContent = `TK-${t.ticket_id ?? ticketId}`;
                     document.getElementById('ticketDetailsSubtitle').textContent = `TK-${t.ticket_id ?? ticketId} • ${t.customer?.name || '—'}`;
                     document.getElementById('ticketDetailsSubject').textContent = t.subject || '—';
                     document.getElementById('ticketDetailsDescription').textContent = t.description || '—';
@@ -337,6 +310,8 @@
                         ? data.assignmentHistory.map(a => `<div>${a.name || '—'}${a.department ? ` · ${a.department}` : ''} · ${a.assigned_at || '—'} · ${a.status || '—'}</div>`).join('')
                         : 'No assignment history is available.';
 
+                    document.getElementById('ticketDetailsAssignedAtTimeline').textContent = data.assignedEmployee?.assigned_at || '—';
+
                     // Update status badge
                     const ticketDetailsStatusEl = document.getElementById('ticketDetailsStatus');
                     if (ticketDetailsStatusEl) {
@@ -350,6 +325,22 @@
                         else if (lower === 'escalated') badgeClass = 'badge bg-danger';
                         ticketDetailsStatusEl.className = badgeClass;
                         ticketDetailsStatusEl.textContent = t.status || '—';
+                    }
+
+                    const ticketDetailsPriorityEl = document.getElementById('ticketDetailsPriority');
+                    if (ticketDetailsPriorityEl) {
+                        const priority = (t.priority || '').toLowerCase();
+                        let priorityClass = 'badge td-badge bg-secondary';
+                        if (priority === 'high') priorityClass = 'badge td-badge bg-danger';
+                        else if (priority === 'medium') priorityClass = 'badge td-badge bg-warning text-dark';
+                        else if (priority === 'low') priorityClass = 'badge td-badge bg-success';
+                        ticketDetailsPriorityEl.className = priorityClass;
+                    }
+
+                    const ticketDetailsStatusAction = document.getElementById('ticketDetailsStatusAction');
+                    if (ticketDetailsStatusAction) {
+                        ticketDetailsStatusAction.dataset.ticketId = t.ticket_id || ticketId;
+                        ticketDetailsStatusAction.dataset.currentStatus = t.status || '';
                     }
 
                     document.getElementById('ticketDetailsLoading')?.classList.add('d-none');
@@ -505,11 +496,9 @@
                 // 1 Ticket #, 2 Customer, 3 Subject, 4 Priority, 5 Status, 6 Assigned Employee, 7 Due Date
                 const row = e.currentTarget.closest('tr');
                 const statusBadge = row?.querySelector('td:nth-child(5) .badge');
-                if (statusBadge) {
-                    const currentStatus = statusBadge.textContent.trim();
-                    const select = document.getElementById('ticketStatusSelect');
-                    if (select && currentStatus) select.value = currentStatus;
-                }
+                const currentStatus = statusBadge?.textContent.trim() || e.currentTarget.dataset.currentStatus;
+                const select = document.getElementById('ticketStatusSelect');
+                if (select && currentStatus) select.value = currentStatus;
             });
         });
 
@@ -551,8 +540,7 @@
 
 
                     // Update badge immediately (status is column 5)
-                    const trigger = document.querySelector(`.js-ticket-status[data-ticket-id="${ticketId}"]`);
-                    const row = trigger?.closest('tr');
+                    const row = document.querySelector(`tr[data-ticket-id="${ticketId}"]`);
                     const statusTd = row?.querySelector('td:nth-child(5)');
                     if (statusTd) statusTd.innerHTML = badgeHtmlForStatus(data.status);
 

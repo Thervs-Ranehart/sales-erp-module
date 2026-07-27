@@ -1,57 +1,32 @@
-<div class="modal fade" id="ticketDetailsModal" tabindex="-1" aria-labelledby="ticketDetailsModalLabel" aria-hidden="true">
+<style>
+    .ticket-details-modal .modal-content { border:0; border-radius:18px; box-shadow:0 18px 45px rgba(31,41,55,.16); overflow:hidden; }
+    .ticket-details-modal .modal-header { align-items:flex-start; background:#fafbfe; border-bottom:1px solid #e8eaf0; padding:1.25rem 1.5rem; }.ticket-details-modal .modal-title { color:#1f2937; font-size:1.1rem; font-weight:700; }.ticket-details-modal .ticket-modal-subtitle { color:#6b7280; font-size:.8rem; margin-top:.25rem; }
+    .ticket-details-modal .modal-body { padding:1.5rem; }.ticket-details-modal .td-card { background:#fff; border:1px solid #e8eaf0; border-radius:13px; height:100%; padding:1.15rem; }.ticket-details-modal .td-section-title { color:#374151; font-size:.82rem; font-weight:700; letter-spacing:.03em; margin-bottom:1rem; text-transform:uppercase; }
+    .ticket-details-modal .td-label { color:#7b8391; font-size:.72rem; font-weight:600; margin-bottom:.22rem; }.ticket-details-modal .td-value { color:#374151; font-size:.86rem; font-weight:600; word-break:break-word; }.ticket-details-modal .td-description { color:#5b6472; font-size:.85rem; line-height:1.6; white-space:pre-line; }
+    .ticket-details-modal .td-badge, .ticket-details-modal #ticketDetailsStatus { align-items:center; border-radius:999px; display:inline-flex; font-size:.72rem; font-weight:700; height:26px; justify-content:center; min-width:80px; padding:0 .65rem; }.ticket-details-modal .td-meta-grid { display:grid; gap:1rem; grid-template-columns:repeat(2,minmax(0,1fr)); }.ticket-details-modal .td-timeline { border-left:2px solid #e5e7eb; margin-left:.3rem; padding-left:1.05rem; }.ticket-details-modal .td-timeline > div { padding:0 0 1rem; position:relative; }.ticket-details-modal .td-timeline > div:last-child { padding-bottom:0; }.ticket-details-modal .td-timeline > div::before { background:#5347ce; border:3px solid #eeedff; border-radius:50%; content:''; height:10px; left:-1.42rem; position:absolute; top:.25rem; width:10px; }.ticket-details-modal .modal-footer { border-top:1px solid #e8eaf0; padding:1rem 1.5rem; }.ticket-details-modal .td-footer-btn { align-items:center; display:inline-flex; font-size:.84rem; font-weight:600; height:38px; justify-content:center; padding-inline:1rem; }
+    @media (max-width:575.98px) { .ticket-details-modal .modal-body, .ticket-details-modal .modal-header, .ticket-details-modal .modal-footer { padding:1rem; }.ticket-details-modal .td-meta-grid { grid-template-columns:1fr; }.ticket-details-modal .modal-footer { align-items:stretch!important; flex-direction:column; }.ticket-details-modal .td-footer-btn { width:100%; } }
+</style>
+
+<div class="modal fade ticket-details-modal" id="ticketDetailsModal" tabindex="-1" aria-labelledby="ticketDetailsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content" style="border-radius: 16px;">
-            <div class="modal-header" style="background: rgba(83,71,206,.08); border-bottom: 1px solid rgba(0,0,0,.06);">
-                <div>
-                    <h5 class="modal-title fw-bold" id="ticketDetailsModalLabel">Ticket Details</h5>
-                    <div class="text-muted small" id="ticketDetailsSubtitle">—</div>
-                </div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <div><h5 class="modal-title" id="ticketDetailsModalLabel">View Ticket</h5><div class="ticket-modal-subtitle" id="ticketDetailsSubtitle">—</div></div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div id="ticketDetailsLoading" class="text-center py-4" aria-live="polite">Loading ticket details…</div>
                 <div id="ticketDetailsContent" class="d-none">
                     <div class="row g-4">
-                        <div class="col-lg-7">
-                            <div class="card p-3" style="box-shadow:none; border: 1px solid rgba(0,0,0,.06);">
-                                <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
-                                    <div>
-                                        <div class="text-muted small">Subject</div>
-                                        <div class="fw-bold" id="ticketDetailsSubject">—</div>
-                                    </div>
-                                    <span class="badge bg-secondary" id="ticketDetailsStatus">—</span>
-                                </div>
-                                <div class="text-muted small mb-3" id="ticketDetailsDescription">—</div>
-                                <div class="row g-3">
-                                    <div class="col-sm-6"><div class="text-muted small">Customer</div><div class="fw-semibold" id="ticketDetailsCustomer">—</div></div>
-                                    <div class="col-sm-6"><div class="text-muted small">Customer Contact</div><div class="fw-semibold" id="ticketDetailsCustomerContact">—</div></div>
-                                    <div class="col-sm-6"><div class="text-muted small">Product</div><div class="fw-semibold" id="ticketDetailsProduct">—</div></div>
-                                    <div class="col-sm-6"><div class="text-muted small">Order</div><div class="fw-semibold" id="ticketDetailsOrder">—</div></div>
-                                    <div class="col-sm-6"><div class="text-muted small">Priority</div><div class="fw-semibold" id="ticketDetailsPriority">—</div></div>
-                                    <div class="col-sm-6"><div class="text-muted small">Created</div><div class="fw-semibold" id="ticketDetailsCreatedAt">—</div></div>
-                                    <div class="col-sm-6"><div class="text-muted small">Resolved</div><div class="fw-semibold" id="ticketDetailsResolvedAt">—</div></div>
-                                    <div class="col-sm-6"><div class="text-muted small">Closed</div><div class="fw-semibold" id="ticketDetailsClosedAt">—</div></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-5">
-                            <div class="card p-3" style="box-shadow:none; border: 1px solid rgba(0,0,0,.06);">
-                                <div class="fw-bold mb-2">Current Assignment</div>
-                                <div class="list-group list-group-flush">
-                                    <div class="list-group-item"><div class="text-muted small">Employee</div><div class="fw-semibold" id="ticketDetailsAssignedEmployee">—</div></div>
-                                    <div class="list-group-item"><div class="text-muted small">Department</div><div class="fw-semibold" id="ticketDetailsAssignedDepartment">—</div></div>
-                                    <div class="list-group-item"><div class="text-muted small">Assigned</div><div class="fw-semibold" id="ticketDetailsAssignedAt">—</div></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card p-3 mt-4" style="box-shadow:none; border: 1px solid rgba(0,0,0,.06);">
-                        <div class="fw-bold mb-2">Assignment History</div>
-                        <div id="ticketDetailsAssignmentHistory" class="small text-muted">—</div>
+                        <div class="col-lg-7"><section class="td-card"><h6 class="td-section-title">Ticket Information</h6><div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-3"><div><div class="td-label">Ticket Number</div><div class="td-value" id="ticketDetailsNumber">—</div></div><div class="d-flex gap-2"><span class="badge td-badge bg-secondary" id="ticketDetailsStatus">—</span><span class="badge td-badge bg-secondary" id="ticketDetailsPriority">—</span></div></div><div class="mb-3"><div class="td-label">Subject</div><div class="td-value" id="ticketDetailsSubject">—</div></div><div><div class="td-label">Description</div><div class="td-description" id="ticketDetailsDescription">—</div></div></section></div>
+                        <div class="col-lg-5"><section class="td-card"><h6 class="td-section-title">Assignment</h6><div class="td-meta-grid"><div><div class="td-label">Assigned Employee</div><div class="td-value" id="ticketDetailsAssignedEmployee">—</div></div><div><div class="td-label">Department</div><div class="td-value" id="ticketDetailsAssignedDepartment">—</div></div><div><div class="td-label">Assigned Date</div><div class="td-value" id="ticketDetailsAssignedAt">—</div></div></div></section></div>
+                        <div class="col-lg-7"><section class="td-card"><h6 class="td-section-title">Customer Information</h6><div class="td-meta-grid"><div><div class="td-label">Customer</div><div class="td-value" id="ticketDetailsCustomer">—</div></div><div><div class="td-label">Contact</div><div class="td-value" id="ticketDetailsCustomerContact">—</div></div><div><div class="td-label">Product</div><div class="td-value" id="ticketDetailsProduct">—</div></div><div><div class="td-label">Order Number</div><div class="td-value" id="ticketDetailsOrder">—</div></div></div></section></div>
+                        <div class="col-lg-5"><section class="td-card"><h6 class="td-section-title">Timeline</h6><div class="td-meta-grid"><div><div class="td-label">Created</div><div class="td-value" id="ticketDetailsCreatedAt">—</div></div><div><div class="td-label">Assigned</div><div class="td-value" id="ticketDetailsAssignedAtTimeline">—</div></div><div><div class="td-label">Resolved</div><div class="td-value" id="ticketDetailsResolvedAt">—</div></div><div><div class="td-label">Closed</div><div class="td-value" id="ticketDetailsClosedAt">—</div></div></div></section></div>
+                        <div class="col-12"><section class="td-card"><h6 class="td-section-title">Assignment History</h6><div class="td-timeline" id="ticketDetailsAssignmentHistory">—</div></section></div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer" style="border-top: 1px solid rgba(0,0,0,.06);"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button></div>
+            <div class="modal-footer d-flex justify-content-between gap-2"><button id="ticketDetailsStatusAction" type="button" class="btn btn-primary td-footer-btn js-ticket-status" data-bs-toggle="modal" data-bs-target="#ticketStatusModal"><i class="bi bi-pencil me-1"></i>Change Status</button><button type="button" class="btn btn-outline-secondary td-footer-btn" data-bs-dismiss="modal">Close</button></div>
         </div>
     </div>
 </div>
