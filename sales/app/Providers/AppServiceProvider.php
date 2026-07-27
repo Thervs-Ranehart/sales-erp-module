@@ -10,6 +10,7 @@ use App\Models\SalesOrder;
 use App\Models\SupportTicket;
 use App\Observers\BroadcastsChangesObserver;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Pagination\Paginator; // <-- ADD THIS
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,6 +27,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Use Bootstrap 5 pagination
+        Paginator::useBootstrapFive();
+
         // Any model listed here will instantly notify every connected
         // device (create/update/delete) via the "erp-updates" broadcast
         // channel. Add more models to this array as needed.

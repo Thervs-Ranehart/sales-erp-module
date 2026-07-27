@@ -175,6 +175,14 @@ padding:14px;
 
 }
 
+.pagination .page-item:first-child,
+.pagination .page-item:last-child {
+    display: none;
+}
+
+nav[role="navigation"] > div:first-child {
+    display: none !important;
+}
 
 .tag.active {
 
@@ -402,10 +410,11 @@ ID: {{ $item->customer_id }}
 
 
 </div>
-
-<div class="mt-3">
-    {{ $customers->links() }}
-</div>
+@if($customers->hasPages())
+    <div class="customer-pagination mt-4">
+        {{ $customers->onEachSide(0)->links() }}
+    </div>
+@endif
 
 </div>
 
