@@ -15,11 +15,8 @@ class CommunicationLog extends Model
     protected $fillable = [
         'customer_id',
         'employee_id',
-<<<<<<< HEAD
         'agent_id',
         'communication_date',
-=======
->>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
         'communication_channel',
         'subject',
         'notes',
