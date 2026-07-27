@@ -53,10 +53,6 @@ class UpdatePricingRuleRequest extends FormRequest
                 'after_or_equal:start_date',
             ],
 
-            'status' => [
-                'required',
-                'in:Active,Inactive',
-            ],
         ];
     }
 
@@ -66,7 +62,6 @@ class UpdatePricingRuleRequest extends FormRequest
             'rule_name.required' => 'Rule name is required.',
             'discount_type.required' => 'Please select a discount type.',
             'discount_value.required' => 'Discount value is required.',
-            'status.required' => 'Please select a status.',
             'end_date.after_or_equal' => 'End date must be after or equal to the start date.',
         ];
     }

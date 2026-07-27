@@ -7,7 +7,6 @@ $subtitle = 'Manage customer information and relationship data.';
 
 @section('content')
 
-<<<<<<< HEAD
 @if (session('success'))
 
 <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -21,25 +20,6 @@ $subtitle = 'Manage customer information and relationship data.';
         aria-label="Close">
     </button>
 
-</div>
-<button
-    type="button"
-    class="btn-close"
-    data-bs-dismiss="alert"
-    aria-label="Close">
-</button>
-
-=======
-@if (session('success')) <div class="alert alert-success alert-dismissible fade show" role="alert">
-{{ session('success') }}
->>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
-
-    <button
-        type="button"
-        class="btn-close"
-        data-bs-dismiss="alert"
-        aria-label="Close">
-    </button>
 </div>
 
 @endif
@@ -163,10 +143,6 @@ $subtitle = 'Manage customer information and relationship data.';
 
 <div class="d-flex justify-content-between align-items-center mb-4">
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 <div>
     <h4 class="fw-semibold mb-1">
         Communication Logs
@@ -186,18 +162,10 @@ $subtitle = 'Manage customer information and relationship data.';
     <i class="bi bi-plus-lg"></i>
     New Communication
 </button>
-<<<<<<< HEAD
-
-=======
->>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 
 </div>
 
 @php
-<<<<<<< HEAD
-
-=======
->>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 $logsCollection = collect($logs->items());
 
 $totalForPage = $logsCollection->count();
@@ -225,19 +193,11 @@ $phonePct = $totalForPage > 0
 $smsPct = $totalForPage > 0
     ? round(($smsCount / $totalForPage) * 100)
     : 0;
-<<<<<<< HEAD
-=======
-
->>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 
 @endphp
 
 <div class="row g-3 mb-4">
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 <div class="col-md-3">
     <div class="summary-box">
         <div class="summary-label">
@@ -284,23 +244,12 @@ $smsPct = $totalForPage > 0
             {{ $responseRate }}%
         </div>
     </div>
-<<<<<<< HEAD
-
-</div>
-
-
-=======
->>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 </div>
 
 </div>
 
 <div class="row g-4 mb-4">
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 <div class="col-md-7">
 
     <div class="card communication-card p-4">
@@ -406,23 +355,14 @@ $smsPct = $totalForPage > 0
     </div>
 
 </div>
-<<<<<<< HEAD
-
-=======
->>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 
 </div>
 
 <div class="card communication-card p-3 mb-4">
 
-<<<<<<< HEAD
-
 <form
     method="GET"
     action="{{ route('crm.logs') }}">
-=======
-<form method="GET" action="{{ route('crm.logs') }}">
->>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 
     <div class="row g-3">
 
@@ -513,19 +453,11 @@ $smsPct = $totalForPage > 0
     </div>
 
 </form>
-<<<<<<< HEAD
-
-=======
->>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 
 </div>
 
 <div class="card communication-card p-4">
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 <h5 class="fw-semibold mb-3">
     Interaction Records
 </h5>
@@ -683,8 +615,7 @@ $smsPct = $totalForPage > 0
                         <form
                             method="POST"
                             action="{{ route('crm.logs.destroy', $log) }}"
-                            style="display:inline"
-                            onsubmit="return confirm('Delete this log?')">
+                            style="display:inline">
 
                             @csrf
                             @method('DELETE')
@@ -724,31 +655,15 @@ $smsPct = $totalForPage > 0
     </table>
 
 </div>
-<<<<<<< HEAD
-
-=======
->>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 
 </div>
 
 <div class="mt-3">
-<<<<<<< HEAD
-
-
-{{ $logs->links() }}
-
-
-=======
     {{ $logs->links() }}
->>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 </div>
 
 @foreach($logs as $log)
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 @php
     $modalFollowUpDate = $log->follow_up_date
         ? \Carbon\Carbon::parse($log->follow_up_date)
@@ -836,10 +751,6 @@ $smsPct = $totalForPage > 0
     id="newCommunicationModal"
     tabindex="-1">
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 <div class="modal-dialog modal-lg">
 
     <div class="modal-content">
@@ -1018,10 +929,6 @@ $smsPct = $totalForPage > 0
     </div>
 
 </div>
-<<<<<<< HEAD
-
-=======
->>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 
 </div>
 

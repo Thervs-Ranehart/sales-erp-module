@@ -716,7 +716,6 @@
                 <button
                     class="action-btn delete-btn"
                     title="Cancel invoice or request manager approval"
-                    onclick="return confirm('Cancel this invoice? Staff requests require manager approval.')"
                 >
 
                     <i class="bi bi-x-circle"></i>

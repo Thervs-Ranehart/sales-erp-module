@@ -20,8 +20,6 @@
         @method('PUT')
     @endif
 
-    @csrf
-
     <div class="page-header">
 
         <div>
@@ -257,22 +255,18 @@
 
         </div>
 
-    </div>
+        <div class="card-footer bg-white border-top d-flex flex-column flex-sm-row justify-content-end gap-2 p-3">
+            <a href="{{ route('pricing-rules.index') }}" class="btn btn-secondary">
+                Cancel
+            </a>
 
-   <div class="mt-4 border-top pt-3">
-    <div class="d-flex justify-content-end gap-2">
-
-        <a href="{{ route('pricing-rules.index') }}" class="btn btn-secondary">
-            Cancel
-        </a>
-
-        <button type="submit" class="btn btn-primary">
-            <i class="bi bi-check-circle me-1"></i>
-            Save Pricing Rule
-        </button>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-circle me-1"></i>
+                Save Pricing Rule
+            </button>
+        </div>
 
     </div>
-</div>
     </form>
 
 @endsection

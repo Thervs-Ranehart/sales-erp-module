@@ -484,8 +484,7 @@
             @csrf
             @method('DELETE')
 
-            <button class="action-btn delete-btn"
-                    onclick="return confirm('Delete this quotation?')">
+            <button class="action-btn delete-btn">
 
                 <i class="bi bi-trash"></i>
 

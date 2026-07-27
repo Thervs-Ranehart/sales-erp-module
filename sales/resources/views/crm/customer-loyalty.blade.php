@@ -1068,8 +1068,7 @@ Edit
                                     </button>
 
                                     <form method="POST" action="{{ route('crm.rewards.destroy', $reward) }}"
-                                        class="d-inline"
-                                        onsubmit="return confirm('Delete this reward? This cannot be undone.');">
+                                        class="d-inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>

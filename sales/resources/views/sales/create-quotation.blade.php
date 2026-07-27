@@ -293,10 +293,12 @@ body{
 
                 <select
                     class="form-select"
+                    id="pricingRule"
                     name="pricing_rule_id"
+                    onchange="applyPricingRule(this)"
                 >
 
-                    <option value="">
+                    <option value="" data-discount-type="" data-discount-value="0">
                         None
                     </option>
 
@@ -304,6 +306,8 @@ body{
 
                         <option
                             value="{{ $rule->pricing_rule_id }}"
+                            data-discount-type="{{ $rule->discount_type }}"
+                            data-discount-value="{{ $rule->discount_value }}"
                             @selected(old('pricing_rule_id', optional($quotation)->pricing_rule_id) == $rule->pricing_rule_id)
                         >
 
@@ -314,6 +318,10 @@ body{
                     @endforeach
 
                 </select>
+
+                <small id="pricingRuleDiscountHelp" class="form-text text-muted">
+                    Select a pricing rule to apply its discount.
+                </small>
 
             </div>
 
@@ -659,7 +667,7 @@ body{
 
                     <th>
 
-                        Discount %
+                        <span id="discountLabel">Discount %</span>
 
                     </th>
 
@@ -672,10 +680,21 @@ body{
                             name="discount"
                             value="{{ old('discount',$discountPercent) }}"
                             min="0"
-                            max="100"
                             oninput="calculateTotals()"
                         >
 
+                    </td>
+
+                </tr>
+
+                <tr>
+
+                    <th>
+                        Applied Discount
+                    </th>
+
+                    <td class="text-end">
+                        &#8369;<span id="discountAmount">0.00</span>
                     </td>
 
                 </tr>
@@ -890,6 +909,37 @@ function updatePrice(select)
     calculateTotals();
 }
 
+function applyPricingRule(select)
+{
+    let selectedRule=select.options[select.selectedIndex];
+    let discountInput=document.getElementById('discount');
+    let discountLabel=document.getElementById('discountLabel');
+    let discountType=selectedRule.dataset.discountType;
+    let discountValue=parseFloat(selectedRule.dataset.discountValue)||0;
+    let helpText=document.getElementById('pricingRuleDiscountHelp');
+
+    discountInput.readOnly=discountType !== '';
+
+    if (discountType === 'Percentage') {
+        discountInput.value=discountValue;
+        discountInput.max=100;
+        discountLabel.textContent='Discount %';
+        helpText.textContent='This rule applies a '+discountValue+'% discount.';
+    } else if (discountType === 'Fixed') {
+        discountInput.value=discountValue.toFixed(2);
+        discountInput.removeAttribute('max');
+        discountLabel.textContent='Discount (₱)';
+        helpText.textContent='This rule applies a fixed discount of ₱'+discountValue.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})+'.';
+    } else {
+        discountInput.readOnly=false;
+        discountInput.max=100;
+        discountLabel.textContent='Discount %';
+        helpText.textContent='Select a pricing rule to apply its discount.';
+    }
+
+    calculateTotals();
+}
+
 function calculateTotals()
 {
     let subtotal=0;
@@ -922,15 +972,25 @@ function calculateTotals()
             maximumFractionDigits:2
         });
 
-    let discount=parseFloat(
-        document.getElementById('discount').value
-    )||0;
+    let discountInput=document.getElementById('discount');
+    let discount=parseFloat(discountInput.value)||0;
+    let discountAmount=subtotal*(discount/100);
+    let pricingRule=document.getElementById('pricingRule');
+    let selectedRule=pricingRule.options[pricingRule.selectedIndex];
+
+    if (selectedRule.dataset.discountType === 'Fixed') {
+        discountAmount=Math.min(subtotal,parseFloat(discountInput.value)||0);
+    }
+
+    document.getElementById('discountAmount').innerHTML=
+        discountAmount.toLocaleString(undefined,{
+            minimumFractionDigits:2,
+            maximumFractionDigits:2
+        });
 
     let tax=parseFloat(
         document.getElementById('tax').value
     )||0;
-
-    let discountAmount=subtotal*(discount/100);
 
     let taxable=subtotal-discountAmount;
 
@@ -957,6 +1017,8 @@ document.addEventListener('DOMContentLoaded',function(){
         }
 
     });
+
+    applyPricingRule(document.getElementById('pricingRule'));
 
     calculateTotals();
 

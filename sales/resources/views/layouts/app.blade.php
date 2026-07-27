@@ -390,6 +390,34 @@
             transform: translateY(-2px);
             box-shadow: 0 10px 24px rgba(15,23,42,.16);
         }
+
+        .app-delete-countdown {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            z-index: 2100;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            width: min(calc(100% - 32px), 430px);
+            padding: 18px 20px;
+            border: 1px solid #fecaca;
+            border-radius: 14px;
+            background: #fff;
+            color: #7f1d1d;
+            box-shadow: 0 18px 42px rgba(15, 23, 42, .24);
+            transform: translate(-50%, -50%);
+        }
+
+        .app-delete-countdown__cancel {
+            flex: 0 0 auto;
+            border: 0;
+            border-radius: 8px;
+            padding: 8px 12px;
+            background: #ef4444;
+            color: #fff;
+            font-weight: 700;
+        }
     </style>
 </head>
 <body class="{{ request()->routeIs('support.*') ? 'support-module' : '' }}">
@@ -465,6 +493,69 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        (() => {
+            let pendingDeletion = null;
+
+            const cancelDeletion = () => {
+                if (! pendingDeletion) {
+                    return;
+                }
+
+                window.clearInterval(pendingDeletion.timer);
+                pendingDeletion.notice.remove();
+                pendingDeletion = null;
+            };
+
+            document.addEventListener('submit', event => {
+                const form = event.target;
+                const methodInput = form.querySelector('input[name="_method"]');
+
+                if (! methodInput || methodInput.value.toUpperCase() !== 'DELETE' || form.dataset.deleteCountdownBypass === 'true') {
+                    return;
+                }
+
+                event.preventDefault();
+
+                if (pendingDeletion) {
+                    cancelDeletion();
+                }
+
+                let secondsRemaining = 5;
+                const notice = document.createElement('div');
+                notice.className = 'app-delete-countdown';
+                notice.setAttribute('role', 'status');
+                notice.innerHTML = '<span></span><button type="button" class="app-delete-countdown__cancel">Cancel</button>';
+
+                const message = notice.querySelector('span');
+                const render = () => {
+                    message.textContent = `Deletion is scheduled. Cancel within ${secondsRemaining} second${secondsRemaining === 1 ? '' : 's'}.`;
+                };
+
+                notice.querySelector('button').addEventListener('click', cancelDeletion);
+                document.body.appendChild(notice);
+                render();
+
+                const timer = window.setInterval(() => {
+                    secondsRemaining -= 1;
+
+                    if (secondsRemaining <= 0) {
+                        window.clearInterval(timer);
+                        notice.remove();
+                        pendingDeletion = null;
+                        form.dataset.deleteCountdownBypass = 'true';
+                        HTMLFormElement.prototype.submit.call(form);
+                        return;
+                    }
+
+                    render();
+                }, 1000);
+
+                pendingDeletion = { timer, notice };
+            });
+        })();
+    </script>
 
     @stack('scripts')
 

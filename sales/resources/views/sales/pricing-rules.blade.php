@@ -608,7 +608,8 @@ New Pricing Rule
             <button
                 type="submit"
                 class="action-btn delete-btn"
-                onclick="return confirm('Delete this pricing rule?')"
+                aria-label="Delete {{ $rule->rule_name }}"
+                title="Delete pricing rule"
             >
                 <i class="bi bi-trash"></i>
             </button>

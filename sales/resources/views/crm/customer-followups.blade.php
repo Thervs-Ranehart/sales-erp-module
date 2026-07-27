@@ -475,8 +475,7 @@
                         <form
                             method="POST"
                             action="{{ route('crm.followups.destroy', $followUp) }}"
-                            class="m-0"
-                            onsubmit="return confirm('Delete this follow-up?')">
+                            class="m-0">
 
                             @csrf
 
