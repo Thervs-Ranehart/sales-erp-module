@@ -11,7 +11,18 @@ class Notification extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'employee_id', 'notification_type', 'title', 'message',
-        'related_module', 'related_record_id', 'is_read', 'created_at',
+        'employee_id',
+        'notification_type',
+        'title',
+        'message',
+        'related_module',
+        'related_record_id',
+        'is_read',
+        'created_at',
+    ];
+
+    protected $casts = [
+        'created_at' => 'datetime',
+        'is_read' => 'boolean',
     ];
 }

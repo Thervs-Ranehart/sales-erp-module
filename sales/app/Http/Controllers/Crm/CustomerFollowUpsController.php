@@ -7,6 +7,8 @@ use App\Models\Customer;
 use App\Models\CommunicationLog;
 use App\Models\Employee;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 class CustomerFollowUpsController extends Controller
 {
@@ -57,6 +59,36 @@ class CustomerFollowUpsController extends Controller
             ->withQueryString();
 
 
+        // Follow-Up Analytics: date-range filtered counts using
+        // follow_up_date / communication_status, driven off real data.
+        $analyticsPeriod = $request->query('analytics_period', 'this_week');
+        $analyticsStart = $request->query('analytics_start');
+        $analyticsEnd = $request->query('analytics_end');
+
+        [$analyticsRangeStart, $analyticsRangeEnd] = $this->resolveAnalyticsRange(
+            $analyticsPeriod,
+            $analyticsStart,
+            $analyticsEnd
+        );
+
+        $analyticsBase = CommunicationLog::whereNotNull('follow_up_date')
+            ->whereBetween('follow_up_date', [$analyticsRangeStart, $analyticsRangeEnd]);
+
+        $analyticsTotal = (clone $analyticsBase)->count();
+
+        $analyticsCompleted = (clone $analyticsBase)
+            ->where('communication_status', 'Completed')
+            ->count();
+
+        $analyticsPending = (clone $analyticsBase)
+            ->where('communication_status', 'Pending')
+            ->count();
+
+        $analyticsOverdue = (clone $analyticsBase)
+            ->where('communication_status', '!=', 'Completed')
+            ->where('follow_up_date', '<', now())
+            ->count();
+
 
         return view('crm.customer-followups', [
 
@@ -106,7 +138,23 @@ class CustomerFollowUpsController extends Controller
 
             'search'=>$search,
 
-            'status'=>$status
+            'status'=>$status,
+
+            // Assigned Agents: available agents for each visible follow-up,
+            // ranked by the follow-up's own priority column (see method docblock).
+            'agentAssignmentOptions' => $this->buildAgentAssignmentOptions(
+                $followUps->getCollection()
+            ),
+
+            'analyticsPeriod' => $analyticsPeriod,
+            'analyticsStart' => $analyticsStart,
+            'analyticsEnd' => $analyticsEnd,
+            'analyticsRangeStart' => $analyticsRangeStart,
+            'analyticsRangeEnd' => $analyticsRangeEnd,
+            'analyticsTotal' => $analyticsTotal,
+            'analyticsCompleted' => $analyticsCompleted,
+            'analyticsPending' => $analyticsPending,
+            'analyticsOverdue' => $analyticsOverdue,
 
         ]);
     }
@@ -209,4 +257,150 @@ class CustomerFollowUpsController extends Controller
         'Follow-up status updated successfully.'
     );
 }
+
+
+    /**
+     * Assign (or reassign) an available agent to a follow-up.
+     */
+    public function assignAgent(Request $request, CommunicationLog $log)
+    {
+        $data = $request->validate([
+            'employee_id' => [
+                'required',
+                'exists:employees,employee_id',
+            ],
+        ]);
+
+        $agent = Employee::where('employee_id', $data['employee_id'])
+            ->where('employee_status', 'Active')
+            ->first();
+
+        if (! $agent) {
+            return back()->withErrors([
+                'employee_id' => 'Selected agent is not available.',
+            ]);
+        }
+
+        $log->update([
+            'employee_id' => $agent->employee_id,
+        ]);
+
+        return back()->with(
+            'success',
+            'Agent assigned successfully.'
+        );
+    }
+
+
+    /**
+     * Rank a follow-up's priority value so it can be compared numerically.
+     * Higher means more urgent for the customer.
+     */
+    private function priorityRank(?string $priority): int
+    {
+        return match ($priority) {
+            'High' => 3,
+            'Medium' => 2,
+            'Low' => 1,
+            default => 0,
+        };
+    }
+
+
+    /**
+     * Build the "Assigned Agents" options for every follow-up on the current page.
+     *
+     * Each active agent is ranked by how many pending follow-ups they already
+     * hold at this follow-up's priority level or higher (the customer's
+     * priority column on communication_logs) — the agent's own attributes,
+     * such as hierarchy_level, are never used for the recommendation. The
+     * agent with the lightest matching workload is marked as recommended.
+     *
+     * @param  Collection<int, CommunicationLog>  $followUps
+     * @return array<int, array<int, array{employee_id:int,name:string,department:?string,workload:int,recommended:bool}>>
+     */
+    private function buildAgentAssignmentOptions(Collection $followUps): array
+    {
+        $activeAgents = Employee::where('employee_status', 'Active')
+            ->orderBy('first_name')
+            ->get();
+
+        $pendingByAgent = CommunicationLog::where('communication_status', 'Pending')
+            ->whereNotNull('employee_id')
+            ->get(['employee_id', 'priority'])
+            ->groupBy('employee_id');
+
+        $options = [];
+
+        foreach ($followUps as $followUp) {
+            $currentRank = $this->priorityRank($followUp->priority);
+
+            $ranked = $activeAgents
+                ->map(function (Employee $agent) use ($pendingByAgent, $currentRank) {
+                    $agentPending = $pendingByAgent->get($agent->employee_id, collect());
+
+                    $workload = $agentPending
+                        ->filter(fn ($pending) => $this->priorityRank($pending->priority) >= $currentRank)
+                        ->count();
+
+                    return [
+                        'employee_id' => $agent->employee_id,
+                        'name' => $agent->full_name,
+                        'department' => $agent->department,
+                        'workload' => $workload,
+                    ];
+                })
+                ->sortBy([
+                    ['workload', 'asc'],
+                    ['name', 'asc'],
+                ])
+                ->values();
+
+            $options[$followUp->communication_id] = $ranked
+                ->map(function (array $agent, int $index) {
+                    $agent['recommended'] = $index === 0;
+
+                    return $agent;
+                })
+                ->all();
+        }
+
+        return $options;
+    }
+
+
+    /**
+     * Resolve the [start, end] Carbon range for the Follow-Up Analytics filter.
+     */
+    private function resolveAnalyticsRange(string $period, ?string $startDate, ?string $endDate): array
+    {
+        $today = now();
+
+        return match ($period) {
+            'last_week' => [
+                $today->copy()->subWeek()->startOfWeek(),
+                $today->copy()->subWeek()->endOfWeek(),
+            ],
+
+            'this_month' => [
+                $today->copy()->startOfMonth(),
+                $today->copy()->endOfMonth(),
+            ],
+
+            'last_month' => [
+                $today->copy()->subMonth()->startOfMonth(),
+                $today->copy()->subMonth()->endOfMonth(),
+            ],
+
+            'custom' => [
+                $startDate ? Carbon::parse($startDate)->startOfDay() : $today->copy()->startOfWeek(),
+                $endDate ? Carbon::parse($endDate)->endOfDay() : $today->copy()->endOfWeek(),
+            ],
+
+            default => [
+                $today->copy()->startOfWeek(),
+                $today->copy()->endOfWeek(),
+            ],
+        };
+    }
 }

@@ -368,7 +368,7 @@
                 {{-- Agent --}}
                 <td>
 
-                    {{ $followUp->agent->name ?? 'Unassigned' }}
+                    {{ $followUp->agent->full_name ?? 'Unassigned' }}
 
                 </td>
 
@@ -461,7 +461,9 @@
                         <button
                             type="button"
                             class="btn btn-sm btn-outline-info action-btn"
-                            title="Assigned Agents">
+                            title="Assigned Agents"
+                            data-bs-toggle="modal"
+                            data-bs-target="#assignAgentModal{{ $followUp->communication_id }}">
 
                             <i class="bi bi-person-badge"></i>
 
@@ -630,7 +632,7 @@
                 Assigned Agent:
             </strong>
 
-            {{ $followUp->agent->name ?? 'Unassigned' }}
+            {{ $followUp->agent->full_name ?? 'Unassigned' }}
 
         </p>
 
@@ -728,6 +730,178 @@
 </div>
 
 @endforeach
+
+
+{{-- Assigned Agents Modals --}}
+@foreach ($followUps as $followUp)
+
+<div
+    class="modal fade"
+    id="assignAgentModal{{ $followUp->communication_id }}"
+    tabindex="-1">
+
+<div class="modal-dialog">
+
+<div class="modal-content">
+
+
+    {{-- Modal Header --}}
+    <div class="modal-header">
+
+        <h5 class="modal-title">
+            Assigned Agents
+        </h5>
+
+        <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal">
+
+        </button>
+
+    </div>
+
+
+    {{-- Modal Body --}}
+    <div class="modal-body">
+
+        <p>
+
+            <strong>
+                Customer:
+            </strong>
+
+            {{ optional($followUp->customer)->display_name ?? 'Unknown' }}
+
+        </p>
+
+
+        <p>
+
+            <strong>
+                Currently Assigned:
+            </strong>
+
+            {{ $followUp->agent->full_name ?? 'Unassigned' }}
+
+        </p>
+
+
+        <p>
+
+            <strong>
+                Follow-Up Priority:
+            </strong>
+
+
+            @if ($followUp->priority === 'High')
+
+                <span class="badge bg-danger">
+                    High
+                </span>
+
+            @elseif ($followUp->priority === 'Medium')
+
+                <span class="badge bg-warning text-dark">
+                    Medium
+                </span>
+
+            @else
+
+                <span class="badge bg-success">
+                    Low
+                </span>
+
+            @endif
+
+        </p>
+
+
+        <hr>
+
+
+        <form
+            method="POST"
+            action="{{ route('crm.followups.assign-agent', $followUp) }}">
+
+            @csrf
+
+            <label class="form-label">
+                Available Agents
+            </label>
+
+            <div class="list-group mb-3">
+
+                @forelse (($agentAssignmentOptions[$followUp->communication_id] ?? []) as $option)
+
+                    <label class="list-group-item d-flex justify-content-between align-items-center">
+
+                        <span>
+
+                            <input
+                                type="radio"
+                                name="employee_id"
+                                value="{{ $option['employee_id'] }}"
+                                class="form-check-input me-2"
+                                {{ ($followUp->employee_id === $option['employee_id'] || (! $followUp->employee_id && $option['recommended'])) ? 'checked' : '' }}
+                                required>
+
+                            {{ $option['name'] }}
+
+                            @if ($option['department'])
+                                <small class="text-muted">
+                                    ({{ $option['department'] }})
+                                </small>
+                            @endif
+
+                        </span>
+
+                        <span>
+
+                            @if ($option['recommended'])
+                                <span class="badge bg-primary">
+                                    Recommended
+                                </span>
+                            @endif
+
+                            <span class="badge bg-secondary">
+                                {{ $option['workload'] }} pending
+                            </span>
+
+                        </span>
+
+                    </label>
+
+                @empty
+
+                    <p class="text-muted mb-0">
+                        No active agents available.
+                    </p>
+
+                @endforelse
+
+            </div>
+
+            <button
+                type="submit"
+                class="btn btn-sm btn-primary">
+
+                Assign Agent
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+</div>
+
+</div>
+
+@endforeach
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
