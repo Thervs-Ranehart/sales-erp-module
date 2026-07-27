@@ -540,11 +540,11 @@ class AfterSalesSupportController extends Controller
     {
         $filters = $request->validate([
             'search' => ['nullable', 'string', 'max:255'],
-            'ticket_status' => ['nullable', 'in:all,Open,Pending,In Progress,Resolved,Closed,Escalated,Reopened'],
+            'resolution_status' => ['nullable', 'string', 'max:100'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
         ]);
         $search = $filters['search'] ?? null;
-        $ticketStatus = $filters['ticket_status'] ?? null;
+        $resolutionStatus = $filters['resolution_status'] ?? null;
         $perPage = (int) ($filters['per_page'] ?? 10);
 
         $query = ResolutionTracking::query()
@@ -571,10 +571,8 @@ class AfterSalesSupportController extends Controller
             });
         }
 
-        if (! empty($ticketStatus) && strtolower($ticketStatus) !== 'all') {
-            $query->whereHas('supportTicket', function (Builder $ticketQuery) use ($ticketStatus): void {
-                $ticketQuery->where('status', $ticketStatus);
-            });
+        if (! empty($resolutionStatus) && strtolower($resolutionStatus) !== 'all') {
+            $query->where('resolution_status', $resolutionStatus);
         }
 
         $resolutionTrackings = $query
@@ -582,18 +580,18 @@ class AfterSalesSupportController extends Controller
             ->paginate($perPage)
             ->withQueryString();
 
-        $metricsQuery = ResolutionTracking::query();
+        $metricsQuery = clone $query;
         $totalResolutionCount = (int) $metricsQuery->count();
-        $resolvedTicketCount = (int) ResolutionTracking::query()->whereNotNull('resolved_at')->distinct('ticket_id')->count('ticket_id');
-        $averageResolutionTime = (float) (ResolutionTracking::query()->whereNotNull('resolution_time_hours')->avg('resolution_time_hours') ?? 0);
-        $qcPassedCount = (int) ResolutionTracking::query()
+        $resolvedTicketCount = (int) (clone $metricsQuery)->whereNotNull('resolved_at')->distinct('ticket_id')->count('ticket_id');
+        $averageResolutionTime = (float) ((clone $metricsQuery)->whereNotNull('resolution_time_hours')->avg('resolution_time_hours') ?? 0);
+        $qcPassedCount = (int) (clone $metricsQuery)
             ->where(function (Builder $qcQuery): void {
                 $qcQuery->whereRaw('LOWER(qc_status) = ?', ['passed'])
                     ->orWhere(function (Builder $legacyQuery): void {
                         $legacyQuery->whereNull('qc_status')->whereRaw('LOWER(COALESCE(corrective_action, \'\')) LIKE ?', ['%pass%']);
                     });
             })->count();
-        $qcFailedCount = (int) ResolutionTracking::query()
+        $qcFailedCount = (int) (clone $metricsQuery)
             ->where(function (Builder $qcQuery): void {
                 $qcQuery->whereRaw('LOWER(qc_status) = ?', ['failed'])
                     ->orWhere(function (Builder $legacyQuery): void {
@@ -601,11 +599,17 @@ class AfterSalesSupportController extends Controller
                     });
             })->count();
         $pendingQcCount = $totalResolutionCount - $qcPassedCount - $qcFailedCount;
+        $resolutionStatuses = ResolutionTracking::query()
+            ->whereNotNull('resolution_status')
+            ->distinct()
+            ->orderBy('resolution_status')
+            ->pluck('resolution_status');
 
         return view('support.resolution-tracking', [
             'resolutionTrackings' => $resolutionTrackings,
             'search' => $search,
-            'ticketStatus' => $ticketStatus,
+            'resolutionStatus' => $resolutionStatus,
+            'resolutionStatuses' => $resolutionStatuses,
             'totalResolutionCount' => $totalResolutionCount,
             'resolvedTicketCount' => $resolvedTicketCount,
             'averageResolutionTime' => round($averageResolutionTime, 2),
