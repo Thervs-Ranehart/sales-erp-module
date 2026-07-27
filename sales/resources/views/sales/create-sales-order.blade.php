@@ -435,7 +435,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const pricingRuleSelect = document.getElementById('pricingRuleSelect');
     const discountLabel = document.getElementById('discountLabel');
 
-let discountType = "percentage";
+let discountType = "{{ strtolower($discountType) }}";
 
     function formatCurrency(value) {
         return '₱' + Number(value || 0).toLocaleString('en-PH', {

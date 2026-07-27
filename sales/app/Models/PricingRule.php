@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -44,8 +45,17 @@ class PricingRule extends Model
         return $this->hasMany(SalesOrder::class, 'pricing_rule_id', 'pricing_rule_id');
     }
 
+    /**
+     * Determine whether the pricing rule is currently active
+     * based on today's date.
+     */
     public function isActive(): bool
     {
-        return strtolower((string) $this->status) === 'active';
+        $today = Carbon::today();
+
+        return $today->between(
+            $this->start_date,
+            $this->end_date
+        );
     }
 }

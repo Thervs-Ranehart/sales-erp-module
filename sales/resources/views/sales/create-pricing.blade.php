@@ -93,14 +93,14 @@
 
                         <option
                             value="Percentage"
-                            @selected(old('discount_type')=='Percentage')
+                            @selected(old('discount_type', $pricingRule->discount_type) == 'Percentage')
                         >
                             Percentage
                         </option>
 
                         <option
                             value="Fixed"
-                            @selected(old('discount_type')=='Fixed')
+                            @selected(old('discount_type', $pricingRule->discount_type) == 'Fixed')
                         >
                             Fixed Amount
                         </option>
@@ -162,7 +162,7 @@
                         min="0"
                         name="tax_rate"
                         class="form-control @error('tax_rate') is-invalid @enderror"
-                        value="{{ old('tax_rate') }}"
+                       value="{{ old('tax_rate', $pricingRule->tax_rate) }}"
                         placeholder="Enter Tax Rate"
                     >
 
@@ -190,7 +190,7 @@
                         type="date"
                         name="start_date"
                         class="form-control @error('start_date') is-invalid @enderror"
-                        value="{{ old('start_date') }}"
+                        value="{{ old('start_date', optional($pricingRule->start_date)->format('Y-m-d')) }}"
                     >
 
                     @error('start_date')
@@ -217,7 +217,7 @@
                         type="date"
                         name="end_date"
                         class="form-control @error('end_date') is-invalid @enderror"
-                        value="{{ old('end_date') }}"
+                        value="{{ old('end_date', optional($pricingRule->end_date)->format('Y-m-d')) }}"
                     >
 
                     @error('end_date')
@@ -231,49 +231,26 @@
                     @enderror
 
                 </div>
-                                <div class="col-md-6">
+                            
 
-                    <label class="form-label">
+  <div class="col-md-6">
 
-                        Status
+    <label class="form-label">
+        Status
+    </label>
 
-                    </label>
+    <input
+        type="text"
+        class="form-control"
+        value="Automatically determined by Start Date and End Date"
+        readonly
+    >
 
-                    <select
-                        name="status"
-                        class="form-select @error('status') is-invalid @enderror"
-                    >
+    <small class="text-muted">
+        The system will automatically set this pricing rule to Active or Inactive based on the selected dates.
+    </small>
 
-                        <option value="">
-                            Select Status
-                        </option>
-
-                        <option
-                            value="Active"
-                            @selected(old('status') == 'Active')
-                        >
-                            Active
-                        </option>
-
-                        <option
-                            value="Inactive"
-                            @selected(old('status') == 'Inactive')
-                        >
-                            Inactive
-                        </option>
-
-                    </select>
-
-                    @error('status')
-
-                        <div class="invalid-feedback">
-
-                            {{ $message }}
-
-                        </div>
-
-                    @enderror
-
+</div>
                 </div>
 
             </div>
@@ -282,24 +259,20 @@
 
     </div>
 
-    <div class="d-flex justify-content-end mt-4 gap-2">
+   <div class="mt-4 border-top pt-3">
+    <div class="d-flex justify-content-end gap-2">
 
-        <a
-            href="{{ route('pricing-rules.index') }}"
-            class="btn btn-secondary"
-        >
+        <a href="{{ route('pricing-rules.index') }}" class="btn btn-secondary">
             Cancel
         </a>
 
-        <button
-            type="submit"
-            class="btn btn-primary"
-        >
+        <button type="submit" class="btn btn-primary">
             <i class="bi bi-check-circle me-1"></i>
             Save Pricing Rule
         </button>
 
     </div>
+</div>
     </form>
 
 @endsection

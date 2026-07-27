@@ -7,6 +7,7 @@ use App\Http\Requests\UpdatePricingRuleRequest;
 use App\Models\PricingRule;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Carbon\Carbon;
 
 class PricingRuleController extends Controller
 {
@@ -39,13 +40,22 @@ class PricingRuleController extends Controller
     }
 
     public function store(StorePricingRuleRequest $request): RedirectResponse
-    {
-        PricingRule::create($request->validated());
+{
+    $data = $request->validated();
 
-        return redirect()
-            ->route('pricing-rules.index')
-            ->with('success', 'Pricing Rule created successfully.');
-    }
+    $today = Carbon::today();
+
+    $data['status'] = $today->between(
+        Carbon::parse($data['start_date']),
+        Carbon::parse($data['end_date'])
+    ) ? 'Active' : 'Inactive';
+
+    PricingRule::create($data);
+
+    return redirect()
+        ->route('pricing-rules.index')
+        ->with('success', 'Pricing Rule created successfully.');
+}
 
     public function show(PricingRule $pricingRule): View
     {
@@ -62,17 +72,26 @@ class PricingRuleController extends Controller
         );
     }
 
-    public function update(
-        UpdatePricingRuleRequest $request,
-        PricingRule $pricingRule
-    ): RedirectResponse {
+   public function update(
+    UpdatePricingRuleRequest $request,
+    PricingRule $pricingRule
+): RedirectResponse {
 
-        $pricingRule->update($request->validated());
+    $data = $request->validated();
 
-        return redirect()
-            ->route('pricing-rules.index')
-            ->with('success', 'Pricing Rule updated successfully.');
-    }
+    $today = Carbon::today();
+
+    $data['status'] = $today->between(
+        Carbon::parse($data['start_date']),
+        Carbon::parse($data['end_date'])
+    ) ? 'Active' : 'Inactive';
+
+    $pricingRule->update($data);
+
+    return redirect()
+        ->route('pricing-rules.index')
+        ->with('success', 'Pricing Rule updated successfully.');
+}
 
     public function destroy(
         PricingRule $pricingRule

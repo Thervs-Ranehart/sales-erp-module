@@ -23,7 +23,22 @@ class StoreSalesOrderRequest extends FormRequest
             'price' => ['required', 'array', 'min:1'],
             'price.*' => ['required', 'numeric', 'min:0'],
             'pricing_rule_id' => ['nullable', 'integer', 'exists:pricing_rules,pricing_rule_id'],
-            'discount' => ['nullable', 'numeric', 'min:0', 'max:100'],
+           'discount' => [
+    'nullable',
+    'numeric',
+    'min:0',
+    function ($attribute, $value, $fail) {
+        $pricingRule = \App\Models\PricingRule::find($this->pricing_rule_id);
+
+        if (
+            $pricingRule &&
+            strtolower($pricingRule->discount_type) === 'percentage' &&
+            $value > 100
+        ) {
+            $fail('Percentage discount cannot exceed 100%.');
+        }
+    },
+],
             'tax' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'status' => ['required', 'in:pending,processed,shipped,delivered,cancelled'],
         ];

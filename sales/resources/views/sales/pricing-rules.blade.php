@@ -498,7 +498,7 @@ New Pricing Rule
             <tbody>
                 @forelse($pricingRules as $rule)
 
-<tr data-status="{{ strtolower($rule->status) }}">
+<tr data-status="{{ $rule->isActive() ? 'active' : 'inactive' }}">
 
     <td>
 
@@ -514,7 +514,7 @@ New Pricing Rule
 
     <td>
 
-        @if($rule->discount_type == 'Percentage')
+        @if($rule->discount_type == 'percentage')
 
             <span class="custom-badge type-discount">
                 Percentage
@@ -532,7 +532,7 @@ New Pricing Rule
 
     <td>
 
-        @if($rule->discount_type == 'Percentage')
+        @if($rule->discount_type == 'percentage')
 
             {{ number_format($rule->discount_value,2) }}%
 
@@ -564,19 +564,19 @@ New Pricing Rule
 
     <td>
 
-        @if(strtolower($rule->status) == 'active')
+       @if($rule->isActive())
 
-            <span class="custom-badge status-active">
-                Active
-            </span>
+    <span class="custom-badge status-active">
+        Active
+    </span>
 
-        @else
+@else
 
-            <span class="custom-badge status-inactive">
-                Inactive
-            </span>
+    <span class="custom-badge status-inactive">
+        Inactive
+    </span>
 
-        @endif
+@endif
 
     </td>
 
