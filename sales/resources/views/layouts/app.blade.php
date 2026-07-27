@@ -393,39 +393,80 @@
     </style>
 </head>
 <body class="{{ request()->routeIs('support.*') ? 'support-module' : '' }}">
+
     @if (request()->routeIs('support.*'))
         @include('components.support-ui')
     @endif
-    <div class="d-flex">
+
+    <div class="d-flex min-vh-100">
+
         <x-sidebar current-route="{{ Route::currentRouteName() }}" />
 
-
         <div class="content-area flex-grow-1">
-            <x-topbar title="{{ $title ?? 'Sales Quotation Management System' }}" subtitle="{{ $subtitle ?? 'Enterprise dashboard' }}" />
 
-            <main class="p-4">
+            <x-topbar 
+                title="{{ $title ?? 'Sales Quotation Management System' }}" 
+                subtitle="{{ $subtitle ?? 'Enterprise dashboard' }}" 
+            />
+
+            <main class="p-4 flex-grow-1">
                 @yield('content')
             </main>
 
-            @if (! request()->routeIs(['sales.index', 'quotations.index']))
-                <footer class="app-footer" aria-label="Application footer">
-                    <div class="app-footer__inner">
-                        <a class="app-footer__brand" href="{{ route('about.index') }}" aria-label="About Company Name">
-                            <img class="app-footer__mark" src="{{ asset('cl-logo.svg') }}" alt="" width="34" height="34">
-                            <span>
-                                <span class="app-footer__title">Company Name</span>
-                                <span class="app-footer__subtitle">Sales and Customer Management System</span>
-                            </span>
-                        </a>
-                        <p class="app-footer__meta">
-                            &copy; {{ now()->year }} Sales and Customer Management System &middot; Version 1.0
-                        </p>
-                    </div>
-                </footer>
-            @endif
         </div>
+
     </div>
+
+
+    @if (! request()->routeIs(['sales.index', 'quotations.index']))
+
+    <footer class="app-footer" aria-label="Application footer">
+
+        <div class="app-footer__inner">
+
+            <a class="app-footer__brand" 
+               href="{{ route('about.index') }}" 
+               aria-label="About Company Name">
+
+                <img 
+                    class="app-footer__mark" 
+                    src="{{ asset('cl-logo.svg') }}" 
+                    alt="" 
+                    width="34" 
+                    height="34"
+                >
+
+                <span>
+
+                    <span class="app-footer__title">
+                        Company Name
+                    </span>
+
+                    <span class="app-footer__subtitle">
+                        Sales and Customer Management System
+                    </span>
+
+                </span>
+
+            </a>
+
+
+            <p class="app-footer__meta">
+                &copy; {{ now()->year }} Sales and Customer Management System 
+                &middot; Version 1.0
+            </p>
+
+
+        </div>
+
+    </footer>
+
+    @endif
+
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
     @stack('scripts')
+
 </body>
 </html>
