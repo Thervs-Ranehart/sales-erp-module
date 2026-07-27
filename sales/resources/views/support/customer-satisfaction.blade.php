@@ -58,10 +58,68 @@
 
         <section class="cs-filter-card mb-4" aria-label="Feedback filters"><form method="GET" action="{{ route('support.customer-satisfaction') }}"><div class="cs-filter-grid"><div><label class="form-label cs-filter-label" for="satisfactionSearch">Search feedback</label><div class="input-group"><span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted" aria-hidden="true"></i></span><input id="satisfactionSearch" name="search" class="form-control border-start-0 ps-0" value="{{ $search ?? '' }}" placeholder="Ticket, customer, or comment" /></div></div><div><label class="form-label cs-filter-label" for="satisfactionRating">Rating</label><select id="satisfactionRating" name="rating" class="form-select"><option value="all">All ratings</option>@foreach([5 => 'Very Satisfied', 4 => 'Satisfied', 3 => 'Neutral', 2 => 'Dissatisfied', 1 => 'Very Dissatisfied'] as $ratingOption => $label)<option value="{{ $ratingOption }}" @selected((string) ($rating ?? '') === (string) $ratingOption)>{{ $ratingOption }} - {{ $label }}</option>@endforeach</select></div><div><label class="form-label cs-filter-label" for="satisfactionSort">Sort by</label><select id="satisfactionSort" name="sort" class="form-select"><option value="newest" @selected($sort === 'newest')>Newest first</option><option value="oldest" @selected($sort === 'oldest')>Oldest first</option><option value="rating_desc" @selected($sort === 'rating_desc')>Highest rating</option><option value="rating_asc" @selected($sort === 'rating_asc')>Lowest rating</option></select></div><div class="cs-filter-actions"><a class="btn btn-outline-secondary cs-reset" data-support-reset="1" href="{{ route('support.customer-satisfaction') }}">Reset</a><button class="btn btn-primary cs-apply" type="submit"><i class="bi bi-funnel me-1" aria-hidden="true"></i>Apply</button></div></div></form></section>
 
-        <section class="cs-table-card mb-4"><div class="cs-table-heading"><h2>Feedback Records</h2><p>Customer feedback is displayed as read-only information.</p></div><div class="table-responsive"><table class="table cs-table"><thead><tr><th>Feedback ID</th><th>Ticket</th><th>Customer</th><th>Rating</th><th>Satisfaction Level</th><th>Comments</th><th>Submitted Date</th><th>Status</th></tr></thead><tbody>@forelse($satisfactions as $feedback)<tr><td class="fw-semibold text-nowrap">FB-{{ $feedback->feedback_id }}</td><td><a class="cs-ticket-link" href="{{ route('support.tickets', ['ticket_id' => $feedback->ticket_id]) }}">TK-{{ $feedback->ticket_id }}</a></td><td class="fw-semibold">{{ $feedback->supportTicket?->customer?->full_name ?? '—' }}</td>@if($feedback->submitted_at)<td><span class="cs-stars" aria-label="{{ $feedback->rating }} out of 5 stars">@for($star = 1; $star <= 5; $star++)<i class="bi bi-star{{ $star <= $feedback->rating ? '-fill' : '' }}" aria-hidden="true"></i>@endfor</span><span class="cs-rating-number">{{ $feedback->rating }}/5</span></td>@php($levelClass = match($feedback->satisfaction_level) { 'Very Satisfied' => 'cs-level-very-satisfied', 'Satisfied' => 'cs-level-satisfied', 'Neutral' => 'cs-level-neutral', 'Dissatisfied' => 'cs-level-dissatisfied', default => 'cs-level-very-dissatisfied' })<td><span class="cs-badge {{ $levelClass }}">{{ $feedback->satisfaction_level }}</span></td><td class="cs-comment">{{ $feedback->comments ?: '—' }}</td><td class="text-nowrap">{{ $feedback->submitted_at->format('Y-m-d H:i') }}</td><td><span class="cs-badge cs-status-received"><i class="bi bi-check-circle-fill me-1" aria-hidden="true"></i>Received</span></td>@else<td colspan="4"><span class="cs-awaiting"><i class="bi bi-hourglass-split me-1" aria-hidden="true"></i>Awaiting Customer Feedback</span></td><td><span class="cs-badge cs-status-pending"><i class="bi bi-clock me-1" aria-hidden="true"></i>Pending Customer Feedback</span></td>@endif</tr>@empty<tr><td colspan="8" class="cs-empty"><i class="bi bi-inbox fs-4 d-block mb-2" aria-hidden="true"></i>No customer feedback found for the selected filters.</td></tr>@endforelse</tbody></table></div><x-support-pagination :paginator="$satisfactions" /></section>
+        <section class="cs-table-card mb-4"><div class="cs-table-heading"><h2>Feedback Records</h2><p>Customer feedback is displayed as read-only information.</p></div><div class="table-responsive"><table class="table cs-table"><thead><tr><th>Feedback ID</th><th>Ticket</th><th>Customer</th><th>Rating</th><th>Satisfaction Level</th><th>Comments</th><th>Submitted Date</th><th>Status</th></tr></thead><tbody>@forelse($satisfactions as $feedback)<tr>
+<td class="fw-semibold text-nowrap">FB-{{ $feedback->feedback_id }}</td>
+<td><a class="cs-ticket-link" href="{{ route('support.tickets', ['ticket_id' => $feedback->ticket_id]) }}">TK-{{ $feedback->ticket_id }}</a></td>
+<td class="fw-semibold">{{ $feedback->supportTicket?->customer?->full_name ?? '—' }}</td>
+<td>
+@php
+$fullStars = (int) round($feedback->rating ?? 0);
+@endphp
+<span class="cs-stars">{{ str_repeat('★', $fullStars) }}{{ str_repeat('☆', 5 - $fullStars) }}</span><span class="cs-rating-number">{{ $feedback->rating ?? '—' }}</span>
+</td>
+<td>
+@php
+$levelClass = match ($feedback->satisfaction_level) {
+    'Very Satisfied' => 'cs-level-very-satisfied',
+    'Satisfied' => 'cs-level-satisfied',
+    'Neutral' => 'cs-level-neutral',
+    'Dissatisfied' => 'cs-level-dissatisfied',
+    default => 'cs-level-very-dissatisfied',
+};
+@endphp
+<span class="cs-badge {{ $levelClass }}">{{ $feedback->satisfaction_level ?? '—' }}</span>
+</td>
+<td class="cs-comment">{{ $feedback->comment ?? '—' }}</td>
+<td class="text-nowrap">
+@if($feedback->submitted_at)
+{{ $feedback->submitted_at->format('M d, Y') }}
+@else
+<span class="cs-awaiting">Awaiting submission</span>
+@endif
+</td>
+<td>
+@if($feedback->submitted_at)
+<span class="cs-badge cs-status-received">Received</span>
+@else
+<span class="cs-badge cs-status-pending">Pending</span>
+@endif
+</td>
+</tr>
+@empty
+<tr><td colspan="8" class="cs-empty">No feedback records found.</td></tr>
+@endforelse
+</tbody></table></div></section>
 
-        @php($ratingMaximum = max(1, ...array_values($ratingDistribution->all())))
-        @php($levelMaximum = max(1, ...array_values($satisfactionLevelCounts->all())))
+        @php
+$ratingDistribution = $ratingDistribution instanceof \Illuminate\Support\Collection
+    ? $ratingDistribution->toArray()
+    : (array) $ratingDistribution;
+
+$satisfactionLevelCounts = $satisfactionLevelCounts instanceof \Illuminate\Support\Collection
+    ? $satisfactionLevelCounts->toArray()
+    : (array) $satisfactionLevelCounts;
+
+$ratingMaximum = 1;
+if (!empty($ratingDistribution)) {
+    $ratingMaximum = max(1, ...array_values($ratingDistribution));
+}
+
+$levelMaximum = 1;
+if (!empty($satisfactionLevelCounts)) {
+    $levelMaximum = max(1, ...array_values($satisfactionLevelCounts));
+}
+@endphp
         <section class="row g-4 mb-2" aria-label="Feedback distributions"><div class="col-lg-6"><article class="cs-chart-card"><h2 class="cs-chart-title">Rating Distribution</h2><p class="cs-chart-subtitle">Breakdown of received ratings from 1 to 5 stars.</p>@foreach([5, 4, 3, 2, 1] as $ratingOption)@php($count = $ratingDistribution[$ratingOption] ?? 0)<div class="cs-chart-row"><span class="cs-chart-label">{{ $ratingOption }} star{{ $ratingOption === 1 ? '' : 's' }}</span><div class="cs-chart-track" role="progressbar" aria-label="{{ $ratingOption }} star ratings" aria-valuenow="{{ $count }}" aria-valuemin="0" aria-valuemax="{{ $ratingMaximum }}"><div class="cs-chart-bar" style="width:{{ ($count / $ratingMaximum) * 100 }}%"></div></div><span class="cs-chart-count">{{ $count }}</span></div>@endforeach</article></div><div class="col-lg-6"><article class="cs-chart-card"><h2 class="cs-chart-title">Satisfaction Levels</h2><p class="cs-chart-subtitle">Response count by customer-selected satisfaction level.</p>@foreach(['Very Satisfied', 'Satisfied', 'Neutral', 'Dissatisfied', 'Very Dissatisfied'] as $level)@php($count = $satisfactionLevelCounts[$level] ?? 0)<div class="cs-chart-row"><span class="cs-chart-label">{{ $level }}</span><div class="cs-chart-track" role="progressbar" aria-label="{{ $level }} responses" aria-valuenow="{{ $count }}" aria-valuemin="0" aria-valuemax="{{ $levelMaximum }}"><div class="cs-chart-bar" style="width:{{ ($count / $levelMaximum) * 100 }}%"></div></div><span class="cs-chart-count">{{ $count }}</span></div>@endforeach</article></div></section>
     </div>
 @endsection

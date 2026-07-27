@@ -227,7 +227,7 @@ $formAction = $isEdit
 
     <option
         value="{{ $order->order_id }}"
-        data-customer="{{ $order->customer->full_name }}"
+        data-customer="{{ $order->customer?->full_name ?? 'No customer assigned' }}"
         data-subtotal="{{ $order->subtotal }}"
         data-discount="{{ $order->discount }}"
         data-tax="{{ $order->tax }}"
@@ -241,7 +241,7 @@ $formAction = $isEdit
         )
     >
 
-        {{ $order->order_number }} — {{ $order->customer->full_name }}
+        Sales Order {{ $order->order_number }} (ID: {{ $order->order_id }}) — {{ $order->customer?->full_name ?? 'No customer assigned' }}
 
     </option>
 
@@ -405,6 +405,10 @@ $formAction = $isEdit
             </tbody>
         </table>
     </div>
+</div>
+@elseif(! $isEdit)
+<div class="alert alert-info mb-4" role="status">
+    Select a sales order to view its order items and enter invoice quantities.
 </div>
 @endif
 <!-- ================= INVOICE SUMMARY ================= -->

@@ -46,17 +46,22 @@ class InvoiceController extends Controller
     public function create(Request $request): View
     {
         $invoice = new Invoice;
-        $salesOrders = SalesOrder::query()
-            ->with(['customer', 'items', 'invoices.items'])
+        $eligibleSalesOrders = SalesOrder::query()
             ->whereNotIn('order_status', ['pending', 'cancelled'])
-            ->get()
-            ->filter(fn (SalesOrder $order) => $order->items->sum('quantity') > $order->invoices
-                ->where('payment_status', '!=', 'Cancelled')
-                ->flatMap->items
-                ->sum('quantity'));
+            ->whereDoesntHave('invoices');
+
+        $salesOrders = (clone $eligibleSalesOrders)
+            ->with('customer')
+            ->orderBy('order_number')
+            ->orderBy('order_id')
+            ->get();
+
         $selectedOrderId = $request->integer('order_id');
         $selectedOrder = $selectedOrderId
-            ? $salesOrders->firstWhere('order_id', $selectedOrderId)
+            ? (clone $eligibleSalesOrders)
+                ->with(['customer', 'items.product', 'invoices.items'])
+                ->whereKey($selectedOrderId)
+                ->first()
             : null;
 
         return view(
@@ -79,6 +84,12 @@ class InvoiceController extends Controller
         if (in_array(strtolower((string) $order->order_status), ['pending', 'cancelled'], true)) {
             return back()->withInput()->withErrors([
                 'order_id' => 'Only processed, shipped, or delivered orders can be invoiced.',
+            ]);
+        }
+
+        if ($order->invoices->isNotEmpty()) {
+            return back()->withInput()->withErrors([
+                'order_id' => 'This sales order already has an invoice.',
             ]);
         }
 

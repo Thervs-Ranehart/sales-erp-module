@@ -28,8 +28,8 @@ class SalesOrderController extends Controller
     {
         $orders = SalesOrder::query()
             ->with('customer')
-            ->orderByDesc('order_date')
-            ->orderByDesc('order_id')
+            ->orderBy('order_number')
+            ->orderBy('order_id')
             ->get();
 
         $statusCounts = [

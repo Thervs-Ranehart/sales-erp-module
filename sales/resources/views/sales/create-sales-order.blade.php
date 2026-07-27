@@ -117,7 +117,10 @@ Customer Information
 <select class="form-select" name="customer_id" required>
 <option value="">Select Customer</option>
 @foreach ($customers as $customer)
-<option value="{{ $customer->customer_id }}">
+<option
+    value="{{ $customer->customer_id }}"
+    @selected(old('customer_id', $isEdit ? $salesOrder->customer_id : null) == $customer->customer_id)
+>
     {{ $customer->first_name }} {{ $customer->last_name }}
 </option>
 @endforeach
