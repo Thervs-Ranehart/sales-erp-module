@@ -110,29 +110,6 @@ test('reward redemption deducts points and cancellation restores them', function
         ->and($redemption->fresh()->status)->toBe('Cancelled');
 });
 
-test('campaign targeting enforces segment and marketing consent', function (): void {
-    $this->customer->segments()->create(['segment_name' => 'High-Value', 'last_updated' => now()]);
-    $excluded = Customer::query()->create([
-        'first_name' => 'No',
-        'last_name' => 'Consent',
-        'email' => 'no-consent@example.test',
-        'customer_status' => 'Active',
-    ]);
-    $excluded->profile()->create(['marketing_consent' => false]);
-    $excluded->segments()->create(['segment_name' => 'High-Value', 'last_updated' => now()]);
-
-    $this->withSession(['employee_id' => $this->employee->employee_id])
-        ->post(route('crm.campaigns.store'), [
-            'campaign_name' => 'VIP Retention',
-            'channel' => 'Email',
-            'target_segment' => 'High-Value',
-            'message' => 'Thank you for being a valued customer.',
-        ])->assertRedirect();
-
-    $this->assertDatabaseHas('campaign_recipients', ['customer_id' => $this->customer->customer_id]);
-    $this->assertDatabaseMissing('campaign_recipients', ['customer_id' => $excluded->customer_id]);
-});
-
 test('customers can be archived and restored without losing history', function (): void {
     $this->withSession(['employee_id' => $this->employee->employee_id])
         ->patch(route('crm.directory.archive', $this->customer), ['archive_reason' => 'Duplicate inactive account'])

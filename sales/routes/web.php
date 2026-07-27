@@ -11,7 +11,6 @@ use App\Http\Controllers\Crm\CustomerLogsController;
 use App\Http\Controllers\Crm\CustomerLoyaltyController;
 use App\Http\Controllers\Crm\CustomerProfilesController;
 use App\Http\Controllers\Crm\CustomerSegmentationController;
-use App\Http\Controllers\Crm\MarketingCampaignController;
 use App\Http\Controllers\Crm\PurchaseHistoryController;
 use App\Http\Controllers\Crm\RewardController;
 use App\Http\Controllers\Crm\RewardRedemptionController;
@@ -94,8 +93,6 @@ Route::put('/crm/rewards/{reward}', [RewardController::class, 'update'])->name('
 Route::delete('/crm/rewards/{reward}', [RewardController::class, 'destroy'])->name('crm.rewards.destroy');
 Route::post('/crm/reward-redemptions', [RewardRedemptionController::class, 'store'])->name('crm.redemptions.store');
 Route::patch('/crm/reward-redemptions/{redemption}/cancel', [RewardRedemptionController::class, 'cancel'])->name('crm.redemptions.cancel');
-Route::get('/crm/marketing-campaigns', [MarketingCampaignController::class, 'index'])->name('crm.campaigns');
-Route::post('/crm/marketing-campaigns', [MarketingCampaignController::class, 'store'])->name('crm.campaigns.store');
 
 // After-Sales Support (case management)
 // Redirect module entrypoint to Support Tickets (default)
