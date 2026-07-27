@@ -1,6 +1,13 @@
 @extends('layouts.app')
 
 @section('content')
+    <style>
+        .warranty-claims-page { --wc-primary:#5347ce; --wc-border:#e8eaf0; --wc-muted:#697386; --wc-text:#1f2937; }.warranty-claims-page .wc-kpi, .warranty-claims-page .wc-filter-card, .warranty-claims-page .wc-table-card { background:#fff; border:1px solid var(--wc-border); border-radius:16px; box-shadow:0 8px 22px rgba(31,41,55,.055); }.warranty-claims-page .wc-kpi { height:100%; min-height:124px; padding:1.15rem; }.warranty-claims-page .wc-kpi-label { color:var(--wc-muted); font-size:.74rem; font-weight:700; letter-spacing:.03em; text-transform:uppercase; }.warranty-claims-page .wc-kpi-value { color:var(--wc-text); font-size:1.65rem; font-weight:700; letter-spacing:-.04em; line-height:1.1; margin-top:.45rem; }.warranty-claims-page .wc-kpi-icon { align-items:center; border-radius:12px; display:inline-flex; height:42px; justify-content:center; width:42px; }.warranty-claims-page .wc-kpi-badge { border-radius:999px; font-size:.7rem; font-weight:700; margin-top:.7rem; padding:.32rem .55rem; }
+        .warranty-claims-page .wc-filter-card { margin-top:1.5rem; padding:1.2rem 1.5rem; }.warranty-claims-page #warrantyClaimsFilters { row-gap:1rem!important; }.warranty-claims-page #warrantyClaimsFilters .form-control, .warranty-claims-page #warrantyClaimsFilters .form-select { border-color:#dfe1ea; font-size:.86rem; min-height:38px; }.warranty-claims-page #warrantyClaimsFilters .form-control:focus, .warranty-claims-page #warrantyClaimsFilters .form-select:focus { border-color:var(--wc-primary); box-shadow:0 0 0 .2rem rgba(83,71,206,.12); }.warranty-claims-page .wc-search-wrap { position:relative; }.warranty-claims-page .wc-search-wrap i { color:#8b93a2; left:.8rem; pointer-events:none; position:absolute; top:50%; transform:translateY(-50%); }.warranty-claims-page .wc-search-wrap input { padding-left:2.35rem; }.warranty-claims-page .wc-filter-actions { display:flex; gap:.75rem; }.warranty-claims-page .wc-filter-actions .btn { align-items:center; display:inline-flex; font-size:.84rem; font-weight:600; height:38px; justify-content:center; padding-inline:1rem; }.warranty-claims-page .wc-apply { background:#5347ce; border-color:#5347ce; box-shadow:0 5px 12px rgba(83,71,206,.2); color:#fff; }.warranty-claims-page .wc-reset { border-color:#d7dae5; color:#4b5563; }.warranty-claims-page .wc-reset:hover, .warranty-claims-page .wc-reset:focus { background:#f7f7fb; border-color:#c8ccda; color:#374151; }
+        .warranty-claims-page .wc-table-card { margin-top:1.75rem; overflow:hidden; padding:0; }.warranty-claims-page .wc-table-heading { padding:1.25rem 1.4rem .9rem; }.warranty-claims-page .wc-table-heading h5 { color:var(--wc-text); font-size:1rem; font-weight:700; margin:0; }.warranty-claims-page .wc-table-heading p { color:var(--wc-muted); font-size:.78rem; margin:.25rem 0 0; }.warranty-claims-page .wc-table { margin:0; min-width:1040px; }.warranty-claims-page .wc-table thead th { background:#f8f9fc; border-bottom:1px solid var(--wc-border); color:var(--wc-muted); font-size:.7rem; font-weight:700; letter-spacing:.04em; padding:1rem; text-transform:uppercase; white-space:nowrap; }.warranty-claims-page .wc-table tbody td { border-color:#f0f1f5; color:#374151; font-size:.85rem; padding:1.1rem 1rem; vertical-align:middle; }.warranty-claims-page .wc-table tbody tr { transition:background-color .16s ease; }.warranty-claims-page .wc-table tbody tr:hover { background:#fafaff; }.warranty-claims-page .wc-claim-number { color:var(--wc-primary); font-weight:700; }.warranty-claims-page .wc-table tbody td:nth-child(6) .badge { border-radius:999px; display:inline-flex; font-size:.72rem; font-weight:700; justify-content:center; min-width:104px; padding:.38rem .65rem; }.warranty-claims-page .wc-action-header, .warranty-claims-page .wc-action-cell { min-width:190px; text-align:center; }.warranty-claims-page .wc-action-group { align-items:center; display:flex; gap:.6rem; justify-content:center; white-space:nowrap; }.warranty-claims-page .wc-action-group form { margin:0; }.warranty-claims-page .wc-action-btn { align-items:center; border-radius:8px; display:inline-flex; font-size:.8rem; height:34px; justify-content:center; min-width:34px; padding:.4rem .65rem; transition:background-color .16s ease, border-color .16s ease, box-shadow .16s ease, transform .16s ease; }.warranty-claims-page .wc-action-btn:hover { box-shadow:0 4px 10px rgba(31,41,55,.1); transform:translateY(-1px); }.warranty-claims-page .wc-footer { align-items:center; display:flex; gap:1rem; justify-content:space-between; padding:1.25rem 1.4rem; }.warranty-claims-page .wc-footer-summary { color:var(--wc-muted); font-size:.8rem; }
+        @media (max-width:575.98px) { .warranty-claims-page .wc-filter-card { padding:1rem; }.warranty-claims-page #warrantyClaimsFilters .col-6, .warranty-claims-page #warrantyClaimsFilters .col-12 { flex:0 0 100%; max-width:100%; }.warranty-claims-page .wc-filter-actions { width:100%; }.warranty-claims-page .wc-filter-actions .btn { flex:1; }.warranty-claims-page .wc-table-heading, .warranty-claims-page .wc-footer { align-items:flex-start; flex-direction:column; padding:1rem; }.warranty-claims-page .wc-footer nav { width:100%; }.warranty-claims-page .wc-footer nav .pagination { justify-content:flex-start; } }
+    </style>
+    <div class="warranty-claims-page">
     @php($title = 'Warranty Claims')
     @php($subtitle = 'Review and process warranty claims')
 
@@ -16,74 +23,68 @@
 
 
         <div class="col-md-3">
-            <div class="card p-3 h-100">
+            <div class="wc-kpi">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <div class="text-muted small fw-semibold">Pending</div>
-                        <div class="display-6 fw-bold">{{ $pendingClaims ?? 0 }}</div>
+                        <div class="wc-kpi-label">Pending</div><div class="wc-kpi-value">{{ $pendingClaims ?? 0 }}</div>
                     </div>
-                    <div class="rounded-3" style="background:rgba(245,158,11,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
+                    <div class="wc-kpi-icon" style="background:rgba(245,158,11,.12);">
                         <i class="bi bi-hourglass-split" style="color:#F59E0B; font-size:20px;"></i>
                     </div>
                 </div>
-                <div class="mt-2"><span class="badge bg-warning text-dark">Needs review</span></div>
+                <div><span class="badge bg-warning text-dark wc-kpi-badge">Needs review</span></div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card p-3 h-100">
+            <div class="wc-kpi">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <div class="text-muted small fw-semibold">Approved</div>
-                        <div class="display-6 fw-bold">{{ $approvedClaims ?? 0 }}</div>
+                        <div class="wc-kpi-label">Approved</div><div class="wc-kpi-value">{{ $approvedClaims ?? 0 }}</div>
                     </div>
-                    <div class="rounded-3" style="background:rgba(22,200,199,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
+                    <div class="wc-kpi-icon" style="background:rgba(22,200,199,.12);">
                         <i class="bi bi-check2-circle" style="color:#16C8C7; font-size:20px;"></i>
                     </div>
                 </div>
-                <div class="mt-2"><span class="badge bg-success">Ready to fulfill</span></div>
+                <div><span class="badge bg-success wc-kpi-badge">Ready to fulfill</span></div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card p-3 h-100">
+            <div class="wc-kpi">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <div class="text-muted small fw-semibold">Rejected</div>
-                        <div class="display-6 fw-bold">{{ $rejectedClaims ?? 0 }}</div>
+                        <div class="wc-kpi-label">Rejected</div><div class="wc-kpi-value">{{ $rejectedClaims ?? 0 }}</div>
                     </div>
-                    <div class="rounded-3" style="background:rgba(239,68,68,.10); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
+                    <div class="wc-kpi-icon" style="background:rgba(239,68,68,.10);">
                         <i class="bi bi-x-circle" style="color:#EF4444; font-size:20px;"></i>
                     </div>
                 </div>
-                <div class="mt-2"><span class="badge bg-danger">Not approved</span></div>
+                <div><span class="badge bg-danger wc-kpi-badge">Not approved</span></div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card p-3 h-100">
+            <div class="wc-kpi">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <div class="text-muted small fw-semibold">Completed</div>
-                        <div class="display-6 fw-bold">{{ $completedClaims ?? 0 }}</div>
+                        <div class="wc-kpi-label">Completed</div><div class="wc-kpi-value">{{ $completedClaims ?? 0 }}</div>
                     </div>
-                    <div class="rounded-3" style="background:rgba(83,71,206,.12); width:46px; height:46px; display:flex; align-items:center; justify-content:center;">
+                    <div class="wc-kpi-icon" style="background:rgba(83,71,206,.12);">
                         <i class="bi bi-clipboard-check" style="color:#5347CE; font-size:20px;"></i>
                     </div>
                 </div>
-                <div class="mt-2"><span class="badge bg-primary">Closed loop</span></div>
+                <div><span class="badge bg-primary wc-kpi-badge">Closed loop</span></div>
             </div>
         </div>
     </div>
 
 
     {{-- Filters + top actions --}}
-    <div class="card p-3 mt-4" style="background: rgba(255,255,255,.7); border: 1px solid rgba(0,0,0,.06); box-shadow: none;">
+    <div class="wc-filter-card">
         <form id="warrantyClaimsFiltersForm" method="GET" action="{{ route('support.warranty-claims') }}">
             <div class="row g-3" id="warrantyClaimsFilters">
                 <div class="col-12 col-lg-4">
                     <label class="form-label small text-muted">Search</label>
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text" style="background: rgba(83,71,206,.08); border-color: rgba(83,71,206,.2);">
-                            <i class="bi bi-search"></i>
-                        </span>
+                    <div class="wc-search-wrap">
+                        <i class="bi bi-search" aria-hidden="true"></i>
                         <input
                             type="text"
                             name="search"
@@ -155,7 +156,7 @@
                         <button type="submit" class="btn btn-sm" style="background:#5347CE;color:#fff;border:1px solid rgba(255,255,255,.25);">
                             <i class="bi bi-funnel me-1"></i> Apply Filters
                         </button>
-                        <a href="{{ route('support.warranty-claims') }}" class="btn btn-sm btn-outline-secondary">Reset Filters</a>
+                        <a href="{{ route('support.warranty-claims') }}" class="btn btn-outline-secondary wc-reset" data-support-reset="1">Reset</a>
                     </div>
                 </div>
 
@@ -185,13 +186,13 @@
 
 
     {{-- Claims table --}}
-    <div class="card p-4 mt-4">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-            <h5 class="fw-bold mb-0">Claims</h5>
+    <div class="wc-table-card">
+        <div class="wc-table-heading">
+            <h5>Claim Records</h5><p>Review claim status, eligibility, and assigned staff.</p>
         </div>
 
         <div class="table-responsive" style="-webkit-overflow-scrolling: touch;">
-            <table id="warrantyClaimsTable" class="table table-hover align-middle mb-0 warranty-claims-table" style="width:100%;">
+            <table id="warrantyClaimsTable" class="table wc-table align-middle mb-0 warranty-claims-table" style="width:100%;">
                 <style>
                     @media (max-width: 575.98px) {
                         .warranty-claims-table th, .warranty-claims-table td { white-space: nowrap; }
@@ -209,13 +210,13 @@
                         <th style="min-width: 160px;">Claim Date</th>
                         <th style="min-width: 160px;">Status</th>
                         <th style="min-width: 220px;">Assigned Staff</th>
-                        <th class="text-end" style="min-width: 200px;">Actions</th>
+                        <th class="wc-action-header">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($warrantyClaims as $claim)
                         <tr>
-                            <td class="fw-semibold">WC-{{ $claim->claim_id }}</td>
+                            <td><span class="wc-claim-number">WC-{{ $claim->claim_id }}</span></td>
                             <td>{{ $claim->warrantyRecord?->warranty_number ?? ('WR-' . $claim->warranty_id) }}</td>
                             <td>{{ $claim->warrantyRecord?->customer?->full_name ?? '—' }}</td>
                             <td>{{ $claim->warrantyRecord?->product?->product_name ?? '—' }}</td>
@@ -229,16 +230,16 @@
                                 @elseif($cs === 'rejected')
                                     <span class="badge bg-danger">{{ $claim->claim_status }}</span>
                                 @elseif($cs === 'completed')
-                                    <span class="badge bg-success">{{ $claim->claim_status }}</span>
+                                    <span class="badge bg-primary">{{ $claim->claim_status }}</span>
                                 @else
                                     <span class="badge bg-secondary">{{ $claim->claim_status ?? '—' }}</span>
                                 @endif
                             </td>
                             <td>{{ $claim->supportTicket?->latestAssignment?->employee?->full_name ?? '—' }}</td>
-                            <td class="text-end" style="white-space: nowrap;">
-                                <div class="d-flex align-items-center justify-content-end flex-nowrap gap-1 warranty-actions">
+                            <td class="wc-action-cell">
+                                <div class="wc-action-group warranty-actions">
                                     <button
-                                        class="btn btn-sm btn-outline-primary js-warranty-claim-review"
+                                        class="btn btn-outline-primary wc-action-btn js-warranty-claim-review"
                                         type="button"
                                         title="View Claim Details"
                                         aria-label="View Claim Details"
@@ -248,10 +249,10 @@
                                         <i class="bi bi-eye"></i>
                                     </button>
 
-                                    <button class="btn btn-sm btn-outline-primary js-warranty-claim-status" type="button" title="Update Claim Status" aria-label="Update Claim Status" data-claim-id="{{ $claim->claim_id }}" data-bs-toggle="modal" data-bs-target="#warrantyClaimStatusModal">
+                                    <button class="btn btn-outline-warning wc-action-btn js-warranty-claim-status" type="button" title="Update Claim Status" aria-label="Update Claim Status" data-claim-id="{{ $claim->claim_id }}" data-bs-toggle="modal" data-bs-target="#warrantyClaimStatusModal">
                                         <i class="bi bi-pencil"></i>
                                     </button>
-                                    @if(!in_array($claim->claim_status, ['Completed','Cancelled']))<form class="d-inline" method="POST" action="{{ route('support.warranty-claims.cancel', $claim) }}" onsubmit="return confirm('Cancel this claim?')">@csrf @method('PATCH')<input type="hidden" name="decision_reason" value="Cancelled by support staff"><button class="btn btn-sm btn-outline-danger"><i class="bi bi-x-circle"></i></button></form>@endif
+                                    @if(!in_array($claim->claim_status, ['Completed','Cancelled']))<form method="POST" action="{{ route('support.warranty-claims.cancel', $claim) }}" onsubmit="return confirm('Cancel this claim?')">@csrf @method('PATCH')<input type="hidden" name="decision_reason" value="Cancelled by support staff"><button class="btn btn-outline-danger wc-action-btn" type="submit" aria-label="Cancel claim"><i class="bi bi-x-circle"></i></button></form>@endif
                                 </div>
                             </td>
                         </tr>
@@ -264,13 +265,9 @@
             </table>
         </div>
 
-        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mt-4">
-            <div class="text-muted small">Showing results.</div>
-            <nav aria-label="Claims pagination">
-                {{ $warrantyClaims->links('pagination::bootstrap-5') }}
-            </nav>
-        </div>
+        <x-support-pagination :paginator="$warrantyClaims" />
     </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -305,9 +302,9 @@
                 const lower = (c.claim_status || '').toString().toLowerCase();
                 statusEl.className = 'badge';
                 statusEl.className += lower === 'pending' ? ' bg-warning text-dark' :
-                    lower === 'approved' ? ' bg-primary' :
+                    lower === 'approved' ? ' bg-success' :
                         lower === 'rejected' ? ' bg-danger' :
-                            lower === 'completed' ? ' bg-success' : ' bg-secondary';
+                            lower === 'completed' ? ' bg-primary' : ' bg-secondary';
             }
 
             const claimReasonHeading = document.getElementById('warrantyClaimModalReasonHeading');
@@ -438,7 +435,7 @@
                         if (lower === 'pending') cls = 'bg-warning text-dark';
                         else if (lower === 'approved') cls = 'bg-success';
                         else if (lower === 'rejected') cls = 'bg-danger';
-                        else if (lower === 'completed') cls = 'bg-success';
+                        else if (lower === 'completed') cls = 'bg-primary';
 
                         statusTd.innerHTML = `<span class="badge ${cls}">${data.status}</span>`;
                     }
@@ -472,12 +469,5 @@
 </script>
 
 @endpush
-
-
-
-
-
-
-
 
 

@@ -161,15 +161,16 @@ class AfterSalesSupportSeeder extends Seeder
                     $this->caseEvent($ticket, $staffMember, 'Resolved', 'Resolution verified; customer was advised of the completed corrective action.', $resolvedAt);
                 }
                 if ($index < 6) {
+                    $submittedAt = $resolvedAt?->copy()->addDay();
                     SatisfactionMonitoring::query()->updateOrCreate(
                         ['survey_token' => sprintf('asc-feedback-%03d', $index + 1)],
                         [
                             'ticket_id' => $ticket->ticket_id,
-                            'rating' => $index % 3 === 0 ? 5 : 4,
-                            'satisfaction_level' => $index % 3 === 0 ? 'Very Satisfied' : 'Satisfied',
-                            'comments' => 'The support team provided clear updates and handled the request professionally.',
+                            'rating' => $submittedAt ? ($index % 3 === 0 ? 5 : 4) : null,
+                            'satisfaction_level' => $submittedAt ? ($index % 3 === 0 ? 'Very Satisfied' : 'Satisfied') : null,
+                            'comments' => $submittedAt ? 'The support team provided clear updates and handled the request professionally.' : null,
                             'requested_at' => $createdAt->copy()->addDay(),
-                            'submitted_at' => $resolvedAt?->copy()->addDay(),
+                            'submitted_at' => $submittedAt,
                         ],
                     );
                 }

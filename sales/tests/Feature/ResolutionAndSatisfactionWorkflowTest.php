@@ -10,20 +10,20 @@ class ResolutionAndSatisfactionWorkflowTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_resolution_listing_ticket_status_filter_details_metrics_and_ticket_link(): void
+    public function test_resolution_listing_resolution_status_filter_details_metrics_and_ticket_link(): void
     {
         $this->seedContext();
 
-        $response = $this->get('/support/resolution-tracking?ticket_status=Resolved');
+        $response = $this->get('/support/resolution-tracking?resolution_status=Draft');
         $response->assertOk()
             ->assertSee('RS-1')
             ->assertDontSee('RS-2')
             ->assertSee('/support/tickets?ticket_id=1', false)
-            ->assertViewHas('totalResolutionCount', 2)
+            ->assertViewHas('totalResolutionCount', 1)
             ->assertViewHas('resolvedTicketCount', 1)
-            ->assertViewHas('averageResolutionTime', 2.0)
+            ->assertViewHas('averageResolutionTime', 2.5)
             ->assertViewHas('qcPassedCount', 1)
-            ->assertViewHas('qcFailedCount', 1)
+            ->assertViewHas('qcFailedCount', 0)
             ->assertViewHas('pendingQcCount', 0);
 
         $this->getJson('/support/resolution-tracking/1/show')
@@ -54,6 +54,28 @@ class ResolutionAndSatisfactionWorkflowTest extends TestCase
 
     }
 
+    public function test_pending_feedback_is_read_only_and_excluded_from_metrics(): void
+    {
+        $this->seedContext();
+        DB::table('satisfaction_monitoring')->insert([
+            'feedback_id' => 3,
+            'ticket_id' => 1,
+            'rating' => 4,
+            'satisfaction_level' => 'Satisfied',
+            'comments' => 'Pending-only feedback must not be displayed.',
+            'requested_at' => now(),
+        ]);
+
+        $this->get('/support/customer-satisfaction')
+            ->assertOk()
+            ->assertSee('Pending Customer Feedback')
+            ->assertDontSee('Pending-only feedback must not be displayed.')
+            ->assertDontSee('Feedback Link')
+            ->assertDontSee('Submit Feedback')
+            ->assertViewHas('responsesCount', 2)
+            ->assertViewHas('satisfactionLevelCounts');
+    }
+
     private function seedContext(): void
     {
         DB::table('customers')->insert(['customer_id' => 1, 'first_name' => 'Jane', 'last_name' => 'Smith', 'email' => 'jane@example.com', 'created_at' => now(), 'updated_at' => now()]);
@@ -65,8 +87,8 @@ class ResolutionAndSatisfactionWorkflowTest extends TestCase
             ['ticket_id' => 2, 'order_id' => 1, 'customer_id' => 1, 'product_id' => 1, 'ticket_type' => 'Service', 'subject' => 'Open issue', 'priority' => 'Low', 'status' => 'Open', 'created_at' => now()],
         ]);
         DB::table('resolution_tracking')->insert([
-            ['resolution_id' => 1, 'ticket_id' => 1, 'resolved_by' => 1, 'resolution_summary' => 'Resolved', 'root_cause' => 'Incorrect setup', 'corrective_action' => 'Configuration passed review', 'qc_status' => 'Passed', 'resolution_time_hours' => 2.5, 'resolved_at' => now()],
-            ['resolution_id' => 2, 'ticket_id' => 2, 'resolved_by' => 1, 'resolution_summary' => 'Investigating', 'root_cause' => 'Part failure', 'corrective_action' => 'QC failed inspection', 'qc_status' => 'Failed', 'resolution_time_hours' => 1.5, 'resolved_at' => null],
+            ['resolution_id' => 1, 'ticket_id' => 1, 'resolved_by' => 1, 'resolution_summary' => 'Resolved', 'root_cause' => 'Incorrect setup', 'corrective_action' => 'Configuration passed review', 'qc_status' => 'Passed', 'resolution_status' => 'Draft', 'resolution_time_hours' => 2.5, 'resolved_at' => now()],
+            ['resolution_id' => 2, 'ticket_id' => 2, 'resolved_by' => 1, 'resolution_summary' => 'Investigating', 'root_cause' => 'Part failure', 'corrective_action' => 'QC failed inspection', 'qc_status' => 'Failed', 'resolution_status' => 'Approved', 'resolution_time_hours' => 1.5, 'resolved_at' => null],
         ]);
         DB::table('satisfaction_monitoring')->insert([
             ['feedback_id' => 1, 'ticket_id' => 1, 'rating' => 5, 'satisfaction_level' => 'Satisfied', 'comments' => 'Excellent support.', 'submitted_at' => now()],
