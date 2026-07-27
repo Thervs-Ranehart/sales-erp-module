@@ -7,6 +7,7 @@ $subtitle = 'Manage customer information and relationship data.';
 
 @section('content')
 
+<<<<<<< HEAD
 @if (session('success'))
 
 <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -28,23 +29,27 @@ $subtitle = 'Manage customer information and relationship data.';
     aria-label="Close">
 </button>
 
+=======
+@if (session('success')) <div class="alert alert-success alert-dismissible fade show" role="alert">
+{{ session('success') }}
+>>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 
+    <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="alert"
+        aria-label="Close">
+    </button>
 </div>
+
 @endif
 
-@if ($errors->any())
-
-<div class="alert alert-danger">
-    <ul class="mb-0">
-        @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-        @endforeach
-    </ul>
-</div>
+@if ($errors->any()) <div class="alert alert-danger"> <ul class="mb-0">
+@foreach ($errors->all() as $error) <li>{{ $error }}</li>
+@endforeach </ul> </div>
 @endif
 
 <style>
-
 .communication-card {
     background: #fff;
     border: 1px solid #e9ecef;
@@ -154,16 +159,15 @@ $subtitle = 'Manage customer information and relationship data.';
     border-color: #5347CE;
     box-shadow: 0 0 0 .2rem rgba(83, 71, 206, .15);
 }
-
 </style>
-
-{{-- Header --}}
 
 <div class="d-flex justify-content-between align-items-center mb-4">
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 <div>
-
     <h4 class="fw-semibold mb-1">
         Communication Logs
     </h4>
@@ -171,7 +175,6 @@ $subtitle = 'Manage customer information and relationship data.';
     <p class="text-muted mb-0">
         Track customer conversations, inquiries, and follow-up activities.
     </p>
-
 </div>
 
 <button
@@ -182,16 +185,19 @@ $subtitle = 'Manage customer information and relationship data.';
 
     <i class="bi bi-plus-lg"></i>
     New Communication
-
 </button>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 
 </div>
 
-{{-- Summary --}}
-
 @php
+<<<<<<< HEAD
 
+=======
+>>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 $logsCollection = collect($logs->items());
 
 $totalForPage = $logsCollection->count();
@@ -219,16 +225,21 @@ $phonePct = $totalForPage > 0
 $smsPct = $totalForPage > 0
     ? round(($smsCount / $totalForPage) * 100)
     : 0;
+<<<<<<< HEAD
+=======
+
+>>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 
 @endphp
 
 <div class="row g-3 mb-4">
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 <div class="col-md-3">
-
     <div class="summary-box">
-
         <div class="summary-label">
             Total Conversations
         </div>
@@ -236,16 +247,11 @@ $smsPct = $totalForPage > 0
         <div class="summary-value">
             {{ number_format($totalConversations) }}
         </div>
-
     </div>
-
 </div>
 
-
 <div class="col-md-3">
-
     <div class="summary-box">
-
         <div class="summary-label">
             Pending Follow-Ups
         </div>
@@ -253,33 +259,23 @@ $smsPct = $totalForPage > 0
         <div class="summary-value">
             {{ number_format($pendingFollowUps) }}
         </div>
-
     </div>
-
 </div>
 
-
 <div class="col-md-3">
-
     <div class="summary-box">
-
         <div class="summary-label">
-            Resolved
+            Completed
         </div>
 
         <div class="summary-value">
             {{ number_format($resolved) }}
         </div>
-
     </div>
-
 </div>
 
-
 <div class="col-md-3">
-
     <div class="summary-box">
-
         <div class="summary-label">
             Response Rate
         </div>
@@ -287,19 +283,24 @@ $smsPct = $totalForPage > 0
         <div class="summary-value">
             {{ $responseRate }}%
         </div>
-
     </div>
+<<<<<<< HEAD
 
 </div>
 
 
+=======
+>>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 </div>
 
-{{-- Activity + Channel --}}
+</div>
 
 <div class="row g-4 mb-4">
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 <div class="col-md-7">
 
     <div class="card communication-card p-4">
@@ -311,20 +312,16 @@ $smsPct = $totalForPage > 0
         <div class="timeline">
 
             @php
-
                 $recentLogs = $logsCollection
                     ->sortByDesc(function ($log) {
                         return $log->communication_date;
                     })
                     ->take(2);
-
             @endphp
-
 
             @forelse($recentLogs as $log)
 
                 @php
-
                     $customerName = optional($log->customer)->display_name
                         ?? trim(
                             (optional($log->customer)->first_name ?? '')
@@ -335,9 +332,7 @@ $smsPct = $totalForPage > 0
                     $communicationDate = $log->communication_date
                         ? \Carbon\Carbon::parse($log->communication_date)
                         : null;
-
                 @endphp
-
 
                 <div class="timeline-item">
 
@@ -350,11 +345,10 @@ $smsPct = $totalForPage > 0
                     </p>
 
                     <small>
-
                         {{ $log->communication_channel }}
 
                         •
-                        
+
                         {{ $communicationDate
                             ? $communicationDate->format('M j, Y')
                             : '—'
@@ -363,14 +357,11 @@ $smsPct = $totalForPage > 0
                         <br>
 
                         <span class="text-muted">
-
                             {{ $communicationDate
                                 ? $communicationDate->diffForHumans()
                                 : ''
                             }}
-
                         </span>
-
                     </small>
 
                 </div>
@@ -389,7 +380,6 @@ $smsPct = $totalForPage > 0
 
 </div>
 
-
 <div class="col-md-5">
 
     <div class="card communication-card p-4">
@@ -399,58 +389,40 @@ $smsPct = $totalForPage > 0
         </h6>
 
         <div class="channel-item">
-
-            <span>
-                Email
-            </span>
-
-            <strong>
-                {{ $emailPct }}%
-            </strong>
-
+            <span>Email</span>
+            <strong>{{ $emailPct }}%</strong>
         </div>
 
-
         <div class="channel-item">
-
-            <span>
-                Phone
-            </span>
-
-            <strong>
-                {{ $phonePct }}%
-            </strong>
-
+            <span>Phone</span>
+            <strong>{{ $phonePct }}%</strong>
         </div>
 
-
         <div class="channel-item">
-
-            <span>
-                SMS
-            </span>
-
-            <strong>
-                {{ $smsPct }}%
-            </strong>
-
+            <span>SMS</span>
+            <strong>{{ $smsPct }}%</strong>
         </div>
 
     </div>
 
 </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 
 </div>
 
-{{-- Filters --}}
-
 <div class="card communication-card p-3 mb-4">
 
+<<<<<<< HEAD
 
 <form
     method="GET"
     action="{{ route('crm.logs') }}">
+=======
+<form method="GET" action="{{ route('crm.logs') }}">
+>>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 
     <div class="row g-3">
 
@@ -471,84 +443,59 @@ $smsPct = $totalForPage > 0
 
         </div>
 
-
         <div class="col-md-2">
 
-            <select
-                class="form-select"
-                name="channel">
+            <select class="form-select" name="channel">
 
-                <option
-                    value=""
-                    {{ empty($channel) ? 'selected' : '' }}>
-
+                <option value="">
                     Channel
-
                 </option>
 
                 <option
                     value="Email"
                     {{ ($channel ?? '') === 'Email' ? 'selected' : '' }}>
-
                     Email
-
                 </option>
 
                 <option
                     value="Phone"
                     {{ ($channel ?? '') === 'Phone' ? 'selected' : '' }}>
-
                     Phone
-
                 </option>
 
                 <option
                     value="SMS"
                     {{ ($channel ?? '') === 'SMS' ? 'selected' : '' }}>
-
                     SMS
-
                 </option>
 
             </select>
 
         </div>
 
-
         <div class="col-md-2">
 
-            <select
-                class="form-select"
-                name="status">
+            <select class="form-select" name="status">
 
-                <option
-                    value=""
-                    {{ empty($status) ? 'selected' : '' }}>
-
+                <option value="">
                     Status
-
                 </option>
 
                 <option
                     value="Pending"
                     {{ ($status ?? '') === 'Pending' ? 'selected' : '' }}>
-
                     Pending
-
                 </option>
 
                 <option
-                    value="Resolved"
-                    {{ ($status ?? '') === 'Resolved' ? 'selected' : '' }}>
-
-                    Resolved
-
+                    value="Completed"
+                    {{ ($status ?? '') === 'Completed' ? 'selected' : '' }}>
+                    Completed
                 </option>
 
             </select>
 
         </div>
-
 
         <div class="col-md-3">
 
@@ -566,19 +513,22 @@ $smsPct = $totalForPage > 0
     </div>
 
 </form>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 
 </div>
 
-{{-- Records --}}
-
 <div class="card communication-card p-4">
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 <h5 class="fw-semibold mb-3">
     Interaction Records
 </h5>
-
 
 <div class="table-responsive">
 
@@ -587,56 +537,27 @@ $smsPct = $totalForPage > 0
         <thead>
 
             <tr>
-
-                <th>
-                    Log ID
-                </th>
-
-                <th>
-                    Customer
-                </th>
-
-                <th>
-                    Channel
-                </th>
-
-                <th>
-                    Subject
-                </th>
-
-                <th class="text-center">
-                    Priority
-                </th>
-
-                <th>
-                    Follow-Up
-                </th>
-
-                <th class="text-center">
-                    Status
-                </th>
-
-                <th class="text-center">
-                    Actions
-                </th>
-
+                <th>Log ID</th>
+                <th>Customer</th>
+                <th>Channel</th>
+                <th>Subject</th>
+                <th class="text-center">Priority</th>
+                <th>Follow-Up</th>
+                <th class="text-center">Status</th>
+                <th class="text-center">Actions</th>
             </tr>
 
         </thead>
-
 
         <tbody>
 
             @forelse($logs as $log)
 
                 @php
-
                     $followUpDate = $log->follow_up_date
                         ? \Carbon\Carbon::parse($log->follow_up_date)
                         : null;
-
                 @endphp
-
 
                 <tr>
 
@@ -644,9 +565,7 @@ $smsPct = $totalForPage > 0
                         {{ $log->communication_id }}
                     </td>
 
-
                     <td>
-
                         {{ optional($log->customer)->display_name
                             ?? trim(
                                 (optional($log->customer)->first_name ?? '')
@@ -655,19 +574,15 @@ $smsPct = $totalForPage > 0
                             )
                             ?: 'Unknown Customer'
                         }}
-
                     </td>
-
 
                     <td>
                         {{ $log->communication_channel }}
                     </td>
 
-
                     <td>
                         {{ $log->subject }}
                     </td>
-
 
                     <td class="text-center">
 
@@ -693,16 +608,12 @@ $smsPct = $totalForPage > 0
 
                     </td>
 
-
                     <td>
-
                         {{ $followUpDate
                             ? $followUpDate->format('M j, Y')
                             : '—'
                         }}
-
                     </td>
-
 
                     <td class="text-center">
 
@@ -710,12 +621,6 @@ $smsPct = $totalForPage > 0
 
                             <span class="badge bg-warning text-dark">
                                 Pending
-                            </span>
-
-                        @elseif($log->communication_status === 'Resolved')
-
-                            <span class="badge bg-success">
-                                Resolved
                             </span>
 
                         @elseif($log->communication_status === 'Completed')
@@ -734,9 +639,7 @@ $smsPct = $totalForPage > 0
 
                     </td>
 
-
                     <td class="text-center">
-
 
                         <button
                             class="btn btn-sm btn-outline-primary action-btn"
@@ -747,7 +650,6 @@ $smsPct = $totalForPage > 0
                             <i class="bi bi-eye"></i>
 
                         </button>
-
 
                         <form
                             method="POST"
@@ -765,31 +667,18 @@ $smsPct = $totalForPage > 0
                                 <option
                                     value="Pending"
                                     {{ $log->communication_status === 'Pending' ? 'selected' : '' }}>
-
                                     Pending
-
-                                </option>
-
-                                <option
-                                    value="Resolved"
-                                    {{ $log->communication_status === 'Resolved' ? 'selected' : '' }}>
-
-                                    Resolved
-
                                 </option>
 
                                 <option
                                     value="Completed"
                                     {{ $log->communication_status === 'Completed' ? 'selected' : '' }}>
-
                                     Completed
-
                                 </option>
 
                             </select>
 
                         </form>
-
 
                         <form
                             method="POST"
@@ -798,7 +687,6 @@ $smsPct = $totalForPage > 0
                             onsubmit="return confirm('Delete this log?')">
 
                             @csrf
-
                             @method('DELETE')
 
                             <button
@@ -836,31 +724,36 @@ $smsPct = $totalForPage > 0
     </table>
 
 </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 
 </div>
 
 <div class="mt-3">
+<<<<<<< HEAD
 
 
 {{ $logs->links() }}
 
 
+=======
+    {{ $logs->links() }}
+>>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 </div>
-
-{{-- View Modals --}}
 
 @foreach($logs as $log)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 @php
-
     $modalFollowUpDate = $log->follow_up_date
         ? \Carbon\Carbon::parse($log->follow_up_date)
         : null;
-
 @endphp
-
 
 <div
     class="modal fade"
@@ -874,104 +767,58 @@ $smsPct = $totalForPage > 0
             <div class="modal-header">
 
                 <h5 class="modal-title">
-
                     Log #{{ $log->communication_id }}
-
                 </h5>
 
                 <button
                     type="button"
                     class="btn-close"
                     data-bs-dismiss="modal">
-
                 </button>
 
             </div>
 
-
             <div class="modal-body">
 
                 <p>
-
-                    <strong>
-                        Customer:
-                    </strong>
-
+                    <strong>Customer:</strong>
                     {{ optional($log->customer)->display_name ?? '—' }}
-
                 </p>
 
-
                 <p>
-
-                    <strong>
-                        Channel:
-                    </strong>
-
+                    <strong>Channel:</strong>
                     {{ $log->communication_channel }}
-
                 </p>
 
-
                 <p>
-
-                    <strong>
-                        Subject:
-                    </strong>
-
+                    <strong>Subject:</strong>
                     {{ $log->subject }}
-
                 </p>
 
-
                 <p>
-
-                    <strong>
-                        Priority:
-                    </strong>
-
+                    <strong>Priority:</strong>
                     {{ $log->priority ?? '—' }}
-
                 </p>
 
-
                 <p>
-
-                    <strong>
-                        Status:
-                    </strong>
-
+                    <strong>Status:</strong>
                     {{ $log->communication_status }}
-
                 </p>
 
-
                 <p>
-
-                    <strong>
-                        Follow-up Date:
-                    </strong>
-
+                    <strong>Follow-up Date:</strong>
                     {{ $modalFollowUpDate
                         ? $modalFollowUpDate->format('M j, Y')
                         : '—'
                     }}
-
                 </p>
 
-
                 <p>
-
-                    <strong>
-                        Details:
-                    </strong>
-
+                    <strong>Details:</strong>
                 </p>
 
                 <p class="text-muted">
-
                     {{ $log->notes ?: 'No additional details.' }}
-
                 </p>
 
             </div>
@@ -984,14 +831,15 @@ $smsPct = $totalForPage > 0
 
 @endforeach
 
-{{-- New Communication Modal --}}
-
 <div
     class="modal fade"
     id="newCommunicationModal"
     tabindex="-1">
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 <div class="modal-dialog modal-lg">
 
     <div class="modal-content">
@@ -1001,7 +849,6 @@ $smsPct = $totalForPage > 0
             action="{{ route('crm.logs.store') }}">
 
             @csrf
-
 
             <div class="modal-header">
 
@@ -1013,16 +860,13 @@ $smsPct = $totalForPage > 0
                     type="button"
                     class="btn-close"
                     data-bs-dismiss="modal">
-
                 </button>
 
             </div>
 
-
             <div class="modal-body">
 
                 <div class="row g-3">
-
 
                     <div class="col-md-6">
 
@@ -1054,7 +898,6 @@ $smsPct = $totalForPage > 0
 
                     </div>
 
-
                     <div class="col-md-6">
 
                         <label class="form-label">
@@ -1082,7 +925,6 @@ $smsPct = $totalForPage > 0
 
                     </div>
 
-
                     <div class="col-12">
 
                         <label class="form-label">
@@ -1097,7 +939,6 @@ $smsPct = $totalForPage > 0
 
                     </div>
 
-
                     <div class="col-12">
 
                         <label class="form-label">
@@ -1107,12 +948,9 @@ $smsPct = $totalForPage > 0
                         <textarea
                             name="notes"
                             class="form-control"
-                            rows="4">
-
-                        </textarea>
+                            rows="4"></textarea>
 
                     </div>
-
 
                     <div class="col-md-6">
 
@@ -1129,14 +967,13 @@ $smsPct = $totalForPage > 0
                                 Pending
                             </option>
 
-                            <option value="Resolved">
-                                Resolved
+                            <option value="Completed">
+                                Completed
                             </option>
 
                         </select>
 
                     </div>
-
 
                     <div class="col-md-6">
 
@@ -1151,11 +988,9 @@ $smsPct = $totalForPage > 0
 
                     </div>
 
-
                 </div>
 
             </div>
-
 
             <div class="modal-footer">
 
@@ -1167,7 +1002,6 @@ $smsPct = $totalForPage > 0
                     Cancel
 
                 </button>
-
 
                 <button
                     type="submit"
@@ -1184,7 +1018,10 @@ $smsPct = $totalForPage > 0
     </div>
 
 </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 967f71e2833320541d2f7a12bceccdcfdaac7ba2
 
 </div>
 
