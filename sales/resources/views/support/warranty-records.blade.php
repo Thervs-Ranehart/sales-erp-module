@@ -154,10 +154,10 @@
                 </div>
 
                 <div class="wr-filter-actions">
-                    <a class="btn btn-outline-secondary wr-reset" href="{{ route('support.warranty-records') }}">Reset</a>
                     <button class="btn wr-apply" type="submit">
                         <i class="bi bi-funnel me-1"></i> Apply Filters
                     </button>
+                    <a class="btn btn-outline-secondary wr-reset" data-support-reset="1" href="{{ route('support.warranty-records') }}">Reset</a>
                 </div>
             </div>
         </div>
