@@ -98,10 +98,14 @@ $subtitle = 'Manage customer information and relationship data.';
 }
 
 .action-btn {
-    font-size: 13px;
-    padding: 6px 12px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
     border-radius: 8px;
-    margin: 2px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
 }
 
 .btn-main {
@@ -376,11 +380,12 @@ $smsPct = $totalForPage > 0
 
 <form
     method="GET"
-    action="{{ route('crm.logs') }}">
+    action="{{ route('crm.logs') }}"
+    data-crm-auto-filter>
 
     <div class="row g-3">
 
-        <div class="col-md-5">
+        <div class="col-md-6">
 
             <div class="search-box">
 
@@ -397,7 +402,7 @@ $smsPct = $totalForPage > 0
 
         </div>
 
-        <div class="col-md-2">
+        <div class="col-md-3">
 
             <select class="form-select" name="channel">
 
@@ -427,7 +432,7 @@ $smsPct = $totalForPage > 0
 
         </div>
 
-        <div class="col-md-2">
+        <div class="col-md-3">
 
             <select class="form-select" name="status">
 
@@ -457,26 +462,13 @@ $smsPct = $totalForPage > 0
 
         </div>
 
-        <div class="col-md-3">
-
-            <button
-                class="btn btn-search w-100"
-                type="submit">
-
-                <i class="bi bi-funnel"></i>
-                Apply Filters
-
-            </button>
-
-        </div>
-
     </div>
 
 </form>
 
 </div>
 
-<div class="card communication-card p-4">
+<div class="card communication-card p-4" data-crm-live-results>
 
 <h5 class="fw-semibold mb-3">
     Interaction Records
@@ -596,6 +588,8 @@ $smsPct = $totalForPage > 0
                         <button
                             class="btn btn-sm btn-outline-primary action-btn"
                             type="button"
+                            title="View interaction"
+                            aria-label="View interaction"
                             data-bs-toggle="modal"
                             data-bs-target="#viewLogModal{{ $log->communication_id }}">
 
@@ -642,7 +636,9 @@ $smsPct = $totalForPage > 0
 
                             <button
                                 class="btn btn-sm btn-outline-danger action-btn"
-                                type="submit">
+                                type="submit"
+                                title="Delete interaction"
+                                aria-label="Delete interaction">
 
                                 <i class="bi bi-trash"></i>
 
@@ -953,5 +949,7 @@ $smsPct = $totalForPage > 0
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+@include('components.crm-auto-filter')
 
 @endsection

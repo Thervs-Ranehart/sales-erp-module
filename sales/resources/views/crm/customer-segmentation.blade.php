@@ -419,14 +419,14 @@ At-risk customers may need promotions or follow-ups.
 
 <div class="card crm-card p-3 mb-4">
 
-<form method="GET" action="{{ route('crm.segmentation') }}">
+<form method="GET" action="{{ route('crm.segmentation') }}" data-crm-auto-filter>
 
 
 
 <div class="row g-3">
 
 
-<div class="col-md-5">
+<div class="col-md-6">
 
     <div class="search-box">
         <i class="bi bi-search search-icon"></i>
@@ -475,7 +475,7 @@ At-Risk
 
 
 
-<div class="col-md-2">
+<div class="col-md-3">
 
 
 <select class="form-select" name="frequency">
@@ -506,19 +506,6 @@ Occasional
 
 
 
-<div class="col-md-2">
-
-
-<button class="btn btn-search w-100" type="submit">
-    <i class="bi bi-funnel"></i>
-    Apply Filters
-</button>
-
-
-</div>
-
-
-
 </div>
 
 </form>
@@ -529,7 +516,7 @@ Occasional
 
 
 
-<div>
+<div data-crm-live-results>
 
 
 {{-- end filters --}}
@@ -679,5 +666,7 @@ Action
 
 
 
+
+@include('components.crm-auto-filter')
 
 @endsection
