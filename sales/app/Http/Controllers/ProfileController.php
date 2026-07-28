@@ -30,7 +30,7 @@ class ProfileController extends Controller
             ]);
         }
 
-        return view('profile.index', [
+        return view('sales.profile.index', [
             'employee' => $employee,
         ]);
     }
