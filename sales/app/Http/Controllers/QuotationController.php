@@ -21,10 +21,7 @@ class QuotationController extends Controller
 
     public function index(): View
     {
-        Quotation::query()
-            ->whereIn('quotation_status', ['draft', 'sent'])
-            ->whereDate('valid_until', '<', now()->toDateString())
-            ->update(['quotation_status' => 'expired']);
+        Quotation::expirePastDue();
 
         $quotations = Quotation::query()
             ->with('customer')
@@ -97,6 +94,9 @@ class QuotationController extends Controller
 
     public function show(Quotation $quotation): View
     {
+        Quotation::expirePastDue();
+        $quotation->refresh();
+
         $quotation->load([
             'customer',
             'items.product',
@@ -110,6 +110,9 @@ class QuotationController extends Controller
 
     public function convert(Quotation $quotation): RedirectResponse
     {
+        Quotation::expirePastDue();
+        $quotation->refresh();
+
         if (strtolower((string) $quotation->quotation_status) !== 'accepted') {
             return back()->withErrors(['quotation' => 'Only accepted quotations can be converted to a sales order.']);
         }
@@ -129,6 +132,9 @@ class QuotationController extends Controller
 
     public function edit(Quotation $quotation): View
     {
+        Quotation::expirePastDue();
+        $quotation->refresh();
+
         if ($quotation->salesOrders()->exists()) {
             abort(409, 'Converted quotations are locked to preserve transaction history.');
         }
@@ -152,6 +158,9 @@ class QuotationController extends Controller
         UpdateQuotationRequest $request,
         Quotation $quotation
     ): RedirectResponse {
+        Quotation::expirePastDue();
+        $quotation->refresh();
+
         if ($quotation->salesOrders()->exists()) {
             return back()->withErrors(['quotation' => 'Converted quotations cannot be changed.']);
         }
@@ -217,6 +226,9 @@ class QuotationController extends Controller
 
     public function updateStatus(Request $request, Quotation $quotation): RedirectResponse
     {
+        Quotation::expirePastDue();
+        $quotation->refresh();
+
         $validated = $request->validate([
             'status' => ['required', 'in:sent,accepted,rejected,expired'],
             'convert_to_order' => ['nullable', 'boolean'],

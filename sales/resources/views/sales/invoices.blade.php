@@ -40,6 +40,16 @@
 .invoice-status-btn--expired{ border-color:#6B7280; color:#4B5563; }
 .invoice-status-btn--expired:hover{ background:#4B5563; }
 
+.invoice-payment-modal .modal-content{ border:0; border-radius:18px; overflow:hidden; box-shadow:0 18px 45px rgba(31,41,55,.18); }
+.invoice-payment-modal .modal-header{ padding:22px 24px 18px; border:0; background:#f7f6ff; }
+.invoice-payment-modal .modal-title{ color:#312a84; font-weight:700; }
+.invoice-payment-modal .modal-body{ padding:22px 24px; }
+.invoice-payment-details{ padding:15px; border:1px solid #e7e5ff; border-radius:12px; background:#fafaff; }
+.invoice-payment-details small{ display:block; color:#6b7280; margin-bottom:4px; }
+.invoice-payment-details strong{ color:#1f2937; }
+.invoice-payment-total{ color:#5347ce !important; font-size:18px; }
+.invoice-payment-modal .modal-footer{ padding:16px 24px 22px; border:0; }
+
 .action-btn{
 
     width:36px;
@@ -742,14 +752,22 @@
                         @csrf
                         @method('PATCH')
                         <input type="hidden" name="payment_status" value="Paid">
-                        <button class="invoice-status-btn invoice-status-btn--paid" onclick="return confirm('Mark this invoice as paid?')">Mark as Paid</button>
+                        <button type="button" class="invoice-status-btn invoice-status-btn--paid js-invoice-payment-action"
+                            data-bs-toggle="modal" data-bs-target="#invoicePaymentModal"
+                            data-status="Paid" data-action="{{ route('invoices.update-payment-status', $invoice) }}"
+                            data-number="{{ $invoice->invoice_number }}" data-customer="{{ optional($invoice->salesOrder->customer)->full_name }}"
+                            data-total="₱{{ number_format($invoice->total_amount, 2) }}">Mark as Paid</button>
                     </form>
 
                     <form action="{{ route('invoices.update-payment-status', $invoice) }}" method="POST">
                         @csrf
                         @method('PATCH')
                         <input type="hidden" name="payment_status" value="Expired">
-                        <button class="invoice-status-btn invoice-status-btn--expired" onclick="return confirm('Expire this invoice? Its inventory and finance entries will be reversed.')">Expire</button>
+                        <button type="button" class="invoice-status-btn invoice-status-btn--expired js-invoice-payment-action"
+                            data-bs-toggle="modal" data-bs-target="#invoicePaymentModal"
+                            data-status="Expired" data-action="{{ route('invoices.update-payment-status', $invoice) }}"
+                            data-number="{{ $invoice->invoice_number }}" data-customer="{{ optional($invoice->salesOrder->customer)->full_name }}"
+                            data-total="₱{{ number_format($invoice->total_amount, 2) }}">Expire</button>
                     </form>
                 </div>
             @endif
@@ -813,6 +831,37 @@
 </div>
 
 
+<div class="modal fade invoice-payment-modal" id="invoicePaymentModal" tabindex="-1" aria-labelledby="invoicePaymentModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form class="modal-content" method="POST" id="invoicePaymentForm">
+            @csrf
+            @method('PATCH')
+            <input type="hidden" name="payment_status" id="invoicePaymentStatus">
+            <div class="modal-header">
+                <div>
+                    <div class="small text-uppercase fw-bold text-muted mb-1">Invoice payment update</div>
+                    <h5 class="modal-title" id="invoicePaymentModalTitle">Update invoice</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3" id="invoicePaymentMessage"></p>
+                <div class="invoice-payment-details">
+                    <div class="d-flex justify-content-between gap-3 mb-3"><small>Invoice</small><strong id="invoicePaymentNumber"></strong></div>
+                    <div class="d-flex justify-content-between gap-3 mb-3"><small>Customer</small><strong class="text-end" id="invoicePaymentCustomer"></strong></div>
+                    <div class="d-flex justify-content-between gap-3"><small>Total amount</small><strong class="invoice-payment-total" id="invoicePaymentTotal"></strong></div>
+                </div>
+                <p class="small text-danger mt-3 mb-0 d-none" id="invoiceExpiryNotice">Expiring this invoice reverses its inventory and finance entries.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="invoicePaymentSubmit">Confirm</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
 <script>
 
 function searchInvoice() {
@@ -871,6 +920,24 @@ function filterInvoice(status, button){
     });
 
 }
+
+document.querySelectorAll('.js-invoice-payment-action').forEach(function(button){
+    button.addEventListener('click', function(){
+        const isPaid=this.dataset.status === 'Paid';
+        document.getElementById('invoicePaymentForm').action=this.dataset.action;
+        document.getElementById('invoicePaymentStatus').value=this.dataset.status;
+        document.getElementById('invoicePaymentNumber').textContent=this.dataset.number;
+        document.getElementById('invoicePaymentCustomer').textContent=this.dataset.customer;
+        document.getElementById('invoicePaymentTotal').textContent=this.dataset.total;
+        document.getElementById('invoicePaymentModalTitle').textContent=isPaid ? 'Mark invoice as paid' : 'Expire invoice';
+        document.getElementById('invoicePaymentMessage').textContent=isPaid
+            ? 'Confirm that payment has been received for this invoice.'
+            : 'Confirm that this invoice is no longer valid.';
+        document.getElementById('invoicePaymentSubmit').textContent=isPaid ? 'Mark as Paid' : 'Expire Invoice';
+        document.getElementById('invoicePaymentSubmit').className=isPaid ? 'btn btn-success' : 'btn btn-outline-danger';
+        document.getElementById('invoiceExpiryNotice').classList.toggle('d-none', isPaid);
+    });
+});
 
 </script>
 @endsection

@@ -2,6 +2,7 @@
 
 use App\Services\AfterSalesAutomationService;
 use App\Services\RetentionAutomationService;
+use App\Models\Quotation;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -21,3 +22,11 @@ Artisan::command('support:escalate-sla', function (AfterSalesAutomationService $
 })->purpose('Escalate overdue after-sales cases and notify the support team');
 
 Schedule::command('support:escalate-sla')->everyFifteenMinutes()->withoutOverlapping();
+
+Artisan::command('sales:expire-quotations', function () {
+    $expired = Quotation::expirePastDue();
+
+    $this->info("{$expired} quotation(s) expired.");
+})->purpose('Automatically expire draft and sent quotations after their valid-until date');
+
+Schedule::command('sales:expire-quotations')->dailyAt('00:01')->withoutOverlapping();

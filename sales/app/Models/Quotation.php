@@ -42,6 +42,15 @@ class Quotation extends Model
         });
     }
 
+    /** Expire quotations that have not been accepted before their validity date. */
+    public static function expirePastDue(): int
+    {
+        return static::query()
+            ->whereIn('quotation_status', ['draft', 'sent'])
+            ->whereDate('valid_until', '<', today())
+            ->update(['quotation_status' => 'expired']);
+    }
+
     public function getRouteKeyName(): string
     {
         return 'quotation_number';
