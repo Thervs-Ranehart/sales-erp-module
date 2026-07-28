@@ -237,6 +237,9 @@ class SalesOrderController extends Controller
                 ->orderBy('category')
                 ->pluck('category'),
             'pricingRules' => PricingRule::query()
+                ->where('status', 'Active')
+                ->whereDate('start_date', '<=', today())
+                ->whereDate('end_date', '>=', today())
                 ->orderBy('rule_name')
                 ->get(),
             'saleRewards' => Reward::query()

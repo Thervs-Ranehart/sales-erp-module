@@ -52,6 +52,44 @@ test('product categories are available when creating orders and quotations', fun
         ->assertSee('Hardware');
 });
 
+test('inactive pricing rules are not shown when creating a sales order', function (): void {
+    PricingRule::query()->create([
+        'rule_name' => 'Active order discount',
+        'discount_type' => 'Percentage',
+        'discount_value' => 10,
+        'tax_rate' => 12,
+        'start_date' => now()->subDay(),
+        'end_date' => now()->addDay(),
+        'status' => 'Active',
+    ]);
+
+    PricingRule::query()->create([
+        'rule_name' => 'Inactive order discount',
+        'discount_type' => 'Percentage',
+        'discount_value' => 15,
+        'tax_rate' => 12,
+        'start_date' => now()->subDay(),
+        'end_date' => now()->addDay(),
+        'status' => 'Inactive',
+    ]);
+
+    PricingRule::query()->create([
+        'rule_name' => 'Expired order discount',
+        'discount_type' => 'Percentage',
+        'discount_value' => 15,
+        'tax_rate' => 12,
+        'start_date' => now()->subDays(2),
+        'end_date' => now()->subDay(),
+        'status' => 'Active',
+    ]);
+
+    $this->get(route('sales.create'))
+        ->assertOk()
+        ->assertSee('Active order discount')
+        ->assertDontSee('Inactive order discount')
+        ->assertDontSee('Expired order discount');
+});
+
 test('pricing uses authoritative product prices and applies fixed discounts', function (): void {
     $rule = PricingRule::query()->create([
         'rule_name' => 'Fixed 250',
