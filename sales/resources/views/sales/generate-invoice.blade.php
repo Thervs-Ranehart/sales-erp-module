@@ -5,6 +5,18 @@
 
 @section('content')
 
+@php
+    $rewardDiscountSources = collect($invoice->salesOrder?->rewardRedemptions)
+        ->where('status', 'Fulfilled')
+        ->pluck('reward.name');
+
+    $discountSources = collect([$invoice->salesOrder?->pricingRule?->rule_name])
+        ->merge($rewardDiscountSources)
+        ->filter()
+        ->unique()
+        ->values();
+@endphp
+
 <style>
 
 :root{
@@ -405,7 +417,9 @@
 
             <div class="summary-item">
 
-                <span>Discount</span>
+                <span>
+                    Discount{{ $discountSources->isNotEmpty() ? ': '.$discountSources->implode(' + ') : '' }}
+                </span>
 
                 <strong class="text-danger">
 

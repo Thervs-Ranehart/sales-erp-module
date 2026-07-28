@@ -148,6 +148,8 @@ class InvoiceController extends Controller
     {
         $invoice->load([
             'salesOrder.customer',
+            'salesOrder.pricingRule',
+            'salesOrder.rewardRedemptions.reward',
             'employee',
             'inventoryTransactions.product',
             'financeTransactions',

@@ -425,12 +425,12 @@ Order Summary
 
 <div class="d-flex justify-content-between">
 <span>Pricing Discount</span>
-<strong id="summaryDiscount">₱0.00</strong>
+<strong id="summaryDiscount" class="text-danger">-₱0.00</strong>
 </div>
 
 <div class="d-flex justify-content-between">
 <span id="summaryRewardLabel">Loyalty Reward</span>
-<strong id="summaryRewardDiscount">₱0.00</strong>
+<strong id="summaryRewardDiscount" class="text-danger">-₱0.00</strong>
 </div>
 
 <div class="d-flex justify-content-between">
@@ -578,8 +578,8 @@ const taxAmount = taxableAmount * (taxPercent / 100);
 const total = taxableAmount + taxAmount;
 
         document.getElementById('summarySubtotal').textContent = formatCurrency(subtotal);
-        document.getElementById('summaryDiscount').textContent = formatCurrency(discountAmount - rewardDiscount);
-        document.getElementById('summaryRewardDiscount').textContent = formatCurrency(rewardDiscount);
+        document.getElementById('summaryDiscount').textContent = '-' + formatCurrency(discountAmount - rewardDiscount);
+        document.getElementById('summaryRewardDiscount').textContent = '-' + formatCurrency(rewardDiscount);
         document.getElementById('summaryRewardLabel').textContent = selectedReward?.value
             ? `Loyalty Reward — ${selectedReward.text.split(' — ')[0]}`
             : 'Loyalty Reward';

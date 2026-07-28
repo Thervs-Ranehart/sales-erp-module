@@ -443,19 +443,22 @@ $formAction = $isEdit
         <div class="col-md-6">
 
             <label class="form-label">
-                Discount
+                Sales Order Discount
             </label>
 
-            <input
-                type="number"
-                step="0.01"
-                min="0"
-                class="form-control"
-                id="discount"
-                name="discount"
-                value="{{ old('discount', $isEdit ? $invoice->discount : 0) }}"
-                readonly
-            >
+            <div class="input-group">
+                <span class="input-group-text text-danger">- ₱</span>
+                <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    class="form-control text-danger"
+                    id="discount"
+                    name="discount"
+                    value="{{ old('discount', $isEdit ? $invoice->discount : 0) }}"
+                    readonly
+                >
+            </div>
 
         </div>
 
