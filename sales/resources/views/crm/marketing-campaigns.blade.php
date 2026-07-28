@@ -45,4 +45,6 @@
 </div></div>
 <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal" type="button">Cancel</button><button class="btn btn-primary">Create Campaign</button></div>
 </form></div></div></div>
+@include('components.crm-button-styles')
+
 @endsection

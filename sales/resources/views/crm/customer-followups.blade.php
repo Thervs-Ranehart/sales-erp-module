@@ -1022,4 +1022,6 @@
 
 @include('components.crm-auto-filter')
 
+@include('components.crm-button-styles')
+
 @endsection

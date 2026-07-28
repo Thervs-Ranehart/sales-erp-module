@@ -138,4 +138,6 @@
     </form>
 </div>
 
+@include('components.crm-button-styles')
+
 @endsection
