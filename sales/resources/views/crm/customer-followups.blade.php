@@ -71,21 +71,35 @@
 }
 
 .action-btn {
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
     padding: 0;
-    border-radius: 8px;
+    border-radius: 10px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(15, 23, 42, .06);
+    transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease;
+}
+
+.action-btn:hover,
+.action-btn:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 13px rgba(15, 23, 42, .14);
 }
 
 .action-toolbar {
     display: inline-flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    align-items: center;
     justify-content: center;
-    gap: 4px;
-    max-width: 196px;
+    gap: 10px;
+    padding: 2px;
+}
+
+.action-toolbar form {
+    margin: 0;
 }
 
 .search-box {

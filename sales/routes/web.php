@@ -156,6 +156,8 @@ Route::post('/forecasting/targets', [SalesTargetController::class, 'store'])->na
 Route::delete('/forecasting/targets/{salesTarget}', [SalesTargetController::class, 'destroy'])->name('forecasting.targets.destroy');
 
 Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
+Route::patch('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
 
 Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
 
