@@ -151,7 +151,7 @@
             <div><h5 class="fw-bold mb-0">Contract Records</h5><div class="text-muted small mt-1">Review coverage details and contract status.</div></div>
         </div>
 
-        <div class="table-responsive">
+        <div class="table-responsive after-sales-table-responsive">
             <table class="table sc-table align-middle mb-0">
                 <thead>
                     <tr>
@@ -189,7 +189,7 @@
                                     <span class="badge bg-secondary sc-status">{{ $contractStatus }}</span>
                                 @endif
                             </td>
-                            <td class="sc-action-cell"><div class="sc-action-group"><button class="btn btn-outline-primary sc-action-btn sc-view-btn js-service-contract-view" type="button" data-contract-id="{{ $contract->contract_id }}" data-bs-toggle="modal" data-bs-target="#serviceContractModal"><i class="bi bi-eye me-1" aria-hidden="true"></i>View</button><button class="btn btn-outline-warning sc-action-btn sc-edit-btn" type="button" data-bs-toggle="modal" data-bs-target="#editContract{{ $contract->contract_id }}" aria-label="Edit contract"><i class="bi bi-pencil" aria-hidden="true"></i></button>@if(!$contract->archived_at)<form method="POST" action="{{ route('support.service-contracts.archive', $contract) }}" onsubmit="return confirm('Archive this contract?')">@csrf @method('PATCH')<input type="hidden" name="archive_reason" value="Archived by support staff"><button class="btn btn-outline-danger sc-action-btn sc-delete-btn" type="submit" aria-label="Archive contract"><i class="bi bi-archive" aria-hidden="true"></i></button></form>@endif</div></td>
+                            <td class="sc-action-cell support-action-cell"><div class="sc-action-group support-action-group"><button class="btn btn-outline-primary sc-action-btn sc-view-btn support-action-button js-service-contract-view" type="button" data-contract-id="{{ $contract->contract_id }}" data-bs-toggle="modal" data-bs-target="#serviceContractModal" title="View service contract" aria-label="View service contract"><i class="bi bi-eye" aria-hidden="true"></i><span class="visually-hidden">View</span></button>@if(!$contract->archived_at)<button class="btn btn-outline-warning sc-action-btn sc-edit-btn support-action-button" type="button" data-bs-toggle="modal" data-bs-target="#editContract{{ $contract->contract_id }}" title="Edit service contract" aria-label="Edit service contract"><i class="bi bi-pencil" aria-hidden="true"></i><span class="visually-hidden">Edit</span></button><form class="support-action-destructive" method="POST" action="{{ route('support.service-contracts.archive', $contract) }}" onsubmit="return confirm('Archive this contract?')">@csrf @method('PATCH')<input type="hidden" name="archive_reason" value="Archived by support staff"><button class="btn btn-outline-danger sc-action-btn sc-delete-btn support-action-button" type="submit" title="Archive service contract" aria-label="Archive service contract"><i class="bi bi-archive" aria-hidden="true"></i><span class="visually-hidden">Archive</span></button></form>@endif</div></td>
                         </tr>
                     @empty
                         <tr>

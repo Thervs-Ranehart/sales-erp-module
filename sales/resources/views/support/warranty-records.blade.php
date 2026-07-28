@@ -32,6 +32,7 @@
         .warranty-registry-page .wr-action-group { align-items:center; display:flex; gap:.5rem; justify-content:center; white-space:nowrap; }.warranty-registry-page .wr-action-group form { margin:0; }
         .warranty-registry-page .wr-action-btn { align-items:center; border-radius:8px; display:inline-flex; font-size:.8rem; font-weight:600; height:34px; justify-content:center; min-width:34px; padding:.4rem .65rem; }.warranty-registry-page .wr-action-btn:hover { box-shadow:0 4px 10px rgba(31,41,55,.1); transform:translateY(-1px); }
         @media (max-width:1199.98px) { .warranty-registry-page .wr-filter-grid { grid-template-columns:minmax(240px,1.5fr) repeat(3,minmax(140px,1fr)); }.warranty-registry-page .wr-filter-actions { grid-column:1 / -1; justify-content:flex-end; } }
+        @media (max-width:991.98px) { .warranty-registry-page .wr-filter-grid { grid-template-columns:minmax(220px,1fr) minmax(150px,1fr); } }
         @media (max-width:575.98px) { .warranty-registry-page .wr-card { padding:1rem; }.warranty-registry-page .wr-filter-card { padding:1rem; }.warranty-registry-page .wr-filter-grid { grid-template-columns:1fr; }.warranty-registry-page .wr-filter-actions { grid-column:auto; }.warranty-registry-page .wr-filter-actions .btn { flex:1; } }
     </style>
 
@@ -165,7 +166,7 @@
 
         {{-- Table --}}
 
-        <div class="table-responsive wr-table-wrap">
+        <div class="table-responsive after-sales-table-responsive wr-table-wrap">
 
             <table class="table table-hover align-middle wr-table">
                 <thead>
@@ -203,18 +204,19 @@
                                 @endif
                             </td>
 
-                            <td class="wr-action-cell">
-                                <div class="wr-action-group">
+                            <td class="wr-action-cell support-action-cell">
+                                <div class="wr-action-group support-action-group">
                                 <button
-                                    class="btn btn-outline-primary wr-action-btn js-warranty-view"
+                                    class="btn btn-outline-primary wr-action-btn support-action-button js-warranty-view"
                                     type="button"
                                     data-warranty-id="{{ $warranty->warranty_id }}"
+                                    title="View warranty"
                                     aria-label="View warranty"
                                 >
-                                    <i class="bi bi-eye me-1"></i> View
+                                    <i class="bi bi-eye" aria-hidden="true"></i><span class="visually-hidden">View</span>
                                 </button>
-                                <button class="btn btn-outline-warning wr-action-btn" type="button" data-bs-toggle="modal" data-bs-target="#editWarranty{{ $warranty->warranty_id }}" aria-label="Edit warranty"><i class="bi bi-pencil"></i><span class="visually-hidden">Edit</span></button>
-                                @if(!$warranty->archived_at)<form method="POST" action="{{ route('support.warranty-records.archive', $warranty) }}" onsubmit="return confirm('Archive this warranty?')">@csrf @method('PATCH')<input type="hidden" name="archive_reason" value="Archived by support staff"><button class="btn btn-outline-danger wr-action-btn" aria-label="Archive warranty"><i class="bi bi-archive"></i><span class="visually-hidden">Delete</span></button></form>@endif
+                                @if(!$warranty->archived_at)<button class="btn btn-outline-warning wr-action-btn support-action-button" type="button" data-bs-toggle="modal" data-bs-target="#editWarranty{{ $warranty->warranty_id }}" title="Edit warranty" aria-label="Edit warranty"><i class="bi bi-pencil" aria-hidden="true"></i><span class="visually-hidden">Edit</span></button>
+                                <form class="support-action-destructive" method="POST" action="{{ route('support.warranty-records.archive', $warranty) }}" onsubmit="return confirm('Archive this warranty?')">@csrf @method('PATCH')<input type="hidden" name="archive_reason" value="Archived by support staff"><button class="btn btn-outline-danger wr-action-btn support-action-button" type="submit" title="Archive warranty" aria-label="Archive warranty"><i class="bi bi-archive" aria-hidden="true"></i><span class="visually-hidden">Archive</span></button></form>@endif
                                 </div>
 
                             </td>

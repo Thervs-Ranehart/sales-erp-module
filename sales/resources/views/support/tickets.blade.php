@@ -31,6 +31,7 @@
         .support-tickets-page .tt-action-head, .support-tickets-page .tt-action-cell { min-width:180px; text-align:center; }.support-tickets-page .tt-action-group { align-items:center; display:flex; gap:.5rem; justify-content:center; white-space:nowrap; }.support-tickets-page .tt-action-group form { margin:0; order:4; }.support-tickets-page .tt-edit-btn { order:2; }.support-tickets-page .js-ticket-assign { order:3; }
         .support-tickets-page .tt-action-btn, .support-tickets-page .tt-action-group form .btn { align-items:center; border-radius:8px; display:inline-flex; font-size:.8rem; height:34px; justify-content:center; min-width:34px; padding:.4rem .65rem; }.support-tickets-page .tt-action-btn:hover, .support-tickets-page .tt-action-group form .btn:hover { box-shadow:0 4px 10px rgba(31,41,55,.1); transform:translateY(-1px); }
         @media (max-width:1599.98px) { .support-tickets-page .tt-filter-grid { grid-template-columns:minmax(230px,1.6fr) repeat(3,minmax(135px,1fr)); } }
+        @media (max-width:991.98px) { .support-tickets-page .tt-filter-grid { grid-template-columns:minmax(220px,1fr) minmax(160px,1fr); }.support-tickets-page .tt-filter-actions { grid-column:1 / -1; justify-content:flex-end; } }
         @media (max-width:575.98px) { .support-tickets-page .tt-card, .support-tickets-page .tt-filter-card { padding:1rem; }.support-tickets-page .tt-filter-grid { grid-template-columns:1fr; }.support-tickets-page .tt-filter-actions { grid-column:auto; }.support-tickets-page .tt-filter-actions .btn { flex:1; } }
         .ticket-edit-modal .modal-content { border:0; border-radius:16px; box-shadow:0 18px 45px rgba(31,41,55,.16); overflow:hidden; }.ticket-edit-modal .modal-header { align-items:flex-start; background:#fafbfe; border-bottom:1px solid #e8eaf0; padding:1.25rem 1.5rem; }.ticket-edit-modal .modal-title { color:#1f2937; font-size:1.05rem; font-weight:700; }.ticket-edit-modal .modal-body { padding:1.5rem; }.ticket-edit-modal .form-label { color:#596273; font-size:.78rem; font-weight:600; margin-bottom:.4rem; }.ticket-edit-modal .form-control, .ticket-edit-modal .form-select { border-color:#dfe3eb; font-size:.86rem; min-height:38px; }.ticket-edit-modal textarea.form-control { min-height:130px; padding-top:.65rem; }.ticket-edit-modal .modal-footer { border-top:1px solid #e8eaf0; padding:1rem 1.5rem; }.ticket-edit-modal .modal-footer .btn { align-items:center; display:inline-flex; font-size:.84rem; font-weight:600; height:38px; justify-content:center; padding-inline:1rem; }
     </style>
@@ -118,7 +119,7 @@
 
 
         {{-- Main table --}}
-                <div class="table-responsive tt-table-wrap" style="-webkit-overflow-scrolling: touch;">
+                <div class="table-responsive after-sales-table-responsive tt-table-wrap">
             <table id="supportTicketsTable" class="table table-hover align-middle tickets-table">
                 <colgroup>
                     <col style="width: 1%;">
@@ -192,20 +193,20 @@
                                 @if($ticket->isSlaBreached())<span class="badge bg-danger d-block mt-1">SLA Breached · L{{ $ticket->escalation_level }}</span>@endif
                                 @if($ticket->archived_at)<span class="badge bg-secondary d-block mt-1">Archived</span>@endif
                             </td>
-                            <td class="tt-action-cell">
-                                <div class="tt-action-group">
-                                    <button class="btn btn-outline-primary tt-action-btn js-ticket-view" type="button" data-ticket-id="{{ $ticket->ticket_id }}" aria-label="View" title="View ticket" data-bs-toggle="modal" data-bs-target="#ticketDetailsModal">
-                                        <i class="bi bi-eye"></i>
+                            <td class="tt-action-cell support-action-cell">
+                                <div class="tt-action-group support-action-group">
+                                    <button class="btn btn-outline-primary tt-action-btn support-action-button js-ticket-view" type="button" data-ticket-id="{{ $ticket->ticket_id }}" aria-label="View ticket" title="View ticket" data-bs-toggle="modal" data-bs-target="#ticketDetailsModal">
+                                        <i class="bi bi-eye" aria-hidden="true"></i><span class="visually-hidden">View</span>
                                     </button>
 
-                                    <button class="btn btn-outline-success tt-action-btn js-ticket-assign" type="button" data-ticket-id="{{ $ticket->ticket_id }}" aria-label="Assign or reassign employee" title="Assign employee" data-bs-toggle="modal" data-bs-target="#ticketsAssignModal">
-                                        <i class="bi bi-diagram-3"></i>
-                                    </button>
-                                    <button class="btn btn-outline-warning tt-action-btn tt-edit-btn" type="button" data-bs-toggle="modal" data-bs-target="#editTicket{{ $ticket->ticket_id }}" title="Edit ticket details" aria-label="Edit ticket details"><i class="bi bi-pencil-square"></i></button>
                                     @if($ticket->archived_at)
-                                        <form method="POST" action="{{ route('support.tickets.restore', $ticket) }}">@csrf @method('PATCH')<button class="btn btn-sm btn-outline-success" title="Restore"><i class="bi bi-arrow-counterclockwise"></i></button></form>
+                                        <form method="POST" action="{{ route('support.tickets.restore', $ticket) }}">@csrf @method('PATCH')<button class="btn btn-outline-success support-action-button" type="submit" title="Restore ticket" aria-label="Restore ticket"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i><span class="visually-hidden">Restore</span></button></form>
                                     @else
-                                        <form method="POST" action="{{ route('support.tickets.archive', $ticket) }}" onsubmit="return confirm('Archive this ticket while retaining its history?')">@csrf @method('PATCH')<input type="hidden" name="archive_reason" value="Archived by support staff"><button class="btn btn-sm btn-outline-danger" title="Archive"><i class="bi bi-archive"></i></button></form>
+                                        <button class="btn btn-outline-success tt-action-btn support-action-button js-ticket-assign" type="button" data-ticket-id="{{ $ticket->ticket_id }}" aria-label="Assign or reassign employee" title="Assign or reassign employee" data-bs-toggle="modal" data-bs-target="#ticketsAssignModal">
+                                            <i class="bi bi-diagram-3" aria-hidden="true"></i><span class="visually-hidden">Assign</span>
+                                        </button>
+                                        <button class="btn btn-outline-warning tt-action-btn tt-edit-btn support-action-button" type="button" data-bs-toggle="modal" data-bs-target="#editTicket{{ $ticket->ticket_id }}" title="Edit ticket details" aria-label="Edit ticket details"><i class="bi bi-pencil" aria-hidden="true"></i><span class="visually-hidden">Edit</span></button>
+                                        <form class="support-action-destructive" method="POST" action="{{ route('support.tickets.archive', $ticket) }}" onsubmit="return confirm('Archive this ticket while retaining its history?')">@csrf @method('PATCH')<input type="hidden" name="archive_reason" value="Archived by support staff"><button class="btn btn-outline-danger support-action-button" type="submit" title="Archive ticket" aria-label="Archive ticket"><i class="bi bi-archive" aria-hidden="true"></i><span class="visually-hidden">Archive</span></button></form>
                                     @endif
                                 </div>
                             </td>

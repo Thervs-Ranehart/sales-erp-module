@@ -191,7 +191,7 @@
             <h5>Claim Records</h5><p>Review claim status, eligibility, and assigned staff.</p>
         </div>
 
-        <div class="table-responsive" style="-webkit-overflow-scrolling: touch;">
+        <div class="table-responsive after-sales-table-responsive">
             <table id="warrantyClaimsTable" class="table wc-table align-middle mb-0 warranty-claims-table" style="width:100%;">
                 <style>
                     @media (max-width: 575.98px) {
@@ -236,23 +236,23 @@
                                 @endif
                             </td>
                             <td>{{ $claim->supportTicket?->latestAssignment?->employee?->full_name ?? '—' }}</td>
-                            <td class="wc-action-cell">
-                                <div class="wc-action-group warranty-actions">
+                            <td class="wc-action-cell support-action-cell">
+                                <div class="wc-action-group support-action-group warranty-actions">
                                     <button
-                                        class="btn btn-outline-primary wc-action-btn js-warranty-claim-review"
+                                        class="btn btn-outline-primary wc-action-btn support-action-button js-warranty-claim-review"
                                         type="button"
                                         title="View Claim Details"
                                         aria-label="View Claim Details"
                                         data-claim-id="{{ $claim->claim_id }}"
                                         data-bs-toggle="modal"
                                         data-bs-target="#warrantyClaimModal">
-                                        <i class="bi bi-eye"></i>
+                                        <i class="bi bi-eye" aria-hidden="true"></i><span class="visually-hidden">View</span>
                                     </button>
 
-                                    <button class="btn btn-outline-warning wc-action-btn js-warranty-claim-status" type="button" title="Update Claim Status" aria-label="Update Claim Status" data-claim-id="{{ $claim->claim_id }}" data-bs-toggle="modal" data-bs-target="#warrantyClaimStatusModal">
-                                        <i class="bi bi-pencil"></i>
+                                    @if(!in_array($claim->claim_status, ['Completed','Cancelled']))<button class="btn btn-outline-warning wc-action-btn support-action-button js-warranty-claim-status" type="button" title="Update claim status" aria-label="Update claim status" data-claim-id="{{ $claim->claim_id }}" data-bs-toggle="modal" data-bs-target="#warrantyClaimStatusModal">
+                                        <i class="bi bi-pencil" aria-hidden="true"></i><span class="visually-hidden">Edit</span>
                                     </button>
-                                    @if(!in_array($claim->claim_status, ['Completed','Cancelled']))<form method="POST" action="{{ route('support.warranty-claims.cancel', $claim) }}" onsubmit="return confirm('Cancel this claim?')">@csrf @method('PATCH')<input type="hidden" name="decision_reason" value="Cancelled by support staff"><button class="btn btn-outline-danger wc-action-btn" type="submit" aria-label="Cancel claim"><i class="bi bi-x-circle"></i></button></form>@endif
+                                    <form class="support-action-destructive" method="POST" action="{{ route('support.warranty-claims.cancel', $claim) }}" onsubmit="return confirm('Cancel this claim?')">@csrf @method('PATCH')<input type="hidden" name="decision_reason" value="Cancelled by support staff"><button class="btn btn-outline-danger wc-action-btn support-action-button" type="submit" title="Cancel warranty claim" aria-label="Cancel warranty claim"><i class="bi bi-x-circle" aria-hidden="true"></i><span class="visually-hidden">Cancel</span></button></form>@endif
                                 </div>
                             </td>
                         </tr>
@@ -469,5 +469,3 @@
 </script>
 
 @endpush
-
-
