@@ -116,8 +116,8 @@ color:white;
 
 .action-btn {
 
-width:32px;
-height:32px;
+width:36px;
+height:36px;
 padding:0;
 display:inline-flex;
 align-items:center;
@@ -740,7 +740,7 @@ Inactive
 
 <td class="text-center">
     <div class="d-flex justify-content-center align-items-center gap-2">
-        <a class="btn btn-sm btn-outline-primary action-btn" href="{{ route('crm.directory.show', ['customer' => $customer->customer_id] + request()->query()) }}" aria-label="View">
+        <a class="btn btn-sm btn-outline-primary action-btn" href="{{ route('crm.directory.show', ['customer' => $customer->customer_id] + request()->query()) }}" aria-label="View customer" title="View customer">
             <i class="bi bi-eye"></i>
         </a>
 

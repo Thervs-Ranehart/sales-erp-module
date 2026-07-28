@@ -98,10 +98,14 @@ $subtitle = 'Manage customer information and relationship data.';
 }
 
 .action-btn {
-    font-size: 13px;
-    padding: 6px 12px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
     border-radius: 8px;
-    margin: 2px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
 }
 
 .btn-main {
@@ -584,6 +588,8 @@ $smsPct = $totalForPage > 0
                         <button
                             class="btn btn-sm btn-outline-primary action-btn"
                             type="button"
+                            title="View interaction"
+                            aria-label="View interaction"
                             data-bs-toggle="modal"
                             data-bs-target="#viewLogModal{{ $log->communication_id }}">
 
@@ -630,7 +636,9 @@ $smsPct = $totalForPage > 0
 
                             <button
                                 class="btn btn-sm btn-outline-danger action-btn"
-                                type="submit">
+                                type="submit"
+                                title="Delete interaction"
+                                aria-label="Delete interaction">
 
                                 <i class="bi bi-trash"></i>
 

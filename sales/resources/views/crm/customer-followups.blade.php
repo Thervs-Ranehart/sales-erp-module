@@ -72,12 +72,20 @@
 
 .action-btn {
     width: 36px;
-    height: 34px;
+    height: 36px;
     padding: 0;
     border-radius: 8px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+}
+
+.action-toolbar {
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+    max-width: 196px;
 }
 
 .search-box {
@@ -460,7 +468,7 @@
 
                 <td class="text-center">
 
-                    <div class="d-flex justify-content-center gap-2">
+                    <div class="action-toolbar">
 
 
                         {{-- View --}}
@@ -469,6 +477,7 @@
                             type="button"
                             class="btn btn-sm btn-outline-primary action-btn"
                             title="View"
+                            aria-label="View follow-up"
                             data-bs-toggle="modal"
                             data-bs-target="#viewFollowUpModal{{ $followUp->communication_id }}">
 
@@ -481,6 +490,7 @@
                             type="button"
                             class="btn btn-sm btn-outline-warning action-btn"
                             title="Edit"
+                            aria-label="Edit follow-up"
                             data-bs-toggle="modal"
                             data-bs-target="#editFollowUpModal{{ $followUp->communication_id }}">
 
@@ -495,6 +505,7 @@
                             type="button"
                             class="btn btn-sm btn-outline-info action-btn"
                             title="Assigned Agents"
+                            aria-label="Manage assigned agents"
                             data-bs-toggle="modal"
                             data-bs-target="#assignAgentModal{{ $followUp->communication_id }}">
 
@@ -518,7 +529,8 @@
                             <button
                                 type="submit"
                                 class="btn btn-sm btn-outline-danger action-btn"
-                                title="Delete">
+                                title="Delete"
+                                aria-label="Delete follow-up">
 
                                 <i class="bi bi-trash"></i>
 
@@ -544,7 +556,8 @@
                             <button
                                 type="submit"
                                 class="btn btn-sm {{ $status === 'Completed' ? 'btn-outline-secondary' : 'btn-outline-success' }} action-btn"
-                                title="{{ $status === 'Completed' ? 'Reopen follow-up' : 'Mark follow-up as completed' }}">
+                                title="{{ $status === 'Completed' ? 'Reopen follow-up' : 'Mark follow-up as completed' }}"
+                                aria-label="{{ $status === 'Completed' ? 'Reopen follow-up' : 'Mark follow-up as completed' }}">
 
                                 <i class="bi {{ $status === 'Completed' ? 'bi-arrow-counterclockwise' : 'bi-check2-circle' }}"></i>
 
