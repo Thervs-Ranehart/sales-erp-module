@@ -142,10 +142,14 @@ class SalesOrderController extends Controller
 
     public function edit(SalesOrder $salesOrder): View
     {
-        $salesOrder->load(['items.product']);
+        $salesOrder->load(['items.product', 'invoices.items.product']);
 
         return view('sales.create-sales-order', array_merge(
-            $this->formData(),
+            // Keep the order's assigned customer in the select list even when
+            // that customer has since been archived. This lets the edit form
+            // display the saved customer instead of falling back to the blank
+            // "Select Customer" option.
+            $this->formData($salesOrder->customer_id),
             ['salesOrder' => $salesOrder]
         ));
     }
@@ -253,12 +257,18 @@ class SalesOrderController extends Controller
                 : 'Order status updated successfully.');
     }
 
-    private function formData(): array
+    private function formData(?int $selectedCustomerId = null): array
     {
         return [
             'customers' => Customer::query()
                 ->with('loyaltyProgram')
-                ->available()
+                ->where(function ($query) use ($selectedCustomerId): void {
+                    $query->available();
+
+                    if ($selectedCustomerId) {
+                        $query->orWhere('customer_id', $selectedCustomerId);
+                    }
+                })
                 ->orderBy('first_name')
                 ->orderBy('last_name')
                 ->get(),

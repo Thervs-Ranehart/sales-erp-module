@@ -206,6 +206,56 @@ test('a sales order can move directly to a later fulfillment status', function (
     expect($order->fresh()->order_status)->toBe('shipped');
 });
 
+test('a processed order edit form displays its archived customer', function (): void {
+    $this->customer->update(['customer_status' => 'Archived']);
+
+    $order = SalesOrder::query()->create([
+        'order_number' => 'SO-EDIT-ARCHIVED-001',
+        'customer_id' => $this->customer->customer_id,
+        'employee_id' => $this->employee->employee_id,
+        'order_date' => today(),
+        'order_status' => 'processed',
+        'subtotal' => 1000,
+        'discount' => 0,
+        'tax' => 120,
+        'shipping_fee' => 0,
+        'total_amount' => 1120,
+    ]);
+
+    $this->get(route('sales.edit', $order))
+        ->assertOk()
+        ->assertSee('Lifecycle Customer')
+        ->assertSeeHtml('value="'.$this->customer->customer_id.'"');
+});
+
+test('a processed order edit form preselects its saved products', function (): void {
+    $order = SalesOrder::query()->create([
+        'order_number' => 'SO-EDIT-PRODUCT-001',
+        'customer_id' => $this->customer->customer_id,
+        'employee_id' => $this->employee->employee_id,
+        'order_date' => today(),
+        'order_status' => 'processed',
+        'subtotal' => 2000,
+        'discount' => 0,
+        'tax' => 240,
+        'shipping_fee' => 0,
+        'total_amount' => 2240,
+    ]);
+    $order->items()->create([
+        'product_id' => $this->product->product_id,
+        'quantity' => 2,
+        'unit_price' => 1000,
+        'discount' => 0,
+        'subtotal' => 2000,
+    ]);
+
+    $this->get(route('sales.edit', $order))
+        ->assertOk()
+        ->assertSee('Lifecycle Product')
+        ->assertSeeHtml('value="'.$this->product->product_id.'"')
+        ->assertSeeHtml('value="2"');
+});
+
 test('inactive and out of date pricing rules are rejected', function (array $overrides): void {
     $rule = PricingRule::query()->create(array_merge([
         'rule_name' => 'Unavailable rule',

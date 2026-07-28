@@ -9,7 +9,18 @@
 
 @php
 $isEdit = isset($salesOrder);
-$orderItems = $isEdit ? $salesOrder->items : collect();
+$orderItems = collect();
+
+if ($isEdit) {
+    $orderItems = $salesOrder->items;
+
+    // Processed orders have an invoice that mirrors their order items. Use it
+    // as a fallback for older records whose original order-item rows are gone.
+    if ($orderItems->isEmpty()) {
+        $orderItems = $salesOrder->invoices
+            ->flatMap(fn ($invoice) => $invoice->items);
+    }
+}
 
 $selectedRule = $isEdit ? $salesOrder->pricingRule : null;
 
