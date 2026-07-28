@@ -85,6 +85,11 @@ class SalesOrder extends Model
         return $this->hasMany(Shipment::class, 'order_id', 'order_id');
     }
 
+    public function rewardRedemptions(): HasMany
+    {
+        return $this->hasMany(RewardRedemption::class, 'order_id', 'order_id');
+    }
+
     public function shippedQuantityFor(int $orderItemId): int
     {
         return (int) ShipmentItem::query()

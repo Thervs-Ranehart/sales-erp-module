@@ -10,14 +10,18 @@ use App\Models\Employee;
 use App\Models\Invoice;
 use App\Models\PricingRule;
 use App\Models\Product;
+use App\Models\Reward;
+use App\Models\RewardRedemption;
 use App\Models\SalesApproval;
 use App\Models\SalesAuditLog;
 use App\Models\SalesOrder;
 use App\Models\Shipment;
 use App\Services\PricingCalculator;
+use App\Services\LoyaltyService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class SalesOrderController extends Controller
@@ -51,7 +55,12 @@ class SalesOrderController extends Controller
     public function store(StoreSalesOrderRequest $request): RedirectResponse
     {
         $order = DB::transaction(function () use ($request) {
-            $totals = $this->calculateTotals($request->validated());
+            $data = $request->validated();
+            $reward = $this->eligibleReward($data);
+            $totals = $this->calculateTotals($data);
+            if ($reward) {
+                $totals = $this->applyRewardDiscount($totals, $reward);
+            }
 
             $order = SalesOrder::query()->create([
                 'order_number' => null,
@@ -72,6 +81,10 @@ class SalesOrderController extends Controller
 
             $this->syncOrderItems($order, $totals['items']);
 
+            if ($reward) {
+                $this->redeemRewardForOrder($order, $reward);
+            }
+
             return $order;
         });
 
@@ -84,7 +97,7 @@ class SalesOrderController extends Controller
     {
         $salesOrder->load([
             'customer', 'employee', 'pricingRule', 'items.product', 'invoices.items',
-            'shipments.items.orderItem.product', 'shipments.creator',
+            'shipments.items.orderItem.product', 'shipments.creator', 'rewardRedemptions.reward',
         ]);
 
         return view('sales.profile', [
@@ -209,6 +222,7 @@ class SalesOrderController extends Controller
     {
         return [
             'customers' => Customer::query()
+                ->with('loyaltyProgram')
                 ->available()
                 ->orderBy('first_name')
                 ->orderBy('last_name')
@@ -224,6 +238,11 @@ class SalesOrderController extends Controller
                 ->pluck('category'),
             'pricingRules' => PricingRule::query()
                 ->orderBy('rule_name')
+                ->get(),
+            'saleRewards' => Reward::query()
+                ->whereIn('status', ['available', 'limited'])
+                ->where('discount_value', '>', 0)
+                ->orderBy('name')
                 ->get(),
         ];
     }
@@ -249,6 +268,79 @@ class SalesOrderController extends Controller
         );
     }
 
+    /** @param array<string, mixed> $data */
+    private function eligibleReward(array $data): ?Reward
+    {
+        if (empty($data['reward_id'])) {
+            return null;
+        }
+
+        $loyalty = Customer::query()
+            ->findOrFail($data['customer_id'])
+            ->loyaltyProgram()
+            ->lockForUpdate()
+            ->first();
+        $reward = Reward::query()->lockForUpdate()->findOrFail($data['reward_id']);
+
+        if (! $loyalty || ! in_array($reward->status, ['available', 'limited'], true)
+            || (float) $reward->discount_value <= 0
+            || (int) $loyalty->available_points < (int) $reward->points_required) {
+            throw ValidationException::withMessages([
+                'reward_id' => 'This reward is unavailable or the customer does not have enough points.',
+            ]);
+        }
+
+        return $reward;
+    }
+
+    /**
+     * @param array{subtotal:float,discount:float,tax:float,total:float,items:array<int, array<string, mixed>>} $totals
+     * @return array{subtotal:float,discount:float,tax:float,total:float,items:array<int, array<string, mixed>>}
+     */
+    private function applyRewardDiscount(array $totals, Reward $reward): array
+    {
+        $beforeReward = max(0, $totals['subtotal'] - $totals['discount']);
+        $rewardDiscount = strcasecmp((string) $reward->discount_type, 'Percentage') === 0
+            ? $beforeReward * ((float) $reward->discount_value / 100)
+            : (float) $reward->discount_value;
+        $discount = min($totals['subtotal'], round($totals['discount'] + $rewardDiscount, 2));
+        $taxRate = $beforeReward > 0 ? $totals['tax'] / $beforeReward : 0;
+        $taxable = max(0, $totals['subtotal'] - $discount);
+        $tax = round($taxable * $taxRate, 2);
+
+        $totals['discount'] = $discount;
+        $totals['tax'] = $tax;
+        $totals['total'] = round($taxable + $tax, 2);
+
+        return $totals;
+    }
+
+    private function redeemRewardForOrder(SalesOrder $order, Reward $reward): void
+    {
+        $loyalty = $order->customer->loyaltyProgram;
+        $points = (int) $reward->points_required;
+        $redemption = RewardRedemption::query()->create([
+            'loyalty_id' => $loyalty->loyalty_id,
+            'reward_id' => $reward->reward_id,
+            'order_id' => $order->order_id,
+            'processed_by' => $this->resolveEmployeeId(),
+            'points_used' => $points,
+            'quantity' => 1,
+            'status' => 'Fulfilled',
+            'redeemed_at' => now(),
+            'notes' => "Applied to sales order {$order->order_number}",
+        ]);
+        $redemption->update(['redemption_number' => 'RDM-'.str_pad((string) $redemption->redemption_id, 5, '0', STR_PAD_LEFT)]);
+
+        app(LoyaltyService::class)->post(
+            $order->customer,
+            'Redeem',
+            -$points,
+            $redemption,
+            "Redeemed {$reward->name} on sales order {$order->order_number}"
+        );
+    }
+
     /**
      * @param  array<string, mixed>  $data
      */
@@ -268,9 +360,11 @@ class SalesOrderController extends Controller
     private function statusTransitionError(SalesOrder $salesOrder, string $requestedStatus): ?string
     {
         $allowedTransitions = [
-            'pending' => ['processed', 'cancelled'],
-            'processed' => ['shipped', 'cancelled'],
-            'shipped' => ['delivered'],
+            // Staff can move an order forward without having to save each
+            // intermediate stage separately.
+            'pending' => ['processed', 'shipped', 'delivered', 'cancelled'],
+            'processed' => ['shipped', 'delivered', 'cancelled'],
+            'shipped' => ['delivered', 'cancelled'],
             'delivered' => [],
             'cancelled' => [],
         ];

@@ -86,6 +86,7 @@ class CustomerLoyaltyController extends Controller
     protected function tierCounts(): array
     {
         return [
+            'vipCount' => LoyaltyProgram::where('membership_level', 'VIP')->count(),
             'goldCount' => LoyaltyProgram::where('membership_level', 'Gold')->count(),
             'silverCount' => LoyaltyProgram::where('membership_level', 'Silver')->count(),
             'bronzeCount' => LoyaltyProgram::where('membership_level', 'Bronze')->count(),

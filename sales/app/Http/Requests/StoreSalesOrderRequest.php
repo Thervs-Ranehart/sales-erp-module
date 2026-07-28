@@ -23,6 +23,7 @@ class StoreSalesOrderRequest extends FormRequest
             'price' => ['required', 'array', 'min:1'],
             'price.*' => ['required', 'numeric', 'min:0'],
             'pricing_rule_id' => ['nullable', 'integer', 'exists:pricing_rules,pricing_rule_id'],
+            'reward_id' => ['nullable', 'integer', 'exists:rewards,reward_id'],
            'discount' => [
     'nullable',
     'numeric',

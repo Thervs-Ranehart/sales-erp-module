@@ -5,6 +5,8 @@ use App\Models\Employee;
 use App\Models\PricingRule;
 use App\Models\Product;
 use App\Models\Quotation;
+use App\Models\LoyaltyProgram;
+use App\Models\Reward;
 use App\Models\SalesOrder;
 use App\Services\PricingCalculator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -74,6 +76,70 @@ test('pricing uses authoritative product prices and applies fixed discounts', fu
         ->tax->toBe(210.0)
         ->total->toBe(1960.0)
         ->and($totals['items'][0]['unit_price'])->toBe(1000.0);
+});
+
+test('an eligible loyalty reward applies its sales discount and deducts points once', function (): void {
+    $loyalty = LoyaltyProgram::query()->create([
+        'customer_id' => $this->customer->customer_id,
+        'membership_level' => 'Bronze',
+        'available_points' => 1000,
+        'points_earned' => 1000,
+        'points_redeemed' => 0,
+        'enrollment_date' => today(),
+    ]);
+    $reward = Reward::query()->create([
+        'name' => '₱200 Loyalty Voucher',
+        'points_required' => 200,
+        'discount_type' => 'Fixed',
+        'discount_value' => 200,
+        'status' => 'available',
+    ]);
+
+    $this->withSession(['employee_id' => $this->employee->employee_id])
+        ->post(route('sales.store'), [
+            'customer_id' => $this->customer->customer_id,
+            'order_date' => today()->toDateString(),
+            'product_id' => [$this->product->product_id],
+            'qty' => [1],
+            'price' => [1000],
+            'discount' => 0,
+            'tax' => 12,
+            'status' => 'pending',
+            'reward_id' => $reward->reward_id,
+        ])->assertRedirect(route('sales.index'));
+
+    $order = SalesOrder::query()->firstOrFail();
+
+    expect((float) $order->discount)->toBe(200.0)
+        ->and((float) $order->total_amount)->toBe(896.0)
+        ->and($loyalty->fresh()->available_points)->toBe(800)
+        ->and($loyalty->fresh()->points_redeemed)->toBe(200);
+
+    $this->assertDatabaseHas('reward_redemptions', [
+        'order_id' => $order->order_id,
+        'reward_id' => $reward->reward_id,
+        'points_used' => 200,
+    ]);
+});
+
+test('a sales order can move directly to a later fulfillment status', function (): void {
+    $order = SalesOrder::query()->create([
+        'order_number' => 'SO-STATUS-001',
+        'customer_id' => $this->customer->customer_id,
+        'employee_id' => $this->employee->employee_id,
+        'order_date' => today(),
+        'order_status' => 'pending',
+        'subtotal' => 1000,
+        'discount' => 0,
+        'tax' => 120,
+        'shipping_fee' => 0,
+        'total_amount' => 1120,
+    ]);
+
+    $this->patch(route('sales.update-status', $order), ['status' => 'shipped'])
+        ->assertRedirect(route('sales.profile', $order));
+
+    expect($order->fresh()->order_status)->toBe('shipped');
 });
 
 test('inactive and out of date pricing rules are rejected', function (array $overrides): void {

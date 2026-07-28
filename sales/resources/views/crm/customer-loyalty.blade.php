@@ -96,6 +96,12 @@ background:linear-gradient(135deg,#8C5A2B,#CD7F32);
 
 }
 
+.vip {
+
+background:linear-gradient(135deg,#5347CE,#8A7BFF);
+
+}
+
 
 .tier-benefit {
 
@@ -393,6 +399,29 @@ Membership Levels
 
 <div class="section-desc mb-4">
 Customer classification based on loyalty status.
+</div>
+
+<div class="tier-card vip mb-3">
+
+<div>
+
+<h6 class="mb-1">
+VIP Tier
+</h6>
+
+<small>
+{{ number_format($vipCount ?? 0) }} Members
+</small>
+
+
+</div>
+
+
+<div class="tier-benefit">
+Priority Support
+</div>
+
+
 </div>
 
 
@@ -1000,6 +1029,19 @@ Edit
                         <label class="form-label">Points Required</label>
                         <input type="number" name="points_required" class="form-control" min="0" value="{{ old('points_required', 0) }}" required>
                     </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Sales Discount Type</label>
+                            <select name="discount_type" class="form-select" required>
+                                <option value="Fixed" @selected(old('discount_type', 'Fixed') === 'Fixed')>Fixed amount (₱)</option>
+                                <option value="Percentage" @selected(old('discount_type') === 'Percentage')>Percentage (%)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Sales Discount Value</label>
+                            <input type="number" name="discount_value" class="form-control" min="0.01" step="0.01" value="{{ old('discount_value') }}" required>
+                        </div>
+                    </div>
                     <div class="mb-3">
                         <label class="form-label">Icon</label>
                         <select name="icon" class="form-select">
@@ -1107,6 +1149,7 @@ Edit
                 </div>
                 <p><strong>Description:</strong> {{ $reward->description ?: '—' }}</p>
                 <p><strong>Points Required:</strong> {{ number_format($reward->points_required ?? 0) }}</p>
+                <p><strong>Sales Discount:</strong> {{ $reward->discount_type === 'Percentage' ? rtrim(rtrim(number_format($reward->discount_value, 2), '0'), '.') . '%' : '₱' . number_format($reward->discount_value, 2) }}</p>
                 <p>
                     <strong>Status:</strong>
                     <span class="badge {{ $reward->statusBadgeClass() }}">{{ $reward->statusLabel() }}</span>
@@ -1142,6 +1185,19 @@ Edit
                     <div class="mb-3">
                         <label class="form-label">Points Required</label>
                         <input type="number" name="points_required" class="form-control" min="0" value="{{ $reward->points_required ?? 0 }}" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Sales Discount Type</label>
+                            <select name="discount_type" class="form-select" required>
+                                <option value="Fixed" @selected($reward->discount_type === 'Fixed')>Fixed amount (₱)</option>
+                                <option value="Percentage" @selected($reward->discount_type === 'Percentage')>Percentage (%)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Sales Discount Value</label>
+                            <input type="number" name="discount_value" class="form-control" min="0.01" step="0.01" value="{{ $reward->discount_value }}" required>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Icon</label>

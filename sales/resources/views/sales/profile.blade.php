@@ -410,6 +410,9 @@
                     <div class="order-totals">
                         <div><span>Subtotal</span><strong>₱{{ number_format((float) $order->subtotal, 2) }}</strong></div>
                         <div><span>Discount{{ $order->discountPercent() > 0 ? ' ('.$order->discountPercent().'%)' : '' }}</span><strong class="text-danger">-₱{{ number_format((float) $order->discount, 2) }}</strong></div>
+                        @foreach($order->rewardRedemptions->where('status', '!=', 'Cancelled') as $redemption)
+                            <div><span>Loyalty reward — {{ $redemption->reward?->name ?? 'Reward' }} <small>({{ number_format($redemption->points_used) }} points)</small></span><strong class="text-success">Applied</strong></div>
+                        @endforeach
                         <div><span>Tax / VAT ({{ $order->taxPercent() }}%)</span><strong>₱{{ number_format((float) $order->tax, 2) }}</strong></div>
                         <div><span>Shipping fee</span><strong>₱{{ number_format((float) $order->shipping_fee, 2) }}</strong></div>
                         <div class="order-grand-total"><span>Grand total</span><strong>₱{{ number_format((float) $order->total_amount, 2) }}</strong></div>

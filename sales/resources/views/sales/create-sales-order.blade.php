@@ -129,11 +129,12 @@ Customer Information
 <div class="col-md-6 mb-3">
 <label>Customer</label>
 
-<select class="form-select" name="customer_id" required>
+<select class="form-select" name="customer_id" id="customerSelect" required>
 <option value="">Select Customer</option>
 @foreach ($customers as $customer)
 <option
     value="{{ $customer->customer_id }}"
+    data-loyalty-points="{{ $customer->loyaltyProgram?->available_points ?? 0 }}"
     @selected(old('customer_id', $isEdit ? $salesOrder->customer_id : null) == $customer->customer_id)
 >
     {{ $customer->first_name }} {{ $customer->last_name }}
@@ -158,6 +159,37 @@ required>
 </div>
 
 </div>
+
+@if (! $isEdit)
+<div class="custom-card">
+
+<h5 class="card-title">
+<i class="bi bi-gift"></i>
+Loyalty Reward
+</h5>
+
+<div class="row align-items-end">
+    <div class="col-md-8">
+        <label for="rewardSelect">Apply an available reward</label>
+        <select class="form-select" name="reward_id" id="rewardSelect">
+            <option value="">No loyalty reward</option>
+            @foreach ($saleRewards as $reward)
+                <option value="{{ $reward->reward_id }}"
+                    data-points="{{ $reward->points_required }}"
+                    data-discount-type="{{ strtolower($reward->discount_type) }}"
+                    data-discount-value="{{ $reward->discount_value }}">
+                    {{ $reward->name }} — {{ number_format($reward->points_required) }} points
+                </option>
+            @endforeach
+        </select>
+    </div>
+    <div class="col-md-4">
+        <div id="rewardAvailability" class="form-text">Select a customer to view eligible rewards.</div>
+    </div>
+</div>
+
+</div>
+@endif
 
 <div class="custom-card">
 
@@ -392,8 +424,18 @@ Order Summary
 </div>
 
 <div class="d-flex justify-content-between">
-<span>Discount</span>
+<span>Pricing Discount</span>
 <strong id="summaryDiscount">₱0.00</strong>
+</div>
+
+<div class="d-flex justify-content-between">
+<span id="summaryRewardLabel">Loyalty Reward</span>
+<strong id="summaryRewardDiscount">₱0.00</strong>
+</div>
+
+<div class="d-flex justify-content-between">
+<span>Reward Points Used</span>
+<strong id="summaryRewardPoints">0</strong>
 </div>
 
 <div class="d-flex justify-content-between">
@@ -473,6 +515,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const pricingRuleSelect = document.getElementById('pricingRuleSelect');
     const discountLabel = document.getElementById('discountLabel');
     const productCategoryFilter = document.getElementById('productCategoryFilter');
+    const customerSelect = document.getElementById('customerSelect');
+    const rewardSelect = document.getElementById('rewardSelect');
+    const rewardAvailability = document.getElementById('rewardAvailability');
 
 let discountType = "{{ strtolower($discountType) }}";
 
@@ -517,6 +562,15 @@ if (discountType.toLowerCase() === "fixed") {
 
 discountAmount = Math.min(discountAmount, subtotal);
 
+let rewardDiscount = 0;
+const selectedReward = rewardSelect?.options[rewardSelect.selectedIndex];
+if (selectedReward?.value && !selectedReward.disabled) {
+    rewardDiscount = selectedReward.dataset.discountType === 'fixed'
+        ? parseFloat(selectedReward.dataset.discountValue || 0)
+        : (subtotal - discountAmount) * (parseFloat(selectedReward.dataset.discountValue || 0) / 100);
+}
+
+discountAmount = Math.min(discountAmount + rewardDiscount, subtotal);
 const taxableAmount = subtotal - discountAmount;
 
 const taxAmount = taxableAmount * (taxPercent / 100);
@@ -524,9 +578,24 @@ const taxAmount = taxableAmount * (taxPercent / 100);
 const total = taxableAmount + taxAmount;
 
         document.getElementById('summarySubtotal').textContent = formatCurrency(subtotal);
-        document.getElementById('summaryDiscount').textContent = formatCurrency(discountAmount);
+        document.getElementById('summaryDiscount').textContent = formatCurrency(discountAmount - rewardDiscount);
+        document.getElementById('summaryRewardDiscount').textContent = formatCurrency(rewardDiscount);
+        document.getElementById('summaryRewardLabel').textContent = selectedReward?.value
+            ? `Loyalty Reward — ${selectedReward.text.split(' — ')[0]}`
+            : 'Loyalty Reward';
+        document.getElementById('summaryRewardPoints').textContent = selectedReward?.value && !selectedReward.disabled
+            ? Number(selectedReward.dataset.points || 0).toLocaleString()
+            : '0';
         document.getElementById('summaryTax').textContent = formatCurrency(taxAmount);
         document.getElementById('summaryTotal').textContent = formatCurrency(total);
+    }
+
+    function filterProductsByCategory() {
+        const category = productCategoryFilter.value;
+
+        document.querySelectorAll('.product-select option[data-category]').forEach(function (option) {
+            option.hidden = category !== '' && option.dataset.category !== category;
+        });
     }
 
     function bindRowEvents(row) {
@@ -537,14 +606,6 @@ const total = taxableAmount + taxAmount;
 
     if (selected && selected.dataset.price && priceInput && !priceInput.value) {
         priceInput.value = selected.dataset.price;
-    }
-
-    function filterProductsByCategory() {
-        const category = productCategoryFilter.value;
-
-        document.querySelectorAll('.product-select option[data-category]').forEach(function (option) {
-            option.hidden = category !== '' && option.dataset.category !== category;
-        });
     }
 
     recalculateTotals();
@@ -604,6 +665,29 @@ const total = taxableAmount + taxAmount;
 
   discountInput.addEventListener('input', recalculateTotals);
 taxInput.addEventListener('input', recalculateTotals);
+
+function refreshRewardOptions() {
+    if (!rewardSelect) return;
+
+    const points = parseInt(customerSelect?.options[customerSelect.selectedIndex]?.dataset.loyaltyPoints || '0', 10);
+    let eligible = 0;
+    [...rewardSelect.options].forEach(function (option) {
+        if (!option.value) return;
+        const canUse = Boolean(customerSelect?.value) && points >= parseInt(option.dataset.points || '0', 10);
+        option.disabled = !canUse;
+        option.hidden = !canUse;
+        if (canUse) eligible++;
+    });
+    if (rewardSelect.selectedOptions[0]?.disabled) rewardSelect.value = '';
+    rewardAvailability.textContent = customerSelect?.value
+        ? `${points.toLocaleString()} loyalty points available. ${eligible} reward(s) eligible.`
+        : 'Select a customer to view eligible rewards.';
+    recalculateTotals();
+}
+
+customerSelect?.addEventListener('change', refreshRewardOptions);
+rewardSelect?.addEventListener('change', recalculateTotals);
+refreshRewardOptions();
 
 
 recalculateTotals();

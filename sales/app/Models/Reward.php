@@ -12,12 +12,15 @@ class Reward extends Model
         'name',
         'description',
         'points_required',
+        'discount_type',
+        'discount_value',
         'icon',
         'status',
     ];
 
     protected $casts = [
         'points_required' => 'integer',
+        'discount_value' => 'decimal:2',
     ];
 
     public function getRouteKeyName(): string

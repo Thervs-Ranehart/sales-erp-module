@@ -18,6 +18,8 @@ class RewardController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
             'points_required' => ['required', 'integer', 'min:0'],
+            'discount_type' => ['required', 'in:Fixed,Percentage'],
+            'discount_value' => ['required', 'numeric', 'gt:0'],
             'icon' => ['nullable', 'string', 'max:100'],
             'status' => ['required', 'in:available,limited,unavailable'],
         ]);
@@ -40,6 +42,8 @@ class RewardController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
             'points_required' => ['required', 'integer', 'min:0'],
+            'discount_type' => ['required', 'in:Fixed,Percentage'],
+            'discount_value' => ['required', 'numeric', 'gt:0'],
             'icon' => ['nullable', 'string', 'max:100'],
             'status' => ['required', 'in:available,limited,unavailable'],
         ]);
