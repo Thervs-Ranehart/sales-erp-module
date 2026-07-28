@@ -249,10 +249,10 @@
                                         <i class="bi bi-eye" aria-hidden="true"></i><span class="visually-hidden">View</span>
                                     </button>
 
-                                    @if(!in_array($claim->claim_status, ['Completed','Cancelled']))<button class="btn btn-outline-warning wc-action-btn support-action-button js-warranty-claim-status" type="button" title="Update claim status" aria-label="Update claim status" data-claim-id="{{ $claim->claim_id }}" data-bs-toggle="modal" data-bs-target="#warrantyClaimStatusModal">
+                                    <button class="btn btn-outline-warning wc-action-btn support-action-button js-warranty-claim-status" type="button" title="Update claim status" aria-label="Update claim status" data-claim-id="{{ $claim->claim_id }}" data-bs-toggle="modal" data-bs-target="#warrantyClaimStatusModal">
                                         <i class="bi bi-pencil" aria-hidden="true"></i><span class="visually-hidden">Edit</span>
                                     </button>
-                                    <form class="support-action-destructive" method="POST" action="{{ route('support.warranty-claims.cancel', $claim) }}" onsubmit="return confirm('Cancel this claim?')">@csrf @method('PATCH')<input type="hidden" name="decision_reason" value="Cancelled by support staff"><button class="btn btn-outline-danger wc-action-btn support-action-button" type="submit" title="Cancel warranty claim" aria-label="Cancel warranty claim"><i class="bi bi-x-circle" aria-hidden="true"></i><span class="visually-hidden">Cancel</span></button></form>@endif
+                                    <form class="support-action-destructive" method="POST" action="{{ route('support.warranty-claims.cancel', $claim) }}" onsubmit="return confirm('Cancel this claim?')">@csrf @method('PATCH')<input type="hidden" name="decision_reason" value="Cancelled by support staff"><button class="btn btn-outline-danger wc-action-btn support-action-button" type="submit" title="Cancel warranty claim" aria-label="Cancel warranty claim"><i class="bi bi-x-circle" aria-hidden="true"></i><span class="visually-hidden">Cancel</span></button></form>
                                 </div>
                             </td>
                         </tr>
