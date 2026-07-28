@@ -497,8 +497,8 @@ Corporate
 
 <button class="btn btn-search w-100" type="submit">
 
-<i class="bi bi-search me-1"></i>
-Search
+<i class="bi bi-funnel me-1"></i>
+Apply Filters
 
 </button>
 
@@ -761,7 +761,7 @@ Inactive
             <i class="bi bi-eye"></i>
         </a>
 
-        <a class="btn btn-sm btn-outline-warning action-btn" href="{{ route('crm.profiles', ['customer_id' => $customer->customer_id] + request()->query()) }}" aria-label="Edit">
+        <a class="btn btn-sm btn-outline-warning action-btn" href="{{ route('crm.directory.edit', ['customer' => $customer->customer_id] + request()->query()) }}" aria-label="Edit" title="Edit customer">
             <i class="bi bi-pencil"></i>
         </a>
 

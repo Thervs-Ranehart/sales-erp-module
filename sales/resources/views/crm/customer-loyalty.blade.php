@@ -704,7 +704,7 @@ Customer reward accounts and membership information.
 
 
 
-<form action="{{ route('crm.loyalty') }}" method="GET" class="mb-0">
+<form action="{{ route('crm.loyalty') }}" method="GET" class="mb-0 d-flex align-items-center gap-2">
     <div class="search-box" style="width:250px;">
         <i class="bi bi-search search-icon"></i>
         <input type="text"
@@ -713,6 +713,10 @@ Customer reward accounts and membership information.
             class="form-control"
             placeholder="Search member...">
     </div>
+    <button type="submit" class="btn btn-outline-secondary btn-sm" title="Search loyalty members">
+        <i class="bi bi-search"></i>
+        Search
+    </button>
 </form>
 
 

@@ -1103,68 +1103,12 @@ Recent Communications
 </div>
 </div>
 
-<div class="row g-4 mt-6">
-
-    {{-- LEFT SIDE: Additional Behavior Metrics --}}
-    <div class="col-lg-20">
-
-        <div class="row g-6">
-
-            <div class="col-md-6">
-                <div class="stat-mini h-100">
-                    <small>Spending Forecast</small>
-                    <h5>
-                        {{ $behaviorAnalysis['spending_trend'] }}
-                        ({{ number_format($behaviorAnalysis['trend_percentage'], 1) }}%)
-                    </h5>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="stat-mini h-100">
-                    <small>Predicted Next Purchase</small>
-                    <h5>
-                        {{ $behaviorAnalysis['predicted_next_purchase']?->format('M d, Y') ?? 'Insufficient history' }}
-                    </h5>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="stat-mini h-100">
-                    <small>Churn Risk</small>
-                    <h5>
-                        {{ number_format($behaviorAnalysis['churn_risk_score'], 0) }}%
-                    </h5>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="stat-mini h-100">
-                    <small>Expected 90-Day Value</small>
-                    <h5>
-                        ₱{{ number_format($behaviorAnalysis['predicted_90_day_value'], 2) }}
-                    </h5>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="alert alert-primary mt-3 mb-0">
-            <strong>Recommended retention action:</strong>
-            {{ $behaviorAnalysis['retention_recommendation'] }}
-        </div>
-
-    </div>
-
-
-    {{-- RIGHT SIDE: CUSTOMER PROFILE --}}
-    <div class="col-lg-">
-
-        {{-- Put your existing Customer Profile / Customer Details card here --}}
-
-    </div>
-
-</div>
+<div class="row g-3 mt-1">
+    <div class="col-md-3"><div class="border rounded-3 p-3 h-100"><small class="text-muted">Spending Forecast</small><h6 class="mt-1 mb-0">{{ $behaviorAnalysis['spending_trend'] }} ({{ number_format($behaviorAnalysis['trend_percentage'], 1) }}%)</h6></div></div>
+    <div class="col-md-3"><div class="border rounded-3 p-3 h-100"><small class="text-muted">Predicted Next Purchase</small><h6 class="mt-1 mb-0">{{ $behaviorAnalysis['predicted_next_purchase']?->format('M d, Y') ?? 'Insufficient history' }}</h6></div></div>
+    <div class="col-md-3"><div class="border rounded-3 p-3 h-100"><small class="text-muted">Churn Risk</small><h6 class="mt-1 mb-0">{{ number_format($behaviorAnalysis['churn_risk_score'], 0) }}%</h6></div></div>
+    <div class="col-md-3"><div class="border rounded-3 p-3 h-100"><small class="text-muted">Expected 90-Day Value</small><h6 class="mt-1 mb-0">₱{{ number_format($behaviorAnalysis['predicted_90_day_value'], 2) }}</h6></div></div>
+    <div class="col-12"><div class="alert alert-primary mb-0"><strong>Recommended retention action:</strong> {{ $behaviorAnalysis['retention_recommendation'] }}</div></div>
 </div>
 
 </div>

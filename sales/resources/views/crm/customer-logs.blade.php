@@ -139,6 +139,20 @@ $subtitle = 'Manage customer information and relationship data.';
     border-color: #5347CE;
     box-shadow: 0 0 0 .2rem rgba(83, 71, 206, .15);
 }
+
+.btn-search {
+    height: 45px;
+    background: #5347CE;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.btn-search:hover {
+    background: #463bb5;
+    color: #fff;
+}
 </style>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -446,11 +460,11 @@ $smsPct = $totalForPage > 0
         <div class="col-md-3">
 
             <button
-                class="btn btn-outline-secondary w-100"
+                class="btn btn-search w-100"
                 type="submit">
 
                 <i class="bi bi-funnel"></i>
-                Filter
+                Apply Filters
 
             </button>
 

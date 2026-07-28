@@ -86,18 +86,7 @@ class CustomerProfilesController extends Controller
 
     public function edit(Customer $customer)
     {
-        $customer->load(['profile', 'loyaltyProgram', 'segments', 'salesOrders.items.product', 'communicationLogs']);
-
-        return view('crm.customer-profiles', [
-            'customers' => Customer::orderByDesc('customer_id')->paginate(10),
-            'selectedCustomer' => $customer,
-            'search' => '',
-            'customer' => $this->formatCustomerProfile($customer),
-            'purchases' => $this->formatRecentPurchases($customer),
-            'communications' => $this->formatRecentCommunications($customer),
-            'behaviorAnalysis' => CustomerBehaviorAnalysis::generateFor($customer),
-            'editMode' => true,
-        ]);
+        return redirect()->route('crm.directory.edit', $customer);
     }
 
     public function store(Request $request)

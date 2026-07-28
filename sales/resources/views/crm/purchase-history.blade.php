@@ -69,6 +69,20 @@
     border-radius:8px;
 }
 
+.btn-search {
+    height:45px;
+    background:#5347CE;
+    color:#fff;
+    border:none;
+    border-radius:10px;
+    font-weight:600;
+}
+
+.btn-search:hover {
+    background:#463bb5;
+    color:#fff;
+}
+
 </style>
 
 {{-- Header --}}
@@ -217,10 +231,10 @@ Average Purchase
                 Search Transactions
             </h6>
 
-            <form method="GET" action="{{ route('crm.purchase') }}">
-                <div class="row g-3">
+            <form method="GET" action="{{ route('crm.purchase') }}" class="mt-2">
+                <div class="row g-3 align-items-end">
 
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <div class="input-group">
                             <span class="input-group-text bg-white">
                                 <i class="bi bi-search"></i>
@@ -277,11 +291,11 @@ Average Purchase
                         </select>
                     </div>
 
-                    <div class="col-md-2">
-                        <button class="btn btn-outline-secondary w-100" type="submit">
-    <i class="bi bi-funnel"></i>
-    Filter
-</button>
+                    <div class="col-md-3">
+                        <button class="btn btn-search w-100" type="submit">
+                            <i class="bi bi-funnel me-1"></i>
+                            Apply Filters
+                        </button>
                     </div>
 
                 </div>
