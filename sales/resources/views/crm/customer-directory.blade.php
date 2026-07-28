@@ -404,13 +404,13 @@ Corporate Accounts
 <div class="card crm-card p-3 mb-4">
 
 
-<form method="GET" action="{{ route('crm.directory') }}">
+<form method="GET" action="{{ route('crm.directory') }}" data-crm-auto-filter>
 
 <div class="row g-3">
 
 
 
-<div class="col-md-5">
+<div class="col-md-6">
 
     <div class="search-box">
 
@@ -432,7 +432,7 @@ Corporate Accounts
 
 
 
-<div class="col-md-2">
+<div class="col-md-3">
 
 
 <select class="form-select" name="status">
@@ -460,7 +460,7 @@ Inactive
 
 
 
-<div class="col-md-2">
+<div class="col-md-3">
 
 
 <select class="form-select" name="type">
@@ -492,23 +492,6 @@ Corporate
 
 
 
-<div class="col-md-3">
-
-
-<button class="btn btn-search w-100" type="submit">
-
-<i class="bi bi-funnel me-1"></i>
-Apply Filters
-
-</button>
-
-
-
-</div>
-
-
-
-
 </div>
 
 
@@ -521,7 +504,7 @@ Apply Filters
 {{-- Customer List --}}
 
 
-<div class="card crm-card p-4">
+<div class="card crm-card p-4" data-crm-live-results>
 
 
 <div class="mb-3">
@@ -827,5 +810,7 @@ Inactive
 </div>
 
 
+
+@include('components.crm-auto-filter')
 
 @endsection

@@ -231,10 +231,10 @@ Average Purchase
                 Search Transactions
             </h6>
 
-            <form method="GET" action="{{ route('crm.purchase') }}" class="mt-2">
+            <form method="GET" action="{{ route('crm.purchase') }}" class="mt-2" data-crm-auto-filter>
                 <div class="row g-3 align-items-end">
 
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="input-group">
                             <span class="input-group-text bg-white">
                                 <i class="bi bi-search"></i>
@@ -270,7 +270,7 @@ Average Purchase
                         </select>
                     </div>
 
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <select name="status" class="form-select">
                             <option value="">Status</option>
 
@@ -291,13 +291,6 @@ Average Purchase
                         </select>
                     </div>
 
-                    <div class="col-md-3">
-                        <button class="btn btn-search w-100" type="submit">
-                            <i class="bi bi-funnel me-1"></i>
-                            Apply Filters
-                        </button>
-                    </div>
-
                 </div>
             </form>
 
@@ -308,7 +301,7 @@ Average Purchase
 
 {{-- Top Categories --}}
 
-<div class="card purchase-card p-4 mb-4">
+<div class="card purchase-card p-4 mb-4" data-crm-live-results>
 
 @php
 // best-effort: keep layout, avoid redesign
@@ -358,7 +351,7 @@ Top Purchase Categories
 
 {{-- Transaction Records --}}
 
-<div class="card purchase-card p-4">
+<div class="card purchase-card p-4" data-crm-live-results>
 
 
 <div class="mb-3">
@@ -626,5 +619,7 @@ Receipt
 </div>
 @endif
 
+
+@include('components.crm-auto-filter')
 
 @endsection

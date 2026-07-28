@@ -376,11 +376,12 @@ $smsPct = $totalForPage > 0
 
 <form
     method="GET"
-    action="{{ route('crm.logs') }}">
+    action="{{ route('crm.logs') }}"
+    data-crm-auto-filter>
 
     <div class="row g-3">
 
-        <div class="col-md-5">
+        <div class="col-md-6">
 
             <div class="search-box">
 
@@ -397,7 +398,7 @@ $smsPct = $totalForPage > 0
 
         </div>
 
-        <div class="col-md-2">
+        <div class="col-md-3">
 
             <select class="form-select" name="channel">
 
@@ -427,7 +428,7 @@ $smsPct = $totalForPage > 0
 
         </div>
 
-        <div class="col-md-2">
+        <div class="col-md-3">
 
             <select class="form-select" name="status">
 
@@ -457,26 +458,13 @@ $smsPct = $totalForPage > 0
 
         </div>
 
-        <div class="col-md-3">
-
-            <button
-                class="btn btn-search w-100"
-                type="submit">
-
-                <i class="bi bi-funnel"></i>
-                Apply Filters
-
-            </button>
-
-        </div>
-
     </div>
 
 </form>
 
 </div>
 
-<div class="card communication-card p-4">
+<div class="card communication-card p-4" data-crm-live-results>
 
 <h5 class="fw-semibold mb-3">
     Interaction Records
@@ -953,5 +941,7 @@ $smsPct = $totalForPage > 0
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+@include('components.crm-auto-filter')
 
 @endsection

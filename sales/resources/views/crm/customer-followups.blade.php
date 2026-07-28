@@ -212,12 +212,13 @@
 <div class="card crm-card p-3 mb-4">
 
 <form method="GET"
-      action="{{ route('crm.followups') }}">
+      action="{{ route('crm.followups') }}"
+      data-crm-auto-filter>
 
 <div class="row g-3">
 
     {{-- Search --}}
-    <div class="col-md-6">
+    <div class="col-md-8">
 
         <div class="search-box">
 
@@ -236,7 +237,7 @@
 
 
     {{-- Status --}}
-    <div class="col-md-3">
+    <div class="col-md-4">
 
         <select class="form-select"
                 name="status">
@@ -260,21 +261,6 @@
 
     </div>
 
-
-    {{-- Filter --}}
-    <div class="col-md-3">
-
-        <button
-            class="btn btn-search w-100"
-            type="submit">
-
-            <i class="bi bi-funnel"></i>
-            Apply Filters
-
-        </button>
-
-    </div>
-
 </div>
 
 </form>
@@ -290,7 +276,7 @@
     </div>
 @endif
 
-<div class="card crm-card p-4">
+<div class="card crm-card p-4" data-crm-live-results>
 
 <h5 class="fw-semibold mb-3">
     Scheduled Follow-Ups
@@ -1006,5 +992,7 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+@include('components.crm-auto-filter')
 
 @endsection

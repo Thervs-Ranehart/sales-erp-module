@@ -334,9 +334,9 @@ Select Customer
 
 
 
-<form method="GET" action="{{ route('crm.profiles') }}" class="row g-2 mb-3">
+<form method="GET" action="{{ route('crm.profiles') }}" class="row g-2 mb-3" data-crm-auto-filter>
 
-    <div class="col-md-10">
+    <div class="col-12">
         <div class="search-box">
             <i class="bi bi-search search-icon"></i>
 
@@ -349,19 +349,12 @@ Select Customer
         </div>
     </div>
 
-    <div class="col-md-2 d-grid">
-        <button type="submit" class="btn btn-search">
-            <i class="bi bi-search"></i>
-            Search
-        </button>
-    </div>
-
 </form>
 
 
 
 
-<div class="row g-3">
+<div class="row g-3" data-crm-live-results>
 
 @foreach($customers as $item)
 
@@ -1196,5 +1189,7 @@ document.querySelectorAll('.tag').forEach(tag => {
 
 
 
+
+@include('components.crm-auto-filter')
 
 @endsection
