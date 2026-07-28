@@ -1192,4 +1192,6 @@ document.querySelectorAll('.tag').forEach(tag => {
 
 @include('components.crm-auto-filter')
 
+@include('components.crm-button-styles')
+
 @endsection
