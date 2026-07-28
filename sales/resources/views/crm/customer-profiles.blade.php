@@ -175,15 +175,6 @@ padding:14px;
 
 }
 
-.pagination .page-item:first-child,
-.pagination .page-item:last-child {
-    display: none;
-}
-
-nav[role="navigation"] > div:first-child {
-    display: none !important;
-}
-
 .tag.active {
 
     background:#5347CE;
@@ -414,7 +405,10 @@ ID: {{ $item->customer_id }}
 
 </div>
 @if($customers->hasPages())
-    <div class="customer-pagination mt-4">
+    <div class="customer-pagination d-flex flex-wrap justify-content-between align-items-center gap-3 mt-4">
+        <small class="text-muted">
+            {{ $customers->firstItem() }}-{{ $customers->lastItem() }} of {{ $customers->total() }} customers
+        </small>
         {{ $customers->onEachSide(0)->links() }}
     </div>
 @endif
