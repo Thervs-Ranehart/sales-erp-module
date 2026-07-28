@@ -18,8 +18,6 @@ class StoreQuotationRequest extends FormRequest
     {
         return [
             'customer_id' => ['required', 'exists:customers,customer_id'],
-            'pricing_rule_id' => ['nullable', 'exists:pricing_rules,pricing_rule_id'],
-
             'quotation_date' => ['required', 'date'],
             'valid_until' => ['required', 'date', 'after_or_equal:quotation_date'],
 

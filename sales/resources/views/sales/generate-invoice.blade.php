@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Generate Invoice')
-@section('page-title', 'Generate Invoice')
+@section('title', $invoice->payment_status === 'Paid' ? 'Payment Receipt' : 'Invoice Details')
+@section('page-title', $invoice->payment_status === 'Paid' ? 'Payment Receipt' : 'Invoice Details')
 
 @section('content')
 
@@ -31,14 +31,22 @@
 }
 
 .page-content{
-    padding:28px;
+    max-width:1280px;
+    margin:0 auto;
+    padding:32px 28px 48px;
 }
 
 .page-header{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    margin-bottom:22px;
+    gap:24px;
+    margin-bottom:28px;
+    padding:28px 30px;
+    border-radius:20px;
+    color:#fff;
+    background:linear-gradient(125deg, #4537b8 0%, #6657dc 58%, #8d7ff5 100%);
+    box-shadow:0 16px 32px rgba(83,71,206,.20);
 }
 
 .page-title{
@@ -48,15 +56,33 @@
 }
 
 .page-subtitle{
-    margin:5px 0 0;
-    color:var(--text2);
+    margin:7px 0 0;
+    color:rgba(255,255,255,.80);
 }
 
+.receipt-label{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    margin-bottom:9px;
+    color:#e9e6ff;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+}
+
+.page-header .btn{ border-radius:9px; font-weight:600; padding:10px 15px; }
+.page-header .btn-outline-secondary{ border-color:rgba(255,255,255,.55); color:#fff; background:rgba(255,255,255,.08); }
+.page-header .btn-outline-secondary:hover{ background:#fff; border-color:#fff; color:var(--primary); }
+.page-header .btn-primary{ border-color:#fff; color:var(--primary); background:#fff; }
+.page-header .btn-primary:hover{ background:#efedff; border-color:#efedff; color:#4135ad; }
+
 .custom-card{
-    border:none;
-    border-radius:16px;
-    padding:25px;
-    box-shadow:0 5px 20px rgba(0,0,0,.06);
+    border:1px solid #edf0f5;
+    border-radius:18px;
+    padding:24px;
+    box-shadow:0 8px 24px rgba(31,41,55,.055);
     background:#fff;
     margin-bottom:24px;
 }
@@ -64,15 +90,16 @@
 .info-title{
     color:var(--primary);
     font-weight:700;
-    font-size:17px;
-    margin-bottom:18px;
+    font-size:16px;
+    margin-bottom:15px;
 }
 
 .info-row{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    padding:10px 0;
+    gap:18px;
+    padding:12px 0;
     border-bottom:1px solid var(--border);
 }
 
@@ -88,8 +115,8 @@
     display:inline-block;
     padding:4px 12px;
     border-radius:20px;
-    background:var(--light-purple);
-    color:var(--primary);
+    background:#dcfce7;
+    color:#15803d;
     font-weight:600;
     font-size:13px;
 }
@@ -98,7 +125,34 @@
     display:flex;
     justify-content:space-between;
     align-items:center;
-    padding:8px 0;
+    padding:10px 0;
+}
+
+.summary-card{ border-color:#dfdbff; background:linear-gradient(145deg, #fff 0%, #f7f6ff 100%); }
+.summary-card .info-title{ display:flex; align-items:center; gap:9px; }
+.summary-card .info-title::before{ content:''; width:4px; height:19px; border-radius:10px; background:var(--primary); }
+.summary-item span{ color:var(--text2); }
+.summary-item strong{ font-variant-numeric:tabular-nums; }
+.grand-total{ margin:11px -4px -4px; padding:16px 18px; border-radius:13px; background:var(--primary); color:#fff; }
+.grand-total span{ color:#fff; font-size:17px; font-weight:700; }
+.grand-total strong{ color:#fff !important; font-size:28px !important; }
+
+.invoice-info-card{ height:calc(100% - 24px); }
+.transaction-card .info-title{ display:flex; align-items:center; gap:8px; }
+.transaction-card .info-title::before{ content:''; width:9px; height:9px; border-radius:50%; background:#16c8c7; box-shadow:0 0 0 4px #d9fbf9; }
+
+@media (max-width:767px){
+    .page-content{ padding:20px 15px 35px; }
+    .page-header{ align-items:flex-start; flex-direction:column; padding:23px; }
+    .page-header .d-flex{ width:100%; }
+    .page-header .btn{ flex:1; }
+}
+
+@media print{
+    .page-header{ color:var(--text); background:#fff !important; box-shadow:none; border:1px solid var(--border); }
+    .page-header .btn, .mt-4.d-flex{ display:none !important; }
+    .page-subtitle{ color:var(--text2); }
+    .custom-card{ box-shadow:none; }
 }
 
 </style>
@@ -109,12 +163,17 @@
 
         <div>
 
+            <div class="receipt-label">
+                <i class="bi bi-receipt-cutoff"></i>
+                {{ $invoice->payment_status === 'Paid' ? 'Payment received' : 'Invoice record' }}
+            </div>
+
             <h2 class="page-title">
-                Invoice Generated
+                {{ $invoice->payment_status === 'Paid' ? 'Payment Receipt' : 'Invoice Details' }}
             </h2>
 
             <p class="page-subtitle">
-                ERP transaction summary for this invoice.
+                {{ $invoice->payment_status === 'Paid' ? 'Payment confirmation and complete invoice summary.' : 'ERP transaction summary for this invoice.' }}
             </p>
 
         </div>
@@ -145,7 +204,7 @@
 
         <div class="col-lg-6">
 
-            <div class="custom-card">
+            <div class="custom-card invoice-info-card">
 
                 <div class="info-title">
 
@@ -232,7 +291,7 @@
 
     <!-- Inventory Transaction -->
 
-    <div class="custom-card mb-4">
+    <div class="custom-card transaction-card mb-4">
 
         <div class="info-title">
 
@@ -318,7 +377,7 @@
 
     <!-- Finance Transaction -->
 
-    <div class="custom-card">
+    <div class="custom-card transaction-card">
 
         <div class="info-title">
 
@@ -395,7 +454,7 @@
 
     <div class="col-lg-12">
 
-        <div class="custom-card">
+        <div class="custom-card summary-card">
 
             <div class="info-title">
 
@@ -455,23 +514,13 @@
 
             <hr>
 
-            <div class="summary-item">
+            <div class="summary-item grand-total">
 
-                <span
-                    style="
-                        font-size:18px;
-                        font-weight:700;
-                    "
-                >
+                <span>
                     Grand Total
                 </span>
 
-                <strong
-                    style="
-                        font-size:26px;
-                        color:#5347CE;
-                    "
-                >
+                <strong>
 
                     ₱{{ number_format($invoice->total_amount,2) }}
 
@@ -695,7 +744,7 @@
             </div>
         @endforeach
 
-        @if($invoice->payment_status !== 'Cancelled')
+        @if(!in_array($invoice->payment_status, ['Cancelled', 'Expired']))
             <form method="POST" action="{{ route('invoices.credit-notes.store', $invoice) }}">
                 @csrf
                 <div class="table-responsive mb-3">

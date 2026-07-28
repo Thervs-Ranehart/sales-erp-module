@@ -179,10 +179,12 @@ Route::patch('/sales-order-management/profile/{salesOrder}/status', [SalesOrderC
 Route::post('/sales-orders/{salesOrder}/shipments', [ShipmentController::class, 'store'])->name('sales.shipments.store');
 Route::patch('/shipments/{shipment}', [ShipmentController::class, 'update'])->name('sales.shipments.update');
 Route::post('/invoices/{invoice}/credit-notes', [CreditNoteController::class, 'store'])->name('invoices.credit-notes.store');
+Route::patch('/invoices/{invoice}/payment-status', [InvoiceController::class, 'updatePaymentStatus'])->name('invoices.update-payment-status');
 Route::patch('/sales-approvals/{approval}', [SalesApprovalController::class, 'update'])->name('sales.approvals.update');
 
 Route::resource('pricing-rules', PricingRuleController::class);
 Route::resource('invoices', InvoiceController::class);
 
+Route::patch('/quotations/{quotation}/status', [QuotationController::class, 'updateStatus'])->name('quotations.update-status');
 Route::resource('quotations', QuotationController::class);
 Route::post('/quotations/{quotation}/convert', [QuotationController::class, 'convert'])->name('quotations.convert');

@@ -48,7 +48,7 @@ class StoreInvoiceRequest extends FormRequest
 
             'payment_status' => [
                 'required',
-                'in:Pending,Paid,Cancelled',
+                'in:Pending,Paid,Expired,Cancelled',
             ],
 
             'subtotal' => [

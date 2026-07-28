@@ -335,7 +335,7 @@ $formAction = $isEdit
                 required
             >
 
-                @foreach(['Pending','Paid','Cancelled'] as $status)
+                @foreach(['Pending','Paid','Expired','Cancelled'] as $status)
 
                     <option
                         value="{{ $status }}"
@@ -379,7 +379,7 @@ $formAction = $isEdit
                 @foreach($selectedOrder->items as $item)
                     @php
                         $previouslyInvoiced = $selectedOrder->invoices
-                            ->where('payment_status', '!=', 'Cancelled')
+                            ->whereNotIn('payment_status', ['Cancelled', 'Expired'])
                             ->flatMap->items
                             ->where('product_id', $item->product_id)
                             ->sum('quantity');

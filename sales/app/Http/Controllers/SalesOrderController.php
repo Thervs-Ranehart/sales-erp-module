@@ -16,8 +16,9 @@ use App\Models\SalesApproval;
 use App\Models\SalesAuditLog;
 use App\Models\SalesOrder;
 use App\Models\Shipment;
-use App\Services\PricingCalculator;
+use App\Services\AutomaticInvoiceService;
 use App\Services\LoyaltyService;
+use App\Services\PricingCalculator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -26,7 +27,10 @@ use Illuminate\View\View;
 
 class SalesOrderController extends Controller
 {
-    public function __construct(private readonly PricingCalculator $pricingCalculator) {}
+    public function __construct(
+        private readonly PricingCalculator $pricingCalculator,
+        private readonly AutomaticInvoiceService $automaticInvoiceService,
+    ) {}
 
     public function index(): View
     {
@@ -54,7 +58,7 @@ class SalesOrderController extends Controller
 
     public function store(StoreSalesOrderRequest $request): RedirectResponse
     {
-        $order = DB::transaction(function () use ($request) {
+        $result = DB::transaction(function () use ($request): array {
             $data = $request->validated();
             $reward = $this->eligibleReward($data);
             $totals = $this->calculateTotals($data);
@@ -68,6 +72,8 @@ class SalesOrderController extends Controller
                 'employee_id' => $this->resolveEmployeeId(),
                 'pricing_rule_id' => $request->input('pricing_rule_id') ?: null,
                 'order_date' => $request->input('order_date'),
+                'payment_method' => $data['payment_method'],
+                'payment_status' => $data['payment_status'],
                 'order_status' => $request->input('status'),
                 'subtotal' => $totals['subtotal'],
                 'discount' => $totals['discount'],
@@ -85,12 +91,24 @@ class SalesOrderController extends Controller
                 $this->redeemRewardForOrder($order, $reward);
             }
 
-            return $order;
+            return [
+                'order' => $order,
+                'invoice' => $this->shouldCreateInvoice($order)
+                    ? $this->automaticInvoiceService->createForProcessedOrder($order, $this->resolveEmployeeId())
+                    : null,
+            ];
         });
+
+        /** @var SalesOrder $order */
+        $order = $result['order'];
+        /** @var Invoice|null $invoice */
+        $invoice = $result['invoice'];
 
         return redirect()
             ->route('sales.index')
-            ->with('success', "Sales order {$order->order_number} created successfully.");
+            ->with('success', $invoice
+                ? "Sales order {$order->order_number} and invoice {$invoice->invoice_number} created successfully."
+                : "Sales order {$order->order_number} created successfully.");
     }
 
     public function show(SalesOrder $salesOrder): View
@@ -139,13 +157,16 @@ class SalesOrderController extends Controller
             return back()->withErrors(['status' => $transitionError])->withInput();
         }
 
-        DB::transaction(function () use ($request, $salesOrder): void {
-            $totals = $this->calculateTotals($request->validated());
+        $invoice = DB::transaction(function () use ($request, $salesOrder): ?Invoice {
+            $data = $request->validated();
+            $totals = $this->calculateTotals($data);
 
             $salesOrder->update([
                 'customer_id' => $request->integer('customer_id'),
                 'pricing_rule_id' => $request->input('pricing_rule_id') ?: null,
                 'order_date' => $request->input('order_date'),
+                'payment_method' => $data['payment_method'],
+                'payment_status' => $data['payment_status'],
                 'order_status' => $request->input('status'),
                 'subtotal' => $totals['subtotal'],
                 'discount' => $totals['discount'],
@@ -155,11 +176,17 @@ class SalesOrderController extends Controller
 
             $salesOrder->items()->delete();
             $this->syncOrderItems($salesOrder, $totals['items']);
+
+            return $this->shouldCreateInvoice($salesOrder)
+                ? $this->automaticInvoiceService->createForProcessedOrder($salesOrder, $this->resolveEmployeeId())
+                : null;
         });
 
         return redirect()
             ->route('sales.index')
-            ->with('success', "Sales order {$salesOrder->order_number} updated successfully.");
+            ->with('success', $invoice
+                ? "Sales order {$salesOrder->order_number} updated and invoice {$invoice->invoice_number} created successfully."
+                : "Sales order {$salesOrder->order_number} updated successfully.");
     }
 
     public function destroy(SalesOrder $salesOrder): RedirectResponse
@@ -202,20 +229,28 @@ class SalesOrderController extends Controller
             return back()->withErrors(['status' => $transitionError]);
         }
 
-        $oldValues = ['order_status' => $salesOrder->order_status];
-        $salesOrder->update([
-            'order_status' => $request->input('status'),
-        ]);
-        SalesAuditLog::record(
-            $salesOrder,
-            'order_status_updated',
-            $oldValues,
-            ['order_status' => $salesOrder->order_status]
-        );
+        $invoice = DB::transaction(function () use ($request, $salesOrder): ?Invoice {
+            $oldValues = ['order_status' => $salesOrder->order_status];
+            $salesOrder->update([
+                'order_status' => $request->input('status'),
+            ]);
+            SalesAuditLog::record(
+                $salesOrder,
+                'order_status_updated',
+                $oldValues,
+                ['order_status' => $salesOrder->order_status]
+            );
+
+            return $this->shouldCreateInvoice($salesOrder)
+                ? $this->automaticInvoiceService->createForProcessedOrder($salesOrder, $this->resolveEmployeeId())
+                : null;
+        });
 
         return redirect()
             ->route('sales.profile', $salesOrder)
-            ->with('success', 'Order status updated successfully.');
+            ->with('success', $invoice
+                ? "Order status updated and invoice {$invoice->invoice_number} created successfully."
+                : 'Order status updated successfully.');
     }
 
     private function formData(): array
@@ -297,7 +332,7 @@ class SalesOrderController extends Controller
     }
 
     /**
-     * @param array{subtotal:float,discount:float,tax:float,total:float,items:array<int, array<string, mixed>>} $totals
+     * @param  array{subtotal:float,discount:float,tax:float,total:float,items:array<int, array<string, mixed>>}  $totals
      * @return array{subtotal:float,discount:float,tax:float,total:float,items:array<int, array<string, mixed>>}
      */
     private function applyRewardDiscount(array $totals, Reward $reward): array
@@ -358,6 +393,12 @@ class SalesOrderController extends Controller
                 'subtotal' => $item['subtotal'],
             ]);
         }
+    }
+
+    private function shouldCreateInvoice(SalesOrder $order): bool
+    {
+        return strtolower((string) $order->order_status) === 'processed'
+            && ! $order->invoices()->exists();
     }
 
     private function statusTransitionError(SalesOrder $salesOrder, string $requestedStatus): ?string

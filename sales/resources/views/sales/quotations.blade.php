@@ -268,7 +268,7 @@
     background:#fff;
     text-decoration:none;
     transition:all .25s ease;
-    margin-right:6px;
+    margin:0;
 }
 
 /* View */
@@ -302,10 +302,86 @@
     color:#EF4444;
 }
 
-        .delete-btn:hover{
+.delete-btn:hover{
     background:#EF4444;
     color:#fff;
         }
+
+        .quotation-status-cell{
+            min-width:132px;
+        }
+
+        .quotation-status-note{
+            display:block;
+            margin-top:7px;
+            color:var(--text2);
+            font-size:11px;
+            line-height:1.35;
+        }
+
+        .quotation-actions{
+            min-width:215px;
+        }
+
+        .status-actions{
+            display:flex;
+            flex-wrap:wrap;
+            gap:7px;
+        }
+
+        .status-actions form{ margin:0; }
+
+        .record-actions{
+            display:flex;
+            align-items:center;
+            gap:7px;
+            margin-top:10px;
+            padding-top:10px;
+            border-top:1px solid #eef0f5;
+        }
+
+        .status-action-btn{
+            border:1px solid #d9d5ff;
+            display:inline-flex;
+            align-items:center;
+            gap:5px;
+            min-height:31px;
+            border-radius:8px;
+            background:#fff;
+            color:#5347CE;
+            font-size:11px;
+            font-weight:700;
+            line-height:1;
+            padding:7px 10px;
+            transition:background .2s ease, color .2s ease, transform .2s ease;
+        }
+
+        .status-action-btn:hover{ background:#5347CE; color:#fff; transform:translateY(-1px); }
+        .status-action-btn--accept{ border-color:#16A34A; color:#15803D; }
+        .status-action-btn--accept:hover{ background:#16A34A; }
+        .status-action-btn--reject{ border-color:#EF4444; color:#DC2626; }
+        .status-action-btn--reject:hover{ background:#EF4444; }
+        .status-action-btn--expire{ border-color:#6B7280; color:#4B5563; }
+        .status-action-btn--expire:hover{ background:#4B5563; }
+
+        .acceptance-dialog{
+            width:min(440px,calc(100% - 32px));
+            padding:0;
+            border:0;
+            border-radius:18px;
+            box-shadow:0 24px 70px rgba(31,41,55,.3);
+        }
+        .acceptance-dialog::backdrop{ background:rgba(15,23,42,.5); backdrop-filter:blur(2px); }
+        .acceptance-dialog__body{ padding:25px; }
+        .acceptance-dialog__icon{ display:grid; place-items:center; width:45px; height:45px; border-radius:13px; background:#e9f8f1; color:#15803D; font-size:21px; }
+        .acceptance-dialog h3{ margin:15px 0 8px; color:#1F2937; font-size:20px; font-weight:750; }
+        .acceptance-dialog p{ margin:0; color:#6B7280; font-size:14px; line-height:1.55; }
+        .acceptance-dialog__actions{ display:flex; justify-content:flex-end; gap:9px; margin-top:22px; }
+        .acceptance-dialog__actions button{ border-radius:8px; padding:9px 12px; font-size:13px; font-weight:700; }
+        .acceptance-dialog__later{ border:1px solid #d7dce5; background:#fff; color:#4B5563; }
+        .acceptance-dialog__convert{ border:1px solid #15803D; background:#16A34A; color:#fff; }
+        .acceptance-dialog__later:hover{ background:#f3f4f6; }
+        .acceptance-dialog__convert:hover{ background:#15803D; }
 
         .quotation-dashboard-hero{
             display:flex; align-items:center; justify-content:space-between; gap:20px;
@@ -346,6 +422,8 @@
 
 
     <div class="page-content">
+
+        @include('sales.partials.alerts')
 
         <div class="quotation-dashboard-hero">
             <div>
@@ -471,7 +549,7 @@
         ₱{{ number_format((float)$quotation->total_amount,2) }}
     </td>
 
-    <td>
+    <td class="quotation-status-cell">
 
         @php
             $status = strtolower($quotation->quotation_status);
@@ -490,32 +568,96 @@
             {{ ucfirst($quotation->quotation_status) }}
         </span>
 
+        <span class="quotation-status-note">
+            @if ($status === 'draft')
+                Ready to send
+            @elseif ($status === 'sent')
+                Awaiting customer decision
+            @elseif ($status === 'accepted' && $quotation->sales_orders_count === 0)
+                Ready to convert
+            @elseif ($status === 'accepted')
+                Sales order created
+            @elseif ($status === 'expired')
+                Extend the date to reopen
+            @endif
+        </span>
+
     </td>
 
-    <td>
+    <td class="quotation-actions">
 
-        <a href="{{ route('quotations.show',$quotation) }}" class="action-btn view-btn">
+        <div class="status-actions">
+            @if ($status === 'draft')
+                <form method="POST" action="{{ route('quotations.update-status', $quotation) }}">
+                    @csrf
+                    @method('PATCH')
+                    <input type="hidden" name="status" value="sent">
+                    <button type="submit" class="status-action-btn"><i class="bi bi-send"></i>Send</button>
+                </form>
+                <form method="POST" action="{{ route('quotations.update-status', $quotation) }}">
+                    @csrf
+                    @method('PATCH')
+                    <input type="hidden" name="status" value="rejected">
+                    <button type="submit" class="status-action-btn status-action-btn--reject"><i class="bi bi-x-lg"></i>Reject</button>
+                </form>
+            @elseif ($status === 'sent')
+                <form method="POST" action="{{ route('quotations.update-status', $quotation) }}" data-acceptance-form>
+                    @csrf
+                    @method('PATCH')
+                    <input type="hidden" name="status" value="accepted">
+                    <input type="hidden" name="convert_to_order" value="0">
+                    <button type="button" class="status-action-btn status-action-btn--accept" onclick="openAcceptanceModal(this.form)"><i class="bi bi-check-lg"></i>Accept</button>
+                </form>
+                <form method="POST" action="{{ route('quotations.update-status', $quotation) }}">
+                    @csrf
+                    @method('PATCH')
+                    <input type="hidden" name="status" value="rejected">
+                    <button type="submit" class="status-action-btn status-action-btn--reject"><i class="bi bi-x-lg"></i>Reject</button>
+                </form>
+                <form method="POST" action="{{ route('quotations.update-status', $quotation) }}">
+                    @csrf
+                    @method('PATCH')
+                    <input type="hidden" name="status" value="expired">
+                    <button type="submit" class="status-action-btn status-action-btn--expire"><i class="bi bi-clock-history"></i>Expire</button>
+                </form>
+            @elseif ($status === 'accepted' && $quotation->sales_orders_count === 0 && ! $quotation->valid_until?->isBefore(today()))
+                <form method="POST" action="{{ route('quotations.convert', $quotation) }}">
+                    @csrf
+                    <button type="submit" class="status-action-btn status-action-btn--accept"><i class="bi bi-cart-check"></i>Convert</button>
+                </form>
+            @endif
+        </div>
+
+        <div class="record-actions">
+
+        <a href="{{ route('quotations.show',$quotation) }}" class="action-btn view-btn" title="View quotation" aria-label="View quotation">
             <i class="bi bi-eye"></i>
         </a>
 
-        <a href="{{ route('quotations.edit',$quotation) }}" class="action-btn edit-btn">
-            <i class="bi bi-pencil"></i>
-        </a>
+        @if (in_array($status, ['draft', 'sent', 'expired'], true))
+            <a href="{{ route('quotations.edit',$quotation) }}" class="action-btn edit-btn" title="Edit quotation" aria-label="Edit quotation">
+                <i class="bi bi-pencil"></i>
+            </a>
+        @endif
 
-        <form action="{{ route('quotations.destroy',$quotation) }}"
-              method="POST"
-              style="display:inline;">
+        @if ($status !== 'accepted')
+            <form action="{{ route('quotations.destroy',$quotation) }}"
+                  method="POST"
+                  style="display:inline;">
 
             @csrf
             @method('DELETE')
 
-            <button class="action-btn delete-btn">
+                <button class="action-btn delete-btn" title="Delete quotation" aria-label="Delete quotation">
 
                 <i class="bi bi-trash"></i>
 
             </button>
 
-        </form>
+            </form>
+        @endif
+
+        </div>
 
     </td>
 
@@ -542,6 +684,18 @@
             </div>
 
         </div>
+
+        <dialog id="acceptanceDialog" class="acceptance-dialog" aria-labelledby="acceptanceDialogTitle">
+            <div class="acceptance-dialog__body">
+                <div class="acceptance-dialog__icon"><i class="bi bi-check2-circle"></i></div>
+                <h3 id="acceptanceDialogTitle">Accept this quotation?</h3>
+                <p>Would you like to create its sales order now, or keep the quotation accepted and convert it later?</p>
+                <div class="acceptance-dialog__actions">
+                    <button type="button" class="acceptance-dialog__later" onclick="submitAcceptance(false)">Accept only</button>
+                    <button type="button" class="acceptance-dialog__convert" onclick="submitAcceptance(true)">Accept &amp; convert</button>
+                </div>
+            </div>
+        </dialog>
 
         <div class="quotations-page-footer">
             <div class="quotations-page-footer__inner">
@@ -620,6 +774,18 @@
                 : 'none';
 
         });
+    }
+
+    let acceptanceForm;
+
+    function openAcceptanceModal(form){
+        acceptanceForm = form;
+        document.getElementById('acceptanceDialog').showModal();
+    }
+
+    function submitAcceptance(convertToOrder){
+        acceptanceForm.querySelector('[name="convert_to_order"]').value = convertToOrder ? '1' : '0';
+        acceptanceForm.submit();
     }
 
 </script>

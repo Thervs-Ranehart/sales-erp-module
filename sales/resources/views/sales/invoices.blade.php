@@ -6,11 +6,39 @@
 @section('content')
 
     <style>
-         .action-buttons{
+.action-buttons{
 
     display:flex;
+    flex-wrap:wrap;
+    align-items:center;
     gap:8px;
 }
+
+.invoice-status-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:7px;
+}
+
+.invoice-status-actions form{ margin:0; }
+
+.invoice-status-btn{
+    border:1px solid #5347CE;
+    border-radius:7px;
+    background:#fff;
+    color:#5347CE;
+    font-size:11px;
+    font-weight:700;
+    line-height:1;
+    padding:7px 10px;
+    transition:background .2s ease, color .2s ease, transform .2s ease;
+}
+
+.invoice-status-btn:hover{ background:#5347CE; color:#fff; transform:translateY(-1px); }
+.invoice-status-btn--paid{ border-color:#16A34A; color:#15803D; }
+.invoice-status-btn--paid:hover{ background:#16A34A; }
+.invoice-status-btn--expired{ border-color:#6B7280; color:#4B5563; }
+.invoice-status-btn--expired:hover{ background:#4B5563; }
 
 .action-btn{
 
@@ -309,6 +337,7 @@
 
 .status-overdue,
 .status-rejected,
+.status-expired,
 .status-cancelled{
     background:#DC3545;   /* Red */
 }
@@ -588,6 +617,13 @@
 
         <button
             class="filter-btn"
+            onclick="filterInvoice('expired',this)"
+        >
+            Expired ({{ $statusCounts['expired'] }})
+        </button>
+
+        <button
+            class="filter-btn"
             onclick="filterInvoice('cancelled',this)"
         >
             Cancelled ({{ $statusCounts['cancelled'] }})
@@ -684,15 +720,39 @@
 
         <div class="action-buttons">
 
-            <a
-                href="{{ route('invoices.show',$invoice) }}"
-                class="action-btn view-btn"
-                title="View"
-            >
+            @if($invoice->payment_status === 'Paid')
+                <a href="{{ route('invoices.show', $invoice) }}" class="invoice-status-btn">
+                    View Receipt
+                </a>
+            @else
+                <a
+                    href="{{ route('invoices.show',$invoice) }}"
+                    class="action-btn view-btn"
+                    title="View invoice"
+                >
 
-                <i class="bi bi-eye"></i>
+                    <i class="bi bi-eye"></i>
 
-            </a>
+                </a>
+            @endif
+
+            @if($invoice->payment_status === 'Pending')
+                <div class="invoice-status-actions">
+                    <form action="{{ route('invoices.update-payment-status', $invoice) }}" method="POST">
+                        @csrf
+                        @method('PATCH')
+                        <input type="hidden" name="payment_status" value="Paid">
+                        <button class="invoice-status-btn invoice-status-btn--paid" onclick="return confirm('Mark this invoice as paid?')">Mark as Paid</button>
+                    </form>
+
+                    <form action="{{ route('invoices.update-payment-status', $invoice) }}" method="POST">
+                        @csrf
+                        @method('PATCH')
+                        <input type="hidden" name="payment_status" value="Expired">
+                        <button class="invoice-status-btn invoice-status-btn--expired" onclick="return confirm('Expire this invoice? Its inventory and finance entries will be reversed.')">Expire</button>
+                    </form>
+                </div>
+            @endif
 
             <a
                 href="{{ route('invoices.edit',$invoice) }}"

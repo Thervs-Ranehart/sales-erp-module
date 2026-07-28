@@ -34,6 +34,7 @@ class InvoiceController extends Controller
             'all' => $invoices->count(),
             'pending' => $invoices->where('payment_status', 'Pending')->count(),
             'paid' => $invoices->where('payment_status', 'Paid')->count(),
+            'expired' => $invoices->where('payment_status', 'Expired')->count(),
             'cancelled' => $invoices->where('payment_status', 'Cancelled')->count(),
         ];
 
@@ -125,7 +126,7 @@ class InvoiceController extends Controller
                     ]);
                 }
 
-                if ($invoice->payment_status !== 'Cancelled') {
+                if (! in_array($invoice->payment_status, ['Cancelled', 'Expired'], true)) {
                     $this->applyLedgerEntries($invoice);
                 }
                 app(LoyaltyService::class)->awardForInvoice($invoice->fresh(['salesOrder.customer']));
@@ -163,6 +164,44 @@ class InvoiceController extends Controller
         );
     }
 
+    /** Mark a pending invoice as paid, or expire it and reverse its entries. */
+    public function updatePaymentStatus(Request $request, Invoice $invoice): RedirectResponse
+    {
+        $validated = $request->validate([
+            'payment_status' => ['required', 'in:Paid,Expired'],
+        ]);
+
+        if ($invoice->payment_status !== 'Pending') {
+            return back()->withErrors(['invoice' => 'Only pending invoices can be marked paid or expired.']);
+        }
+
+        if ($validated['payment_status'] === 'Expired' && $invoice->creditNotes()->exists()) {
+            return back()->withErrors(['invoice' => 'An invoice with credit notes cannot be expired.']);
+        }
+
+        DB::transaction(function () use ($invoice, $validated): void {
+            $oldValues = $invoice->toArray();
+
+            if ($validated['payment_status'] === 'Expired') {
+                app(LoyaltyService::class)->reverseInvoice($invoice->load('salesOrder.customer.loyaltyProgram'));
+                $this->reverseLedgerEntries($invoice);
+            }
+
+            $invoice->update(['payment_status' => $validated['payment_status']]);
+            SalesAuditLog::record(
+                $invoice,
+                'invoice_payment_status_updated',
+                $oldValues,
+                $invoice->fresh()->toArray(),
+                'Invoice marked '.strtolower($validated['payment_status']).'.'
+            );
+        });
+
+        return redirect()
+            ->route('invoices.index')
+            ->with('success', 'Invoice marked '.strtolower($validated['payment_status']).'.');
+    }
+
     public function edit(
         Invoice $invoice
     ): View {
@@ -186,11 +225,12 @@ class InvoiceController extends Controller
         $validated = $request->validated();
         $order = $invoice->salesOrder()->with('items')->firstOrFail();
         $oldValues = $invoice->toArray();
-        $wasCancelled = $invoice->payment_status === 'Cancelled';
+        $wasInactive = in_array($invoice->payment_status, ['Cancelled', 'Expired'], true);
+        $willBeInactive = in_array($validated['payment_status'], ['Cancelled', 'Expired'], true);
         $willBeCancelled = $validated['payment_status'] === 'Cancelled';
         $isManager = in_array(strtolower((string) $request->session()->get('employee_role')), ['manager', 'administrator', 'admin', 'owner', 'supervisor'], true);
 
-        if (! $wasCancelled && $willBeCancelled && ! $isManager && ! SalesApproval::query()->where([
+        if (! $wasInactive && $willBeCancelled && ! $isManager && ! SalesApproval::query()->where([
             'approvable_type' => Invoice::class,
             'approvable_id' => $invoice->invoice_id,
             'action' => 'invoice_cancellation',
@@ -208,11 +248,11 @@ class InvoiceController extends Controller
         }
 
         try {
-            DB::transaction(function () use ($invoice, $validated, $oldValues, $wasCancelled, $willBeCancelled): void {
-                if (! $wasCancelled && $willBeCancelled) {
+            DB::transaction(function () use ($invoice, $validated, $oldValues, $wasInactive, $willBeInactive): void {
+                if (! $wasInactive && $willBeInactive) {
                     app(LoyaltyService::class)->reverseInvoice($invoice->load('salesOrder.customer.loyaltyProgram'));
                     $this->reverseLedgerEntries($invoice);
-                } elseif ($wasCancelled && ! $willBeCancelled) {
+                } elseif ($wasInactive && ! $willBeInactive) {
                     $this->applyLedgerEntries($invoice);
                 }
 
@@ -228,7 +268,7 @@ class InvoiceController extends Controller
                     'total_amount' => $invoice->total_amount,
                 ]);
 
-                if (! $willBeCancelled) {
+                if (! $willBeInactive) {
                     $invoice->inventoryTransactions()->update([
                         'transaction_date' => $validated['invoice_date'],
                     ]);
@@ -283,7 +323,7 @@ class InvoiceController extends Controller
         }
 
         DB::transaction(function () use ($invoice) {
-            if ($invoice->payment_status !== 'Cancelled') {
+            if (! in_array($invoice->payment_status, ['Cancelled', 'Expired'], true)) {
                 app(LoyaltyService::class)->reverseInvoice($invoice->load('salesOrder.customer.loyaltyProgram'));
                 $this->reverseLedgerEntries($invoice);
             }
@@ -350,7 +390,7 @@ class InvoiceController extends Controller
     private function invoiceableItems(SalesOrder $order, array $requestedQuantities)
     {
         $previousQuantities = $order->invoices
-            ->where('payment_status', '!=', 'Cancelled')
+            ->whereNotIn('payment_status', ['Cancelled', 'Expired'])
             ->flatMap->items
             ->groupBy(fn ($item) => $item->order_item_id ?: 'product-'.$item->product_id)
             ->map(fn ($items) => (int) $items->sum('quantity'));

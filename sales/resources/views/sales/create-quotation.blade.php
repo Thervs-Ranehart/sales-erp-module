@@ -411,47 +411,6 @@ body{
             <div class="col-md-6">
 
                 <label class="form-label">
-                    Pricing Rule
-                </label>
-
-                <select
-                    class="form-select"
-                    id="pricingRule"
-                    name="pricing_rule_id"
-                    onchange="applyPricingRule(this)"
-                >
-
-                    <option value="" data-discount-type="" data-discount-value="0">
-                        None
-                    </option>
-
-                    @foreach($pricingRules as $rule)
-
-                        <option
-                            value="{{ $rule->pricing_rule_id }}"
-                            data-discount-type="{{ $rule->discount_type }}"
-                            data-discount-value="{{ $rule->discount_value }}"
-                            data-tax-rate="{{ $rule->tax_rate ?? 12 }}"
-                            @selected(old('pricing_rule_id', optional($quotation)->pricing_rule_id) == $rule->pricing_rule_id)
-                        >
-
-                            {{ $rule->rule_name }}
-
-                        </option>
-
-                    @endforeach
-
-                </select>
-
-                <small id="pricingRuleDiscountHelp" class="form-text text-muted">
-                    Select a pricing rule to apply its discount.
-                </small>
-
-            </div>
-
-            <div class="col-md-6">
-
-                <label class="form-label">
                     Status
                 </label>
 
@@ -1134,13 +1093,6 @@ function calculateTotals()
     let discountInput=document.getElementById('discount');
     let discount=parseFloat(discountInput.value)||0;
     let discountAmount=subtotal*(discount/100);
-    let pricingRule=document.getElementById('pricingRule');
-    let selectedRule=pricingRule.options[pricingRule.selectedIndex];
-
-    if ((selectedRule.dataset.discountType || '').trim().toLowerCase() === 'fixed') {
-        discountAmount=Math.min(subtotal,parseFloat(discountInput.value)||0);
-    }
-
     document.getElementById('discountAmount').innerHTML=
         discountAmount.toLocaleString(undefined,{
             minimumFractionDigits:2,
@@ -1208,8 +1160,6 @@ document.addEventListener('DOMContentLoaded',function(){
         }
 
     });
-
-    applyPricingRule(document.getElementById('pricingRule'));
 
     calculateTotals();
     updateQuotationMeta();

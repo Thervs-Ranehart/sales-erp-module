@@ -2,10 +2,10 @@
 
 use App\Models\Customer;
 use App\Models\Employee;
+use App\Models\LoyaltyProgram;
 use App\Models\PricingRule;
 use App\Models\Product;
 use App\Models\Quotation;
-use App\Models\LoyaltyProgram;
 use App\Models\Reward;
 use App\Models\SalesOrder;
 use App\Services\PricingCalculator;
@@ -160,6 +160,32 @@ test('an eligible loyalty reward applies its sales discount and deducts points o
     ]);
 });
 
+test('a paid processed sales order automatically creates its invoice', function (): void {
+    $this->withSession(['employee_id' => $this->employee->employee_id])
+        ->post(route('sales.store'), [
+            'customer_id' => $this->customer->customer_id,
+            'order_date' => today()->toDateString(),
+            'product_id' => [$this->product->product_id],
+            'qty' => [1],
+            'price' => [1000],
+            'discount' => 0,
+            'tax' => 12,
+            'status' => 'processed',
+            'payment_method' => 'Cash',
+            'payment_status' => 'Paid',
+        ])
+        ->assertRedirect(route('sales.index'));
+
+    $order = SalesOrder::query()->firstOrFail();
+
+    $this->assertDatabaseHas('invoices', [
+        'order_id' => $order->order_id,
+        'payment_method' => 'Cash',
+        'payment_status' => 'Paid',
+    ]);
+    expect($this->product->fresh()->stock_quantity)->toBe(19);
+});
+
 test('a sales order can move directly to a later fulfillment status', function (): void {
     $order = SalesOrder::query()->create([
         'order_number' => 'SO-STATUS-001',
@@ -224,6 +250,88 @@ test('a quotation can be saved with its calculated item totals', function (): vo
         ->and((float) $quotation->total_amount)->toBe(2240.0)
         ->and($quotation->items)->toHaveCount(1)
         ->and((float) $quotation->items->first()->unit_price)->toBe(1000.0);
+});
+
+test('accepting a quotation without conversion leaves it ready to convert later', function (): void {
+    $quotation = Quotation::query()->create([
+        'quotation_number' => 'QT-LIFECYCLE-ACCEPT',
+        'customer_id' => $this->customer->customer_id,
+        'employee_id' => $this->employee->employee_id,
+        'quotation_date' => now(),
+        'valid_until' => now()->addWeek(),
+        'subtotal' => 1000,
+        'discount' => 0,
+        'tax' => 120,
+        'shipping_fee' => 0,
+        'total_amount' => 1120,
+        'quotation_status' => 'sent',
+    ]);
+    $quotation->items()->create([
+        'product_id' => $this->product->product_id,
+        'quantity' => 1,
+        'unit_price' => 1000,
+        'discount' => 0,
+        'subtotal' => 1000,
+    ]);
+
+    $this->patch(route('quotations.update-status', $quotation), ['status' => 'accepted'])
+        ->assertRedirect(route('quotations.index'));
+
+    $this->assertDatabaseHas('quotations', [
+        'quotation_id' => $quotation->quotation_id,
+        'quotation_status' => 'accepted',
+    ]);
+    $this->assertDatabaseMissing('sales_orders', ['quotation_id' => $quotation->quotation_id]);
+
+    $this->post(route('quotations.convert', $quotation))
+        ->assertRedirect();
+
+    $this->assertDatabaseHas('sales_orders', [
+        'quotation_id' => $quotation->quotation_id,
+        'order_status' => 'pending',
+    ]);
+});
+
+test('an expired quotation can be reopened after its validity is extended', function (): void {
+    $quotation = Quotation::query()->create([
+        'quotation_number' => 'QT-LIFECYCLE-EXPIRED',
+        'customer_id' => $this->customer->customer_id,
+        'employee_id' => $this->employee->employee_id,
+        'quotation_date' => now()->subWeek(),
+        'valid_until' => now()->subDay(),
+        'subtotal' => 1000,
+        'discount' => 0,
+        'tax' => 120,
+        'shipping_fee' => 0,
+        'total_amount' => 1120,
+        'quotation_status' => 'expired',
+    ]);
+    $quotation->items()->create([
+        'product_id' => $this->product->product_id,
+        'quantity' => 1,
+        'unit_price' => 1000,
+        'discount' => 0,
+        'subtotal' => 1000,
+    ]);
+
+    $this->withSession(['employee_id' => $this->employee->employee_id])
+        ->put(route('quotations.update', $quotation), [
+            'customer_id' => $this->customer->customer_id,
+            'quotation_date' => now()->toDateString(),
+            'valid_until' => now()->addWeek()->toDateString(),
+            'status' => 'sent',
+            'discount' => 0,
+            'tax' => 12,
+            'product_id' => [$this->product->product_id],
+            'qty' => [1],
+            'price' => [1000],
+        ])
+        ->assertRedirect(route('quotations.index'));
+
+    $this->assertDatabaseHas('quotations', [
+        'quotation_id' => $quotation->quotation_id,
+        'quotation_status' => 'sent',
+    ]);
 });
 
 test('an accepted quotation converts once and copies its backend records', function (): void {

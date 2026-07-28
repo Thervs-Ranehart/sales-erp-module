@@ -6,12 +6,12 @@ use App\Http\Requests\StoreQuotationRequest;
 use App\Http\Requests\UpdateQuotationRequest;
 use App\Models\Customer;
 use App\Models\Employee;
-use App\Models\PricingRule;
 use App\Models\Product;
 use App\Models\Quotation;
 use App\Models\SalesOrder;
 use App\Services\PricingCalculator;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -28,6 +28,7 @@ class QuotationController extends Controller
 
         $quotations = Quotation::query()
             ->with('customer')
+            ->withCount('salesOrders')
             ->orderByDesc('quotation_date')
             ->orderByDesc('quotation_id')
             ->get();
@@ -59,7 +60,7 @@ class QuotationController extends Controller
 
     public function store(StoreQuotationRequest $request): RedirectResponse
     {
-        $quotation = DB::transaction(function () use ($request) {
+        $quotation = DB::transaction(function () use ($request): Quotation {
 
             $totals = $this->calculateTotals($request->validated());
 
@@ -67,7 +68,7 @@ class QuotationController extends Controller
                 'quotation_number' => null,
                 'customer_id' => $request->integer('customer_id'),
                 'employee_id' => $this->resolveEmployeeId(),
-                'pricing_rule_id' => $request->input('pricing_rule_id') ?: null,
+                'pricing_rule_id' => null,
                 'quotation_date' => $request->input('quotation_date'),
                 'valid_until' => $request->input('valid_until'),
                 'quotation_status' => $request->input('status'),
@@ -119,41 +120,8 @@ class QuotationController extends Controller
 
         $order = DB::transaction(function () use ($quotation): SalesOrder {
             $quotation = Quotation::query()->with('items')->lockForUpdate()->findOrFail($quotation->quotation_id);
-            $existingOrder = SalesOrder::query()->where('quotation_id', $quotation->quotation_id)->first();
 
-            if ($existingOrder) {
-                return $existingOrder;
-            }
-
-            $order = SalesOrder::query()->create([
-                'order_number' => null,
-                'quotation_id' => $quotation->quotation_id,
-                'customer_id' => $quotation->customer_id,
-                'employee_id' => $quotation->employee_id,
-                'pricing_rule_id' => $quotation->pricing_rule_id,
-                'order_date' => now()->toDateString(),
-                'order_status' => 'pending',
-                'subtotal' => $quotation->subtotal,
-                'discount' => $quotation->discount,
-                'tax' => $quotation->tax,
-                'shipping_fee' => $quotation->shipping_fee ?? 0,
-                'total_amount' => $quotation->total_amount,
-            ]);
-            $order->update([
-                'order_number' => 'SO-'.str_pad((string) $order->order_id, 5, '0', STR_PAD_LEFT),
-            ]);
-
-            foreach ($quotation->items as $item) {
-                $order->items()->create([
-                    'product_id' => $item->product_id,
-                    'quantity' => $item->quantity,
-                    'unit_price' => $item->unit_price,
-                    'discount' => $item->discount ?? 0,
-                    'subtotal' => $item->subtotal,
-                ]);
-            }
-
-            return $order;
+            return $this->createSalesOrderFromQuotation($quotation);
         });
 
         return redirect()->route('sales.profile', $order)->with('success', 'Quotation converted to a sales order successfully.');
@@ -193,7 +161,7 @@ class QuotationController extends Controller
             'sent' => ['accepted', 'rejected', 'expired'],
             'accepted' => [],
             'rejected' => [],
-            'expired' => [],
+            'expired' => ['sent'],
         ];
         $currentStatus = strtolower((string) $quotation->quotation_status);
         $newStatus = strtolower((string) $request->input('status'));
@@ -208,13 +176,22 @@ class QuotationController extends Controller
             return back()->withErrors(['quotation' => 'Accepted quotations are locked to preserve transaction history.']);
         }
 
+        if ($newStatus === 'sent' && $request->date('valid_until')?->isBefore(today())) {
+            return back()->withErrors([
+                'valid_until' => 'Extend the valid-until date to today or later before reopening a quotation.',
+            ]);
+        }
+
         DB::transaction(function () use ($request, $quotation): void {
+            $quotation = Quotation::query()
+                ->lockForUpdate()
+                ->findOrFail($quotation->quotation_id);
 
             $totals = $this->calculateTotals($request->validated());
 
             $quotation->update([
                 'customer_id' => $request->integer('customer_id'),
-                'pricing_rule_id' => $request->input('pricing_rule_id') ?: null,
+                'pricing_rule_id' => null,
                 'quotation_date' => $request->input('quotation_date'),
                 'valid_until' => $request->input('valid_until'),
                 'quotation_status' => $request->input('status'),
@@ -236,6 +213,54 @@ class QuotationController extends Controller
                 'success',
                 "Quotation {$quotation->quotation_number} updated successfully."
             );
+    }
+
+    public function updateStatus(Request $request, Quotation $quotation): RedirectResponse
+    {
+        $validated = $request->validate([
+            'status' => ['required', 'in:sent,accepted,rejected,expired'],
+            'convert_to_order' => ['nullable', 'boolean'],
+        ]);
+        $newStatus = strtolower((string) $validated['status']);
+        $convertToOrder = $request->boolean('convert_to_order');
+
+        $order = DB::transaction(function () use ($quotation, $newStatus, $convertToOrder): ?SalesOrder {
+            $quotation = Quotation::query()
+                ->lockForUpdate()
+                ->findOrFail($quotation->quotation_id);
+
+            if ($quotation->salesOrders()->exists()) {
+                abort(409, 'Converted quotations cannot be changed.');
+            }
+
+            $allowedTransitions = [
+                'draft' => ['sent', 'rejected'],
+                'sent' => ['accepted', 'rejected', 'expired'],
+            ];
+            $currentStatus = strtolower((string) $quotation->quotation_status);
+
+            if (! in_array($newStatus, $allowedTransitions[$currentStatus] ?? [], true)) {
+                abort(422, 'This quotation cannot move from '.ucfirst($currentStatus).' to '.ucfirst($newStatus).'.');
+            }
+
+            $quotation->update(['quotation_status' => $newStatus]);
+
+            return $newStatus === 'accepted' && $convertToOrder
+                ? $this->createSalesOrderFromQuotation($quotation)
+                : null;
+        });
+
+        $message = $order
+            ? "Quotation {$quotation->quotation_number} accepted and sales order {$order->order_number} created successfully."
+            : ($newStatus === 'accepted'
+                ? "Quotation {$quotation->quotation_number} accepted. You can convert it to a sales order when ready."
+                : "Quotation {$quotation->quotation_number} marked as ".ucfirst($newStatus).'.');
+
+        if ($order) {
+            return redirect()->route('sales.profile', $order)->with('success', $message);
+        }
+
+        return redirect()->route('quotations.index')->with('success', $message);
     }
 
     public function destroy(Quotation $quotation): RedirectResponse
@@ -278,12 +303,6 @@ class QuotationController extends Controller
                 ->orderBy('category')
                 ->pluck('category'),
 
-            'pricingRules' => PricingRule::query()
-                ->whereRaw('LOWER(status) = ?', ['active'])
-                ->whereDate('start_date', '<=', today())
-                ->whereDate('end_date', '>=', today())
-                ->orderBy('rule_name')
-                ->get(),
         ];
     }
 
@@ -302,7 +321,7 @@ class QuotationController extends Controller
             $data['product_id'],
             $data['qty'],
             $data['quotation_date'],
-            ! empty($data['pricing_rule_id']) ? (int) $data['pricing_rule_id'] : null,
+            null,
             isset($data['discount']) ? (float) $data['discount'] : null,
             isset($data['tax']) ? (float) $data['tax'] : null,
         );
@@ -325,5 +344,48 @@ class QuotationController extends Controller
                 'subtotal' => $item['subtotal'],
             ]);
         }
+    }
+
+    private function createSalesOrderFromQuotation(Quotation $quotation): SalesOrder
+    {
+        $existingOrder = SalesOrder::query()
+            ->where('quotation_id', $quotation->quotation_id)
+            ->first();
+
+        if ($existingOrder) {
+            return $existingOrder;
+        }
+
+        $quotation->loadMissing('items');
+
+        $order = SalesOrder::query()->create([
+            'order_number' => null,
+            'quotation_id' => $quotation->quotation_id,
+            'customer_id' => $quotation->customer_id,
+            'employee_id' => $quotation->employee_id,
+            'pricing_rule_id' => $quotation->pricing_rule_id,
+            'order_date' => now()->toDateString(),
+            'order_status' => 'pending',
+            'subtotal' => $quotation->subtotal,
+            'discount' => $quotation->discount,
+            'tax' => $quotation->tax,
+            'shipping_fee' => $quotation->shipping_fee ?? 0,
+            'total_amount' => $quotation->total_amount,
+        ]);
+        $order->update([
+            'order_number' => 'SO-'.str_pad((string) $order->order_id, 5, '0', STR_PAD_LEFT),
+        ]);
+
+        foreach ($quotation->items as $item) {
+            $order->items()->create([
+                'product_id' => $item->product_id,
+                'quantity' => $item->quantity,
+                'unit_price' => $item->unit_price,
+                'discount' => $item->discount ?? 0,
+                'subtotal' => $item->subtotal,
+            ]);
+        }
+
+        return $order;
     }
 }

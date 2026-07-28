@@ -392,22 +392,44 @@ value="{{ $taxPercent }}">
 
 <h5 class="card-title">
 <i class="bi bi-arrow-repeat"></i>
-Order Status
+Order and Payment Status
 </h5>
-<select class="form-select" name="status" required>
 
-    @foreach (['pending', 'processed', 'shipped', 'delivered', 'cancelled'] as $status)
+<div class="row g-3">
+    <div class="col-md-4">
+        <label class="form-label" for="orderStatus">Order Status</label>
+        <select class="form-select" name="status" id="orderStatus" required>
+            @foreach (['pending', 'processed', 'shipped', 'delivered', 'cancelled'] as $status)
+                <option value="{{ $status }}" @selected(old('status', $isEdit ? $salesOrder->order_status : 'pending') == $status)>
+                    {{ ucfirst($status) }}
+                </option>
+            @endforeach
+        </select>
+    </div>
 
-        <option
-            value="{{ $status }}"
-            @selected(old('status', $isEdit ? $salesOrder->order_status : null) == $status)
-        >
-            {{ ucfirst($status) }}
-        </option>
+    <div class="col-md-4">
+        <label class="form-label" for="paymentMethod">Payment Method</label>
+        <select class="form-select" name="payment_method" id="paymentMethod" required>
+            @foreach (['Cash', 'Card', 'Bank Transfer', 'E-Wallet'] as $method)
+                <option value="{{ $method }}" @selected(old('payment_method', $isEdit ? $salesOrder->payment_method : 'Cash') == $method)>
+                    {{ $method }}
+                </option>
+            @endforeach
+        </select>
+    </div>
 
-    @endforeach
-
-</select>
+    <div class="col-md-4">
+        <label class="form-label" for="paymentStatus">Payment Status</label>
+        <select class="form-select" name="payment_status" id="paymentStatus" required>
+            @foreach (['Pending', 'Paid'] as $paymentStatus)
+                <option value="{{ $paymentStatus }}" @selected(old('payment_status', $isEdit ? $salesOrder->payment_status : 'Pending') == $paymentStatus)>
+                    {{ $paymentStatus }}
+                </option>
+            @endforeach
+        </select>
+        <small class="form-text text-muted">A processed order automatically creates an invoice using this payment status.</small>
+    </div>
+</div>
 
 </div>
 
