@@ -9,7 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
-    $employee = Employee::query()->create([
+    $this->employee = Employee::query()->create([
         'username' => 'follow-up-user',
         'password_hash' => password_hash('password', PASSWORD_BCRYPT),
         'first_name' => 'Follow',
@@ -34,7 +34,7 @@ beforeEach(function (): void {
 
     $this->followUp = CommunicationLog::query()->create([
         'customer_id' => $this->customer->customer_id,
-        'employee_id' => $employee->employee_id,
+        'employee_id' => $this->employee->employee_id,
         'agent_id' => $this->agent->agent_id,
         'communication_date' => now(),
         'communication_channel' => 'Email',
@@ -69,4 +69,37 @@ test('follow-ups can be edited and deleted from their action controls', function
     $this->assertDatabaseMissing('communication_logs', [
         'communication_id' => $this->followUp->communication_id,
     ]);
+});
+
+test('high-priority follow-ups are assigned to the recommended least-busy active agent and shown as unresolved', function (): void {
+    $this->followUp->update(['priority' => 'High']);
+
+    $recommendedAgent = Agent::query()->create([
+        'first_name' => 'Recommended',
+        'last_name' => 'Agent',
+        'status' => 'Active',
+    ]);
+
+    $this->post(route('crm.followups.store'), [
+        'customer_id' => $this->customer->customer_id,
+        'employee_id' => $this->employee->employee_id,
+        'agent_id' => $this->agent->agent_id,
+        'communication_channel' => 'Phone',
+        'subject' => 'Urgent follow-up',
+        'follow_up_date' => today()->addDay()->toDateString(),
+        'priority' => 'High',
+        'communication_status' => 'Pending',
+    ])->assertRedirect();
+
+    $this->assertDatabaseHas('communication_logs', [
+        'subject' => 'Urgent follow-up',
+        'agent_id' => $recommendedAgent->agent_id,
+        'priority' => 'High',
+        'communication_status' => 'Pending',
+    ]);
+
+    $this->get(route('crm.followups'))
+        ->assertOk()
+        ->assertSee('High-priority follow-up warning:')
+        ->assertSee('Unresolved high-priority follow-up');
 });

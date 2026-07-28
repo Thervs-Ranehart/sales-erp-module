@@ -104,6 +104,10 @@
     border-color: #5347CE;
     box-shadow: 0 0 0 .2rem rgba(83, 71, 206, .15);
 }
+
+.high-priority-open {
+    background-color: #fff5f5;
+}
 </style>
 
 {{-- Header --}}
@@ -265,6 +269,13 @@
 
 {{-- Follow-Ups Table --}}
 
+@if ($openHighPriorityCount > 0)
+    <div class="alert alert-danger d-flex align-items-center gap-2" role="alert">
+        <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+        <span><strong>High-priority follow-up warning:</strong> {{ $openHighPriorityCount }} high-priority {{ Str::plural('follow-up', $openHighPriorityCount) }} {{ $openHighPriorityCount === 1 ? 'is' : 'are' }} still unresolved. Complete or update {{ $openHighPriorityCount === 1 ? 'it' : 'them' }} as soon as possible.</span>
+    </div>
+@endif
+
 <div class="card crm-card p-4">
 
 <h5 class="fw-semibold mb-3">
@@ -352,10 +363,13 @@
                                 : 'bg-secondary'
                         );
 
+                $isOpenHighPriority = $followUp->priority === 'High'
+                    && $status !== 'Completed';
+
             @endphp
 
 
-            <tr>
+            <tr @class(['high-priority-open' => $isOpenHighPriority])>
 
                 {{-- Customer --}}
                 <td>
@@ -377,6 +391,13 @@
                 <td>
 
                     {{ $followUp->subject }}
+
+                    @if ($isOpenHighPriority)
+                        <div class="text-danger small mt-1">
+                            <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+                            Unresolved high-priority follow-up
+                        </div>
+                    @endif
 
                 </td>
 
@@ -769,6 +790,7 @@
                                     <option value="{{ $priority }}" @selected($followUp->priority === $priority)>{{ $priority }}</option>
                                 @endforeach
                             </select>
+                            <div class="form-text">High-priority follow-ups are automatically assigned to the recommended available agent.</div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Status</label>

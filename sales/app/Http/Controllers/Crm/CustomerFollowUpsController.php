@@ -118,6 +118,10 @@ class CustomerFollowUpsController extends Controller
                 )
                 ->count(),
 
+            'openHighPriorityCount' => CommunicationLog::where('priority', 'High')
+                ->where('communication_status', '!=', 'Completed')
+                ->count(),
+
             'completedCount' => CommunicationLog::where(
                 'communication_status',
                 'Completed'
@@ -156,8 +160,13 @@ class CustomerFollowUpsController extends Controller
                 'exists:customers,customer_id',
             ],
 
-            'agent_id' => [
+            'employee_id' => [
                 'required',
+                'exists:employees,employee_id',
+            ],
+
+            'agent_id' => [
+                'nullable',
                 'exists:agents,agent_id',
             ],
 
@@ -192,12 +201,26 @@ class CustomerFollowUpsController extends Controller
 
         ]);
 
+        $agentId = $data['agent_id'] ?? null;
+
+        if ($data['priority'] === 'High') {
+            $agentId = $this->recommendedAgentId();
+
+            if (! $agentId) {
+                return back()->withErrors(['agent_id' => 'No active agent is available for this high-priority follow-up.'])->withInput();
+            }
+        } elseif ($agentId && ! $this->isActiveAgent($agentId)) {
+            return back()->withErrors(['agent_id' => 'Selected agent is not available.'])->withInput();
+        }
+
         CommunicationLog::create([
 
             'customer_id' => $data['customer_id'],
 
+            'employee_id' => $data['employee_id'],
+
             // Assigned Agent
-            'agent_id' => $data['agent_id'],
+            'agent_id' => $agentId,
 
             'communication_date' => now(),
 
@@ -253,15 +276,14 @@ class CustomerFollowUpsController extends Controller
             'communication_status' => ['required', 'in:Pending,Completed'],
         ]);
 
-        if ($data['agent_id'] ?? null) {
-            $isActiveAgent = Agent::query()
-                ->where('agent_id', $data['agent_id'])
-                ->where('status', 'Active')
-                ->exists();
+        if ($data['priority'] === 'High') {
+            $data['agent_id'] = $this->recommendedAgentId($log);
 
-            if (! $isActiveAgent) {
-                return back()->withErrors(['agent_id' => 'Selected agent is not available.']);
+            if (! $data['agent_id']) {
+                return back()->withErrors(['agent_id' => 'No active agent is available for this high-priority follow-up.']);
             }
+        } elseif (($data['agent_id'] ?? null) && ! $this->isActiveAgent($data['agent_id'])) {
+            return back()->withErrors(['agent_id' => 'Selected agent is not available.']);
         }
 
         $log->update($data);
@@ -320,6 +342,38 @@ class CustomerFollowUpsController extends Controller
             'Low' => 1,
             default => 0,
         };
+    }
+
+    /**
+     * Select the active agent with the fewest unfinished high-priority follow-ups.
+     * High-priority follow-ups always use this automatic assignment.
+     */
+    private function recommendedAgentId(?CommunicationLog $excluding = null): ?int
+    {
+        $workloads = CommunicationLog::query()
+            ->where('communication_status', 'Pending')
+            ->where('priority', 'High')
+            ->when($excluding, fn ($query) => $query->where('communication_id', '!=', $excluding->communication_id))
+            ->selectRaw('agent_id, count(*) as workload')
+            ->whereNotNull('agent_id')
+            ->groupBy('agent_id')
+            ->pluck('workload', 'agent_id');
+
+        return Agent::query()
+            ->where('status', 'Active')
+            ->orderBy('first_name')
+            ->orderBy('last_name')
+            ->get()
+            ->sortBy(fn (Agent $agent) => $workloads->get($agent->agent_id, 0))
+            ->first()?->agent_id;
+    }
+
+    private function isActiveAgent(int $agentId): bool
+    {
+        return Agent::query()
+            ->where('agent_id', $agentId)
+            ->where('status', 'Active')
+            ->exists();
     }
 
     /**
