@@ -32,6 +32,7 @@ use App\Http\Controllers\SupportOperationsController;
 use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\WarrantyClaimController;
 use App\Http\Controllers\WarrantyRecordController;
+use App\Http\Middleware\EnsureEmployeeSession;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LoginController::class, 'show']);
@@ -146,7 +147,7 @@ Route::get('/support/customer-satisfaction', [AfterSalesSupportController::class
 Route::get('/forecasting', [ForecastingController::class, 'index'])->name('forecasting.index');
 Route::get('/forecasting/reports', [ForecastingController::class, 'reports'])->name('forecasting.reports');
 Route::get('/forecasting/sales-analysis', [ForecastingController::class, 'salesAnalysis'])->name('forecasting.sales-analysis');
-Route::get('/forecasting/performance', [ForecastingController::class, 'performance'])->name('forecasting.performance');
+Route::get('/forecasting/performance', [ForecastingController::class, 'performance'])->middleware(EnsureEmployeeSession::class)->name('forecasting.performance');
 Route::get('/forecasting/forecast', [ForecastingController::class, 'forecast'])->name('forecasting.forecast');
 Route::get('/forecasting/recommendations', [ForecastingController::class, 'recommendations'])->name('forecasting.recommendations');
 Route::get('/forecasting/export/{type}', [ForecastOperationsController::class, 'export'])->name('forecasting.export');
@@ -154,8 +155,8 @@ Route::post('/forecasting/regions', [ForecastOperationsController::class, 'store
 Route::patch('/forecasting/customers/{customer}/region', [ForecastOperationsController::class, 'assignRegion'])->name('forecasting.customers.region');
 Route::patch('/forecasting/recommendations/{recommendation}', [ForecastOperationsController::class, 'updateRecommendation'])->name('forecasting.recommendations.update');
 Route::patch('/forecasting/forecasts/{forecast}/evaluate', [ForecastOperationsController::class, 'evaluateForecast'])->name('forecasting.forecasts.evaluate');
-Route::post('/forecasting/targets', [SalesTargetController::class, 'store'])->name('forecasting.targets.store');
-Route::delete('/forecasting/targets/{salesTarget}', [SalesTargetController::class, 'destroy'])->name('forecasting.targets.destroy');
+Route::post('/forecasting/targets', [SalesTargetController::class, 'store'])->middleware(EnsureEmployeeSession::class)->name('forecasting.targets.store');
+Route::delete('/forecasting/targets/{salesTarget}', [SalesTargetController::class, 'destroy'])->middleware(EnsureEmployeeSession::class)->name('forecasting.targets.destroy');
 
 Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
 

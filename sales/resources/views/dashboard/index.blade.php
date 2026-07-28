@@ -18,7 +18,7 @@
 
     <header class="dashboard-header mb-4">
         <div>
-            <span class="dashboard-eyebrow">{{ now()->format('l, F j, Y') }}</span>
+            <span class="dashboard-eyebrow">{{ \Carbon\Carbon::now()->format('l, F j, Y') }}</span>
             <h2 class="fw-bold mb-1">{{ $greeting }}, {{ $employeeName }}</h2>
             <p class="text-muted mb-0">Here is what is happening across the business for {{ $periodLabel }}.</p>
         </div>

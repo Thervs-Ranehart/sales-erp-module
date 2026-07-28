@@ -388,7 +388,7 @@
                                 <select id="target-month" name="target_month" required>
                                     @foreach(range(1, 12) as $month)
                                         <option value="{{ $month }}" @selected((int) old('target_month', now()->month) === $month)>
-                                            {{ now()->setMonth($month)->format('F') }}
+                                            {{ \Carbon\CarbonImmutable::create(2000, $month, 1)->format('F') }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -461,7 +461,7 @@
                                         <td>
                                             <span class="target-period">
                                                 <i class="bi bi-calendar3" aria-hidden="true"></i>
-                                                {{ now()->setMonth($target->target_month)->format('F') }} {{ $target->target_year }}
+                                                {{ \Carbon\CarbonImmutable::create(2000, $target->target_month, 1)->format('F') }} {{ $target->target_year }}
                                             </span>
                                         </td>
                                         <td><strong class="target-metric">{{ number_format($target->sales_target) }}</strong></td>
@@ -476,7 +476,7 @@
                                                     data-delete-target
                                                     data-form-id="delete-target-form-{{ $target->getKey() }}"
                                                     data-representative="{{ $representative }}"
-                                                    data-period="{{ now()->setMonth($target->target_month)->format('F') }} {{ $target->target_year }}"
+                                                    data-period="{{ \Carbon\CarbonImmutable::create(2000, $target->target_month, 1)->format('F') }} {{ $target->target_year }}"
                                                     data-orders="{{ number_format($target->sales_target) }}"
                                                     data-revenue="₱{{ number_format($target->revenue_target, 2) }}"
                                                     aria-label="Delete sales target for {{ $representative }}"

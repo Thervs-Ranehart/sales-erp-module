@@ -28,7 +28,7 @@
 
     <section class="mt-5" aria-labelledby="priority-recommendations-heading"><div class="mb-3"><h2 id="priority-recommendations-heading" class="text-lg font-bold text-gray-900 mb-1">Priority Recommendations</h2><p class="small text-muted mb-0">Actions requiring the earliest management review based on current results.</p></div><div class="row g-4">@foreach($priorityRecommendations as $recommendation)<div class="col-12 col-xl-6"><x-recommendation-card :recommendation="$recommendation" /></div>@endforeach</div></section>
 
-    <section class="mt-5" aria-labelledby="recommendation-categories-heading"><h2 id="recommendation-categories-heading" class="text-lg font-bold text-gray-900 mb-3">Recommendation Categories</h2><div class="row g-4">@foreach($recommendationCategories as $category)<div class="col-12 col-md-6 col-xl-4"><article class="card border-0 shadow-sm rounded-4 h-100"><div class="card-body p-4"><div class="d-flex justify-content-between mb-3"><span class="rounded-3 bg-{{ $category['tone'] }} bg-opacity-10 text-{{ $category['tone'] }} d-flex align-items-center justify-content-center" style="width:42px;height:42px"><i class="bi bi-{{ $category['icon'] }}"></i></span><x-recommendation-priority-badge :priority="$category['priority']" /></div><h3 class="fs-6 fw-bold">{{ $category['name'] }}</h3><p class="small text-muted mb-3">{{ $category['issue'] }}</p><div class="d-flex justify-content-between align-items-center"><span class="small fw-semibold">{{ $category['count'] }} recommendations</span><button type="button" class="btn btn-sm btn-link text-decoration-none p-0">Review actions <i class="bi bi-arrow-right"></i></button></div></div></article></div>@endforeach</div></section>
+    <section class="mt-5" aria-labelledby="recommendation-categories-heading"><h2 id="recommendation-categories-heading" class="text-lg font-bold text-gray-900 mb-3">Recommendation Categories</h2><div class="row g-4">@foreach($recommendationCategories as $category)<div class="col-12 col-md-6 col-xl-4"><article class="card border-0 shadow-sm rounded-4 h-100"><div class="card-body p-4 position-relative"><div class="d-flex justify-content-between align-items-start mb-3"><span class="rounded-3 bg-{{ $category['tone'] }} bg-opacity-10 text-{{ $category['tone'] }} d-flex align-items-center justify-content-center" style="width:42px;height:42px"><i class="bi bi-{{ $category['icon'] }}"></i></span><div class="position-absolute top-0 end-0"><x-recommendation-priority-badge :priority="$category['priority']" /></div></div><h3 class="fs-6 fw-bold">{{ $category['name'] }}</h3><p class="small text-muted mb-3">{{ $category['issue'] }}</p><div class="d-flex justify-content-between align-items-center"><span class="small fw-semibold">{{ $category['count'] }} recommendations</span><button type="button" class="btn btn-sm btn-link text-decoration-none p-0">Review actions <i class="bi bi-arrow-right"></i></button></div></div></article></div>@endforeach</div></section>
 
     <section class="mt-5" aria-labelledby="recommendations-table-heading"><div class="card border-0 shadow-sm rounded-4 overflow-hidden"><div class="card-header bg-white border-0 px-3 px-md-4 pt-4 pb-3"><h2 id="recommendations-table-heading" class="fs-5 fw-bold mb-1">Detailed Recommendations</h2><p class="small text-muted mb-0">Trace, approve, assign, implement, and measure every recommended action.</p></div><div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th class="ps-3 ps-md-4">Recommendation</th><th>Category</th><th>Evidence</th><th>Priority</th><th>Owner</th><th>Due</th><th>Status</th><th class="pe-3 pe-md-4">Action</th></tr></thead><tbody>@foreach($recommendationRows as $row)<tr><th class="ps-3 ps-md-4" scope="row">{{ $row['title'] }}</th><td><span class="badge text-bg-light border text-dark">{{ $row['category'] }}</span></td><td>{{ $row['basis'] }}</td><td><x-recommendation-priority-badge :priority="$row['priority']" /></td><td>{{ $row['responsible_team'] }}</td><td>{{ $row['due_date'] ?? '—' }}</td><td><x-recommendation-status-badge :status="$row['status']" /></td><td class="pe-3 pe-md-4">@if($row['id'])<button type="button" class="btn btn-sm btn-outline-primary text-nowrap" data-bs-toggle="modal" data-bs-target="#reviewRecommendation{{ $row['id'] }}">Review</button>@else<span class="text-muted small">Not persisted</span>@endif</td></tr>@endforeach</tbody></table></div></div></section>
     @foreach($recommendationRows as $row)@if($row['id'])<div class="modal fade" id="reviewRecommendation{{ $row['id'] }}" tabindex="-1"><div class="modal-dialog modal-lg"><form class="modal-content" method="POST" action="{{ route('forecasting.recommendations.update',$row['id']) }}">@csrf @method('PATCH')<div class="modal-header"><div><h5 class="modal-title">{{ $row['title'] }}</h5><div class="small text-muted">{{ $row['basis'] }}</div></div><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3">
@@ -40,7 +40,75 @@
 
     <section class="mt-5" aria-labelledby="supporting-insights-heading"><h2 id="supporting-insights-heading" class="text-lg font-bold text-gray-900 mb-3">Supporting Insights</h2><div class="row g-3">@foreach($supportingInsights as $insight)@php($style = match($insight['type']) {'success' => ['alert-success','bi-check-circle-fill'], 'warning' => ['alert-warning','bi-exclamation-triangle-fill'], 'risk' => ['alert-danger','bi-shield-fill-exclamation'], default => ['alert-info','bi-info-circle-fill']})<div class="col-12 col-md-6"><div class="alert {{ $style[0] }} h-100 mb-0 d-flex gap-3"><i class="bi {{ $style[1] }}"></i><span>{{ $insight['text'] }}</span></div></div>@endforeach</div></section>
 
-    <section class="mt-5" aria-labelledby="action-plan-heading"><h2 id="action-plan-heading" class="text-lg font-bold text-gray-900 mb-3">Recommended Action Plan</h2><div class="row g-4">@foreach($actionPlan as $phase => $actions)<div class="col-12 col-xl-4"><article class="card border-0 shadow-sm rounded-4 h-100"><div class="card-body p-4"><h3 class="fs-6 fw-bold mb-4">{{ $phase }}</h3>@foreach($actions as $action)<div class="border-start border-3 border-primary ps-3 mb-4"><div class="fw-semibold">{{ $action['action'] }}</div><dl class="small text-muted mb-0 mt-2"><div><dt class="d-inline">Owner:</dt> <dd class="d-inline">{{ $action['team'] }}</dd></div><div><dt class="d-inline">Timeline:</dt> <dd class="d-inline">{{ $action['timeline'] }}</dd></div><div><dt class="d-inline">Result:</dt> <dd class="d-inline">{{ $action['result'] }}</dd></div></dl></div>@endforeach</div></article></div>@endforeach</div></section>
+    <section class="mt-5" aria-labelledby="action-plan-heading">
+        <h2 id="action-plan-heading" class="text-lg font-bold text-gray-900 mb-3">Recommended Action Plan</h2>
+        <div class="row">
+            <div class="col-12">
+                <article class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                    @foreach($actionPlan as $phase => $actions)
+                        <div class="card-header bg-white border-0 p-4 {{ ! $loop->first ? 'border-top' : '' }}">
+                            <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="rounded-3 bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center flex-shrink-0" style="width:44px;height:44px;">
+                                        <i class="bi bi-database-check fs-5" aria-hidden="true"></i>
+                                    </span>
+                                    <div>
+                                        <h3 class="fs-6 fw-bold mb-1">{{ $phase }}</h3>
+                                        <p class="small text-muted mb-0">Prioritized actions generated from current sales and performance data.</p>
+                                    </div>
+                                </div>
+                                <span class="badge rounded-pill text-bg-light border text-dark px-3 py-2">
+                                    {{ count($actions) }} {{ count($actions) === 1 ? 'action' : 'actions' }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="row g-3 small fw-semibold text-muted bg-light border-top border-bottom px-4 py-3 d-none d-md-flex">
+                                <div class="col-md-5">Recommended action</div>
+                                <div class="col-md-2">Owner</div>
+                                <div class="col-md-2">Timeline</div>
+                                <div class="col-md-3">Expected result</div>
+                            </div>
+                            @foreach($actions as $action)
+                                <div class="row g-3 align-items-center px-4 py-4 {{ ! $loop->last ? 'border-bottom' : '' }}">
+                                    <div class="col-12 col-md-5">
+                                        <div class="small fw-semibold text-muted d-md-none mb-1">Action</div>
+                                        <div class="d-flex align-items-start gap-3">
+                                            <span class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center flex-shrink-0 mt-1" style="width:30px;height:30px;">
+                                                <i class="bi bi-lightning-charge-fill small" aria-hidden="true"></i>
+                                            </span>
+                                            <div class="fw-semibold lh-base">{{ $action['action'] }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-2">
+                                        <div class="small fw-semibold text-muted d-md-none mb-1">Owner</div>
+                                        <div class="small text-muted d-flex align-items-center gap-2">
+                                            <i class="bi bi-people text-primary" aria-hidden="true"></i>
+                                            <span>{{ $action['team'] }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-2">
+                                        <div class="small fw-semibold text-muted d-md-none mb-1">Timeline</div>
+                                        <span class="badge rounded-pill text-bg-light border text-dark fw-semibold px-3 py-2">
+                                            <i class="bi bi-clock me-1 text-primary" aria-hidden="true"></i>
+                                            {{ $action['timeline'] }}
+                                        </span>
+                                    </div>
+                                    <div class="col-12 col-md-3">
+                                        <div class="small fw-semibold text-muted d-md-none mb-1">Result</div>
+                                        <div class="small text-muted d-flex align-items-start gap-2">
+                                            <i class="bi bi-graph-up-arrow text-success mt-1" aria-hidden="true"></i>
+                                            <span>{{ $action['result'] }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endforeach
+                </article>
+            </div>
+        </div>
+    </section>
 
     <aside class="alert alert-info mt-5 mb-4" aria-labelledby="recommendation-method-heading"><h2 id="recommendation-method-heading" class="fs-6 fw-bold"><i class="bi bi-info-circle me-2"></i>Recommendation methodology</h2><p>Recommendations are generated from available sales-order records, target achievement results, and calculated forecast trends. They are data-supported, rule-based suggestions and should be reviewed by management before implementation.</p><p class="mb-0">Safe sample recommendations are shown only when qualifying database records are unavailable. Recommendations remain suggestions until reviewed and approved by an authorized manager.</p></aside>
 

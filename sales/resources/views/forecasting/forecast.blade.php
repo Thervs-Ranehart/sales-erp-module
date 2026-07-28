@@ -14,8 +14,15 @@
             ['label' => 'Forecast Growth Rate', 'value' => ($forecastKpis['growthRate'] >= 0 ? '+' : '').number_format($forecastKpis['growthRate'], 1).'%', 'icon' => 'percent', 'tone' => $forecastKpis['growthRate'] >= 0 ? 'text-success' : 'text-danger'],
             ['label' => 'Quarter Forecast', 'value' => '₱'.number_format($forecastKpis['quarterForecast']), 'icon' => 'calendar3', 'tone' => 'text-info'],
             ['label' => 'Forecast Confidence', 'value' => number_format($forecastKpis['confidence']).'%', 'icon' => 'shield-check', 'tone' => 'text-primary'],
-            ['label' => 'Forecast Status', 'value' => $forecastKpis['status'], 'icon' => 'activity', 'tone' => $forecastKpis['status'] === 'Growth Expected' ? 'text-success' : 'text-warning'],
+            ['label' => 'Forecast Status', 'value' => $forecastKpis['status'], 'icon' => 'activity', 'tone' => $forecastKpis['status'] === 'Upward' ? 'text-success' : ($forecastKpis['status'] === 'Downward' ? 'text-danger' : 'text-warning')],
         ];
+        $signedCurrency = fn (float $value): string => ($value >= 0 ? '+' : '-').'₱'.number_format(abs($value));
+        $signedPercentage = fn (float $value, int $precision = 1): string => ($value >= 0 ? '+' : '').number_format($value, $precision).'%';
+        $forecastNarrative = match ($forecastSummary['direction']) {
+            'Upward' => 'Revenue is projected to grow during the selected forecast period based on recent monthly sales performance.',
+            'Downward' => 'Revenue is projected to decline during the selected forecast period based on recent monthly sales performance.',
+            default => 'Revenue is projected to remain stable during the selected forecast period based on recent monthly sales performance.',
+        };
     @endphp
 
     <main class="w-full flex items-center" style="margin: -1rem -1rem 0; width: calc(100% + 2rem); padding: 32px 48px; height: 258px; max-height: 258px; background: linear-gradient(90deg, #128B99 0%, #1CE5BD 100%); border-radius: 0;">
@@ -57,11 +64,11 @@
     <section class="mt-5" aria-labelledby="forecast-summary-heading"><div class="card border-0 shadow-sm rounded-4"><div class="card-body p-4">
         <h2 id="forecast-summary-heading" class="fs-5 fw-bold mb-3">Forecast Summary</h2>
         <div class="row g-3">
-            @foreach ([['Forecast Period', $forecastSummary['period']], ['Expected Revenue', '₱'.number_format($forecastSummary['expectedRevenue'])], ['Expected Growth', '+'.number_format($forecastSummary['expectedGrowth'], 1).'%'], ['Projected Sales Gap', '+₱'.number_format($forecastSummary['projectedSalesGap'])], ['Forecast Direction', $forecastSummary['direction']], ['Confidence Level', $forecastSummary['confidence'].'%']] as [$label, $value])
+            @foreach ([['Forecast Period', $forecastSummary['period']], ['Expected Revenue', '₱'.number_format($forecastSummary['expectedRevenue'])], ['Expected Growth', $signedPercentage($forecastSummary['expectedGrowth'])], ['Projected Sales Gap', $signedCurrency($forecastSummary['projectedSalesGap'])], ['Forecast Direction', $forecastSummary['direction']], ['Confidence Level', $forecastSummary['confidence'].'%']] as [$label, $value])
                 <div class="col-6 col-lg-2"><div class="small text-muted">{{ $label }}</div><div class="fw-bold mt-1">{{ $value }}</div></div>
             @endforeach
         </div>
-        <p class="text-muted mb-0 mt-4">Revenue is expected to grow during the next quarter based on recent monthly sales performance.</p>
+        <p class="text-muted mb-0 mt-4">{{ $forecastNarrative }}</p>
     </div></div></section>
 
     <section class="mt-5" aria-labelledby="forecast-breakdown-heading">

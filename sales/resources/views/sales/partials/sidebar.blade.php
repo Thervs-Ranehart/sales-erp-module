@@ -2,7 +2,7 @@
 
 <div class="sidebar">
 
-    <h4>SQMS</h4>
+    <h4>SCSM</h4>
 
     <a href="{{ route('dashboard') }}"
        class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
@@ -55,16 +55,16 @@
 
 
     {{-- PRICING RULES --}}
-    <a href="{{ route('pricing.index') }}"
-       class="{{ request()->routeIs('pricing.*') ? 'active' : '' }}">
+    <a href="{{ route('pricing-rules.index') }}"
+       class="{{ request()->routeIs('pricing-rules.*') ? 'active' : '' }}">
         <i class="bi bi-tags"></i>
         Pricing Rules
     </a>
 
     {{-- Only show when inside Pricing Rules --}}
-    @if(request()->routeIs('pricing.*'))
-        <a href="{{ route('pricing.create') }}"
-           class="sub-menu {{ request()->routeIs('pricing.create') ? 'active' : '' }}">
+    @if(request()->routeIs('pricing-rules.*'))
+        <a href="{{ route('pricing-rules.create') }}"
+           class="sub-menu {{ request()->routeIs('pricing-rules.create') ? 'active' : '' }}">
             <i class="bi bi-plus-circle"></i>
             Create Pricing Rule
         </a>
