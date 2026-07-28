@@ -84,7 +84,6 @@ Route::get('/customer-segmentation', [CustomerSegmentationController::class, 'in
 Route::post('/customer-segmentation/recalculate', [CustomerSegmentationController::class, 'recalculate'])->name('crm.segmentation.recalculate');
 
 Route::get('/customer-loyalty', [CustomerLoyaltyController::class, 'index'])->name('crm.loyalty');
-Route::post('/customer-loyalty', [CustomerLoyaltyController::class, 'store'])->name('crm.loyalty.store');
 Route::get('/customer-loyalty/{loyalty}', [CustomerLoyaltyController::class, 'show'])->name('crm.loyalty.show');
 Route::put('/customer-loyalty/{loyalty}', [CustomerLoyaltyController::class, 'update'])->name('crm.loyalty.update');
 

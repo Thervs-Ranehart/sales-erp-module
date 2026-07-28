@@ -261,15 +261,6 @@ Manage customer rewards, membership levels, and loyalty engagement.
 
 <button type="button" class="btn text-white"
 style="background:#5347CE;border-radius:8px;"
-data-bs-toggle="modal" data-bs-target="#enrollCustomerModal">
-
-<i class="bi bi-person-plus"></i>
-Enroll Customer
-
-</button>
-
-<button type="button" class="btn text-white"
-style="background:#5347CE;border-radius:8px;"
 data-bs-toggle="modal" data-bs-target="#createRewardModal">
 
 <i class="bi bi-plus-lg"></i>
@@ -938,71 +929,6 @@ Edit
 
 
 {{-- =========================================================
-     LOYALTY ENROLLMENT (new)
-     ========================================================= --}}
-
-<div class="modal fade" id="enrollCustomerModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form method="POST" action="{{ route('crm.loyalty.store') }}">
-                @csrf
-                <div class="modal-header">
-                    <h5 class="modal-title">Enroll Customer in Loyalty Program</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-
-                    @if(($unenrolledCustomers ?? collect())->isEmpty())
-
-                        <p class="text-muted mb-0">
-                            All customers are already enrolled in the loyalty program.
-                        </p>
-
-                    @else
-
-                        <div class="mb-3">
-                            <label class="form-label">Customer</label>
-                            <select name="customer_id" class="form-select" required>
-                                <option value="" disabled selected>Select a customer</option>
-                                @foreach($unenrolledCustomers as $customer)
-                                    <option value="{{ $customer->customer_id }}" {{ old('customer_id') == $customer->customer_id ? 'selected' : '' }}>
-                                        {{ $customer->display_name }} (ID: {{ $customer->customer_id }})
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Membership Level</label>
-                            <select name="membership_level" class="form-select" required>
-                                <option value="Bronze" {{ old('membership_level', 'Bronze') === 'Bronze' ? 'selected' : '' }}>Bronze</option>
-                                <option value="Silver" {{ old('membership_level') === 'Silver' ? 'selected' : '' }}>Silver</option>
-                                <option value="Gold" {{ old('membership_level') === 'Gold' ? 'selected' : '' }}>Gold</option>
-                                <option value="VIP" {{ old('membership_level') === 'VIP' ? 'selected' : '' }}>VIP</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Starting Points</label>
-                            <input type="number" name="available_points" class="form-control" min="0" value="{{ old('available_points', 0) }}">
-                        </div>
-
-                    @endif
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    @if(($unenrolledCustomers ?? collect())->isNotEmpty())
-                        <button type="submit" class="btn text-white" style="background:#5347CE;">Enroll Customer</button>
-                    @endif
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-
-{{-- =========================================================
      REWARD MANAGEMENT (new)
      ========================================================= --}}
 
@@ -1284,8 +1210,7 @@ function openEditReward(rewardId) {
     }
 }
 
-// If validation fails on the Create Reward or Enroll Customer form,
-// reopen that modal automatically so the user sees the error messages.
+// If validation fails on the Create Reward form, reopen the modal automatically.
 document.addEventListener('DOMContentLoaded', function () {
     @if ($errors->any() && old('name') !== null)
         var createModalEl = document.getElementById('createRewardModal');
@@ -1294,12 +1219,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     @endif
 
-    @if ($errors->any() && old('customer_id') !== null)
-        var enrollModalEl = document.getElementById('enrollCustomerModal');
-        if (enrollModalEl) {
-            bootstrap.Modal.getOrCreateInstance(enrollModalEl).show();
-        }
-    @endif
 });
 </script>
 

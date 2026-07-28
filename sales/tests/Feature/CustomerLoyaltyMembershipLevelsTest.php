@@ -6,7 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('VIP members appear in membership-level totals, including newly enrolled members', function (): void {
+test('VIP members appear in membership-level totals, including automatically updated members', function (): void {
     $existingVip = Customer::query()->create([
         'first_name' => 'Existing',
         'last_name' => 'VIP',
@@ -35,11 +35,14 @@ test('VIP members appear in membership-level totals, including newly enrolled me
         'customer_status' => 'Active',
     ]);
 
-    $this->post(route('crm.loyalty.store'), [
+    LoyaltyProgram::query()->create([
         'customer_id' => $newVip->customer_id,
         'membership_level' => 'VIP',
         'available_points' => 3000,
-    ])->assertRedirect(route('crm.loyalty'));
+        'points_earned' => 3000,
+        'points_redeemed' => 0,
+        'enrollment_date' => today(),
+    ]);
 
     $this->get(route('crm.loyalty'))
         ->assertOk()

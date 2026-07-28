@@ -433,6 +433,12 @@ $smsPct = $totalForPage > 0
                     Completed
                 </option>
 
+                <option
+                    value="Resolved"
+                    {{ ($status ?? '') === 'Resolved' ? 'selected' : '' }}>
+                    Resolved
+                </option>
+
             </select>
 
         </div>
