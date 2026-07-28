@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Crm;
 
 use App\Http\Controllers\Controller;
-use App\Models\Customer;
-use App\Models\CommunicationLog;
 use App\Models\Agent;
-use App\Models\Employee;
+use App\Models\CommunicationLog;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -18,33 +17,28 @@ class CustomerFollowUpsController extends Controller
         $search = trim((string) $request->query('search', ''));
         $status = $request->query('status');
 
-
         $baseQuery = CommunicationLog::with([
             'customer',
-            'agent'
+            'agent',
         ])
-        ->whereNotNull('follow_up_date');
-
+            ->whereNotNull('follow_up_date');
 
         if ($search !== '') {
 
             $baseQuery->where(function ($q) use ($search) {
 
                 $q->where('subject', 'like', "%{$search}%")
-
-                ->orWhereHas('customer', function ($cq) use ($search) {
-                    $cq->where('first_name', 'like', "%{$search}%")
-                       ->orWhere('last_name', 'like', "%{$search}%");
-                })
-
-                ->orWhereHas('agent', function ($aq) use ($search) {
-                    $aq->where('first_name', 'like', "%{$search}%")
-                       ->orWhere('last_name', 'like', "%{$search}%");
-                });
+                    ->orWhereHas('customer', function ($cq) use ($search) {
+                        $cq->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('agent', function ($aq) use ($search) {
+                        $aq->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%");
+                    });
 
             });
         }
-
 
         if ($status) {
             $baseQuery->where(
@@ -53,12 +47,10 @@ class CustomerFollowUpsController extends Controller
             );
         }
 
-
         $followUps = $baseQuery
             ->orderBy('follow_up_date')
             ->paginate(10)
             ->withQueryString();
-
 
         // Follow-Up Analytics: date-range filtered counts using
         // follow_up_date / communication_status, driven off real data.
@@ -90,7 +82,6 @@ class CustomerFollowUpsController extends Controller
             ->where('follow_up_date', '<', now())
             ->count();
 
-
         return view('crm.customer-followups', [
 
             'followUps' => $followUps,
@@ -102,44 +93,39 @@ class CustomerFollowUpsController extends Controller
                 'status',
                 'Active'
             )
-            ->orderBy('first_name')
-            ->get(),
-
+                ->orderBy('first_name')
+                ->get(),
 
             'todayCount' => CommunicationLog::whereDate(
                 'follow_up_date',
                 now()->toDateString()
             )->count(),
 
-
             'pendingCount' => CommunicationLog::where(
                 'communication_status',
                 'Pending'
             )->count(),
-
 
             'overdueCount' => CommunicationLog::whereDate(
                 'follow_up_date',
                 '<',
                 now()->toDateString()
             )
-            ->where(
-                'communication_status',
-                '!=',
-                'Completed'
-            )
-            ->count(),
-
+                ->where(
+                    'communication_status',
+                    '!=',
+                    'Completed'
+                )
+                ->count(),
 
             'completedCount' => CommunicationLog::where(
                 'communication_status',
                 'Completed'
             )->count(),
 
+            'search' => $search,
 
-            'search'=>$search,
-
-            'status'=>$status,
+            'status' => $status,
 
             // Assigned Agents: available agents for each visible follow-up,
             // ranked by the follow-up's own priority column (see method docblock).
@@ -160,8 +146,6 @@ class CustomerFollowUpsController extends Controller
         ]);
     }
 
-
-
     public function store(Request $request)
     {
 
@@ -169,96 +153,128 @@ class CustomerFollowUpsController extends Controller
 
             'customer_id' => [
                 'required',
-                'exists:customers,customer_id'
+                'exists:customers,customer_id',
             ],
 
             'agent_id' => [
                 'required',
-                'exists:agents,agent_id'
+                'exists:agents,agent_id',
             ],
 
-            'communication_channel'=>[
-                'required'
-            ],
-
-            'subject'=>[
+            'communication_channel' => [
                 'required',
-                'string'
             ],
 
-            'notes'=>[
+            'subject' => [
+                'required',
+                'string',
+            ],
+
+            'notes' => [
                 'nullable',
-                'string'
+                'string',
             ],
 
-            'follow_up_date'=>[
+            'follow_up_date' => [
                 'required',
-                'date'
+                'date',
             ],
 
-            'priority'=>[
+            'priority' => [
                 'required',
-                'in:Low,Medium,High'
+                'in:Low,Medium,High',
             ],
 
-            'communication_status'=>[
+            'communication_status' => [
                 'required',
-                'in:Pending,Completed'
-            ]
+                'in:Pending,Completed',
+            ],
 
         ]);
-
-
 
         CommunicationLog::create([
 
-            'customer_id'=>$data['customer_id'],
+            'customer_id' => $data['customer_id'],
 
             // Assigned Agent
-            'agent_id'=>$data['agent_id'],
+            'agent_id' => $data['agent_id'],
 
-            'communication_date'=>now(),
+            'communication_date' => now(),
 
-            'communication_channel'=>$data['communication_channel'],
+            'communication_channel' => $data['communication_channel'],
 
-            'subject'=>$data['subject'],
+            'subject' => $data['subject'],
 
-            'notes'=>$data['notes'] ?? null,
+            'notes' => $data['notes'] ?? null,
 
-            'follow_up_date'=>$data['follow_up_date'],
+            'follow_up_date' => $data['follow_up_date'],
 
-            'priority'=>$data['priority'],
+            'priority' => $data['priority'],
 
-            'communication_status'=>$data['communication_status']
+            'communication_status' => $data['communication_status'],
 
         ]);
-
-
 
         return back()->with(
             'success',
             'Follow-up created successfully.'
         );
     }
+
     public function updateStatus(Request $request, CommunicationLog $log)
-{
-    $data = $request->validate([
-        'communication_status' => [
-            'required',
-            'in:Pending,Completed'
-        ]
-    ]);
+    {
+        $data = $request->validate([
+            'communication_status' => [
+                'required',
+                'in:Pending,Completed',
+            ],
+        ]);
 
-    $log->update([
-        'communication_status' => $data['communication_status']
-    ]);
+        $log->update([
+            'communication_status' => $data['communication_status'],
+        ]);
 
-    return back()->with(
-        'success',
-        'Follow-up status updated successfully.'
-    );
-}
+        return back()->with(
+            'success',
+            'Follow-up status updated successfully.'
+        );
+    }
 
+    public function update(Request $request, CommunicationLog $log)
+    {
+        $data = $request->validate([
+            'customer_id' => ['required', 'exists:customers,customer_id'],
+            'agent_id' => ['nullable', 'exists:agents,agent_id'],
+            'communication_channel' => ['required', 'string', 'max:100'],
+            'subject' => ['required', 'string', 'max:255'],
+            'notes' => ['nullable', 'string'],
+            'follow_up_date' => ['required', 'date'],
+            'priority' => ['required', 'in:Low,Medium,High'],
+            'communication_status' => ['required', 'in:Pending,Completed'],
+        ]);
+
+        if ($data['agent_id'] ?? null) {
+            $isActiveAgent = Agent::query()
+                ->where('agent_id', $data['agent_id'])
+                ->where('status', 'Active')
+                ->exists();
+
+            if (! $isActiveAgent) {
+                return back()->withErrors(['agent_id' => 'Selected agent is not available.']);
+            }
+        }
+
+        $log->update($data);
+
+        return back()->with('success', 'Follow-up updated successfully.');
+    }
+
+    public function destroy(CommunicationLog $log)
+    {
+        $log->delete();
+
+        return back()->with('success', 'Follow-up deleted successfully.');
+    }
 
     /**
      * Assign (or reassign) an available agent to a follow-up.
@@ -292,7 +308,6 @@ class CustomerFollowUpsController extends Controller
         );
     }
 
-
     /**
      * Rank a follow-up's priority value so it can be compared numerically.
      * Higher means more urgent for the customer.
@@ -306,7 +321,6 @@ class CustomerFollowUpsController extends Controller
             default => 0,
         };
     }
-
 
     /**
      * Build the "Assigned Agents" options for every follow-up on the current page.
@@ -368,7 +382,6 @@ class CustomerFollowUpsController extends Controller
 
         return $options;
     }
-
 
     /**
      * Resolve the [start, end] Carbon range for the Follow-Up Analytics filter.

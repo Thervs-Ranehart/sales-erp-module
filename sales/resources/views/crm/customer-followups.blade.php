@@ -456,6 +456,18 @@
                         </button>
 
 
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline-warning action-btn"
+                            title="Edit"
+                            data-bs-toggle="modal"
+                            data-bs-target="#editFollowUpModal{{ $followUp->communication_id }}">
+
+                            <i class="bi bi-pencil"></i>
+
+                        </button>
+
+
                         {{-- Assigned Agents --}}
 
                         <button
@@ -475,7 +487,8 @@
                         <form
                             method="POST"
                             action="{{ route('crm.followups.destroy', $followUp) }}"
-                            class="m-0">
+                            class="m-0"
+                            onsubmit="return confirm('Delete this follow-up?');">
 
                             @csrf
 
@@ -502,42 +515,19 @@
 
                             @csrf
 
-                            <div class="d-flex justify-content-center gap-2">
+                            <input
+                                type="hidden"
+                                name="communication_status"
+                                value="{{ $status === 'Completed' ? 'Pending' : 'Completed' }}">
 
-                                <select
-                                    name="communication_status"
-                                    class="form-select form-select-sm"
-                                    style="width: 130px;">
+                            <button
+                                type="submit"
+                                class="btn btn-sm {{ $status === 'Completed' ? 'btn-outline-secondary' : 'btn-outline-success' }} action-btn"
+                                title="{{ $status === 'Completed' ? 'Reopen follow-up' : 'Mark follow-up as completed' }}">
 
-                                    <option
-                                        value="Pending"
-                                        {{ $status === 'Pending' ? 'selected' : '' }}>
+                                <i class="bi {{ $status === 'Completed' ? 'bi-arrow-counterclockwise' : 'bi-check2-circle' }}"></i>
 
-                                        Pending
-
-                                    </option>
-
-                                    <option
-                                        value="Completed"
-                                        {{ $status === 'Completed' ? 'selected' : '' }}>
-
-                                        Completed
-
-                                    </option>
-
-                                </select>
-
-
-                                <button
-                                    type="submit"
-                                    class="btn btn-sm btn-outline-secondary action-btn"
-                                    title="Update">
-
-                                    <i class="bi bi-check2"></i>
-
-                                </button>
-
-                            </div>
+                            </button>
 
                         </form>
 
@@ -728,6 +718,83 @@
 
 </div>
 
+@endforeach
+
+{{-- Edit Follow-Up Modals --}}
+@foreach ($followUps as $followUp)
+    <div class="modal fade" id="editFollowUpModal{{ $followUp->communication_id }}" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <form class="modal-content" method="POST" action="{{ route('crm.followups.update', $followUp) }}">
+                @csrf
+                @method('PUT')
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Follow-Up</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Customer</label>
+                            <select class="form-select" name="customer_id" required>
+                                @foreach ($customers as $customer)
+                                    <option value="{{ $customer->customer_id }}" @selected($followUp->customer_id === $customer->customer_id)>{{ $customer->display_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Assigned Agent</label>
+                            <select class="form-select" name="agent_id">
+                                <option value="">Unassigned</option>
+                                @foreach ($agents as $agent)
+                                    <option value="{{ $agent->agent_id }}" @selected($followUp->agent_id === $agent->agent_id)>{{ $agent->full_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Channel</label>
+                            <select class="form-select" name="communication_channel" required>
+                                @foreach (['Email', 'Phone', 'SMS', 'Meeting'] as $channel)
+                                    <option value="{{ $channel }}" @selected($followUp->communication_channel === $channel)>{{ $channel }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Follow-Up Date</label>
+                            <input class="form-control" type="date" name="follow_up_date" value="{{ $followUp->follow_up_date?->toDateString() }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Priority</label>
+                            <select class="form-select" name="priority" required>
+                                @foreach (['Low', 'Medium', 'High'] as $priority)
+                                    <option value="{{ $priority }}" @selected($followUp->priority === $priority)>{{ $priority }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="communication_status" required>
+                                @foreach (['Pending', 'Completed'] as $followUpStatus)
+                                    <option value="{{ $followUpStatus }}" @selected($followUp->communication_status === $followUpStatus)>{{ $followUpStatus }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Subject</label>
+                            <input class="form-control" name="subject" value="{{ $followUp->subject }}" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" name="notes" rows="4">{{ $followUp->notes }}</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" type="submit">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
 @endforeach
 
 

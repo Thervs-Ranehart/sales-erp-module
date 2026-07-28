@@ -75,6 +75,7 @@ Route::delete('/customer-logs/{log}', [CustomerLogsController::class, 'destroy']
 
 Route::get('/customer-follow-ups', [CustomerFollowUpsController::class, 'index'])->name('crm.followups');
 Route::post('/customer-follow-ups', [CustomerFollowUpsController::class, 'store'])->name('crm.followups.store');
+Route::put('/customer-follow-ups/{log}', [CustomerFollowUpsController::class, 'update'])->name('crm.followups.update');
 Route::post('/customer-follow-ups/{log}/status', [CustomerFollowUpsController::class, 'updateStatus'])->name('crm.followups.status.update');
 Route::post('/customer-follow-ups/{log}/assign-agent', [CustomerFollowUpsController::class, 'assignAgent'])->name('crm.followups.assign-agent');
 Route::delete('/customer-follow-ups/{log}', [CustomerFollowUpsController::class, 'destroy'])->name('crm.followups.destroy');
