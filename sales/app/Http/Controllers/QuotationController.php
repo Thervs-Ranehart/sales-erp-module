@@ -271,7 +271,17 @@ class QuotationController extends Controller
                 ->orderBy('product_name')
                 ->get(),
 
+            'productCategories' => Product::query()
+                ->whereNotNull('category')
+                ->where('category', '!=', '')
+                ->distinct()
+                ->orderBy('category')
+                ->pluck('category'),
+
             'pricingRules' => PricingRule::query()
+                ->whereRaw('LOWER(status) = ?', ['active'])
+                ->whereDate('start_date', '<=', today())
+                ->whereDate('end_date', '>=', today())
                 ->orderBy('rule_name')
                 ->get(),
         ];

@@ -31,10 +31,23 @@ beforeEach(function (): void {
 
     $this->product = Product::query()->create([
         'product_name' => 'Lifecycle Product',
+        'category' => 'Hardware',
         'unit_price' => 1000,
         'stock_quantity' => 20,
         'product_status' => 'Active',
     ]);
+});
+
+test('product categories are available when creating orders and quotations', function (): void {
+    $this->get(route('sales.create'))
+        ->assertOk()
+        ->assertSee('All categories')
+        ->assertSee('Hardware');
+
+    $this->get(route('quotations.create'))
+        ->assertOk()
+        ->assertSee('All categories')
+        ->assertSee('Hardware');
 });
 
 test('pricing uses authoritative product prices and applies fixed discounts', function (): void {
@@ -85,6 +98,29 @@ test('inactive and out of date pricing rules are rejected', function (array $ove
     'future' => [['start_date' => now()->addDay(), 'end_date' => now()->addDays(2)]],
     'expired' => [['start_date' => now()->subDays(2), 'end_date' => now()->subDay()]],
 ]);
+
+test('a quotation can be saved with its calculated item totals', function (): void {
+    $this->withSession(['employee_id' => $this->employee->employee_id])
+        ->post(route('quotations.store'), [
+            'customer_id' => $this->customer->customer_id,
+            'quotation_date' => now()->toDateString(),
+            'valid_until' => now()->addDays(30)->toDateString(),
+            'status' => 'draft',
+            'discount' => 0,
+            'tax' => 12,
+            'product_id' => [$this->product->product_id],
+            'qty' => [2],
+            'price' => [1000],
+        ])
+        ->assertRedirect(route('quotations.index'));
+
+    $quotation = Quotation::query()->firstOrFail();
+
+    expect($quotation->quotation_number)->toBe('QT-00001')
+        ->and((float) $quotation->total_amount)->toBe(2240.0)
+        ->and($quotation->items)->toHaveCount(1)
+        ->and((float) $quotation->items->first()->unit_price)->toBe(1000.0);
+});
 
 test('an accepted quotation converts once and copies its backend records', function (): void {
     $quotation = Quotation::query()->create([

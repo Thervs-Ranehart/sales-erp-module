@@ -82,18 +82,27 @@ $taxPercent = $isEdit ? $salesOrder->taxPercent() : old('tax', 12);
     text-decoration:none;
     color:#666;
 }
+
+.sales-order-hero{display:flex;align-items:center;justify-content:space-between;gap:22px;padding:27px 29px;margin-bottom:24px;border-radius:18px;background:linear-gradient(120deg,#5347CE,#7469e8 60%,#4896FE);color:#fff;box-shadow:0 14px 30px rgba(83,71,206,.2);}
+.sales-order-hero .back-btn{flex:0 0 auto;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);}.sales-order-hero .back-btn:hover{background:#fff;color:var(--primary);}
+.sales-order-eyebrow{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#e5e2ff;}.sales-order-hero h2{margin:5px 0 0;color:#fff;font-weight:750;}.sales-order-hero p{margin:7px 0 0;color:#f0efff;}
+.custom-card{border:1px solid #e9e8f0;box-shadow:0 7px 20px rgba(31,41,55,.045);}.custom-card .form-control,.custom-card .form-select{min-height:44px;border-radius:9px;}.card-title{display:flex;align-items:center;gap:8px;color:#312b8d;}.card-title i{display:grid;place-items:center;width:30px;height:30px;border-radius:8px;background:#eeecff;color:#5347ce;font-size:14px;}
+.order-reference{display:flex;gap:10px;align-items:center;margin-bottom:20px;padding:13px 15px;border:1px solid #e3e0ff;border-radius:11px;background:#f8f7ff;color:#5347ce;}.order-reference i{font-size:20px;}.order-reference small{display:block;color:#6b7280;}.order-reference strong{font-size:14px;}
+.products-toolbar{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:18px;}.products-toolbar .card-title{margin:0;}.order-items-count{font-size:12px;color:#6b7280;}.order-summary-card{background:linear-gradient(150deg,#fbfaff,#f3f1ff);border-color:#e2dfff;}.order-summary-card hr{border-color:#ddd9fb;}.order-summary-card h4:last-child{color:var(--primary);}.order-actions-bar{position:sticky;bottom:12px;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px;border:1px solid #e5e7eb;border-radius:12px;background:rgba(255,255,255,.96);box-shadow:0 8px 24px rgba(31,41,55,.1);}.create-btn{box-shadow:0 7px 15px rgba(83,71,206,.22);}.cancel-btn{background:#fff;}
+@media(max-width:767px){.sales-order-hero{align-items:flex-start;flex-direction:column;padding:24px}.sales-order-hero .back-btn{width:100%;}.products-toolbar,.order-actions-bar{align-items:stretch;flex-direction:column}.order-actions-bar .text-end{display:flex;gap:8px;}.order-actions-bar a,.order-actions-bar button{flex:1;text-align:center;}}
 </style>
 
-<div class="page-header">
-
-    <a href="{{ route('sales.index') }}" class="back-btn">
-        <i class="bi bi-arrow-left"></i>
-    </a>
+<div class="sales-order-hero">
 
     <div>
+        <span class="sales-order-eyebrow"><i class="bi bi-cart-check me-1"></i> Sales order workspace</span>
         <h2>{{ $isEdit ? 'Edit Sales Order' : 'Create Sales Order' }}</h2>
-        <p>{{ $isEdit ? 'Update an existing customer sales order.' : 'Create a new customer sales order.' }}</p>
+        <p>{{ $isEdit ? 'Review the customer, items, and pricing before saving changes.' : 'Create a confirmed order from the customer’s selected products.' }}</p>
     </div>
+
+    <a href="{{ route('sales.index') }}" class="back-btn" aria-label="Back to sales orders">
+        <i class="bi bi-arrow-left"></i>
+    </a>
 
 </div>
 
@@ -106,8 +115,14 @@ $taxPercent = $isEdit ? $salesOrder->taxPercent() : old('tax', 12);
 <div class="custom-card">
 
 <h5 class="card-title">
+<i class="bi bi-person"></i>
 Customer Information
 </h5>
+
+<div class="order-reference">
+    <i class="bi bi-hash"></i>
+    <div><small>Sales order reference</small><strong>{{ $isEdit ? $salesOrder->order_number : 'Generated automatically when the order is created' }}</strong></div>
+</div>
 
 <div class="row">
 
@@ -146,9 +161,24 @@ required>
 
 <div class="custom-card">
 
-<h5 class="card-title">
-Products
-</h5>
+<div class="products-toolbar">
+    <div>
+        <h5 class="card-title"><i class="bi bi-box-seam"></i> Products</h5>
+        <span class="order-items-count"><span id="orderItemCount">0</span> item(s) in this order</span>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+        <select class="form-select" id="productCategoryFilter" aria-label="Filter products by category">
+            <option value="">All categories</option>
+            @foreach ($productCategories as $category)
+                <option value="{{ $category }}">{{ $category }}</option>
+            @endforeach
+        </select>
+        <button type="button" class="btn btn-outline-primary" id="addProductBtn">
+            <i class="bi bi-plus-circle"></i> Add Product
+        </button>
+    </div>
+</div>
 
 <table class="table" id="productsTable">
 
@@ -194,6 +224,7 @@ Products
 @foreach ($products as $product)
 <option value="{{ $product->product_id }}"
     data-price="{{ $product->unit_price }}"
+    data-category="{{ $product->category }}"
     @selected($row['product_id'] == $product->product_id)>
     {{ $product->product_name }}
 </option>
@@ -254,16 +285,12 @@ readonly>
 
 </table>
 
-<button type="button" class="btn btn-outline-primary" id="addProductBtn">
-<i class="bi bi-plus-circle"></i>
-Add Product
-</button>
-
 </div>
 
 <div class="custom-card">
 
 <h5 class="card-title">
+<i class="bi bi-percent"></i>
 Pricing
 </h5>
 
@@ -332,6 +359,7 @@ value="{{ $taxPercent }}">
 <div class="custom-card">
 
 <h5 class="card-title">
+<i class="bi bi-arrow-repeat"></i>
 Order Status
 </h5>
 <select class="form-select" name="status" required>
@@ -351,9 +379,10 @@ Order Status
 
 </div>
 
-<div class="custom-card">
+<div class="custom-card order-summary-card">
 
 <h5 class="card-title">
+<i class="bi bi-calculator"></i>
 Order Summary
 </h5>
 
@@ -384,7 +413,11 @@ Order Summary
 
 </div>
 
-<div class="text-end mb-5">
+<div class="order-actions-bar mb-5">
+
+<span class="small text-muted"><i class="bi bi-shield-check me-1"></i>Totals update automatically as you change the order.</span>
+
+<div class="text-end">
 
 <a href="{{ route('sales.index') }}" class="cancel-btn">
 Cancel
@@ -397,6 +430,8 @@ Cancel
 
 </div>
 
+</div>
+
 </form>
 
 <template id="productRowTemplate">
@@ -405,7 +440,7 @@ Cancel
 <select class="form-select product-select" name="product_id[]" required>
 <option value="">Select Product</option>
 @foreach ($products as $product)
-<option value="{{ $product->product_id }}" data-price="{{ $product->unit_price }}">
+<option value="{{ $product->product_id }}" data-price="{{ $product->unit_price }}" data-category="{{ $product->category }}">
     {{ $product->product_name }}
 </option>
 @endforeach
@@ -437,6 +472,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const taxInput = document.getElementById('taxInput');
     const pricingRuleSelect = document.getElementById('pricingRuleSelect');
     const discountLabel = document.getElementById('discountLabel');
+    const productCategoryFilter = document.getElementById('productCategoryFilter');
 
 let discountType = "{{ strtolower($discountType) }}";
 
@@ -449,6 +485,7 @@ let discountType = "{{ strtolower($discountType) }}";
 
     function recalculateTotals() {
         let subtotal = 0;
+        document.getElementById('orderItemCount').textContent = productRows.querySelectorAll('.product-row').length;
 
         productRows.querySelectorAll('.product-row').forEach(function (row) {
             const qty = parseFloat(row.querySelector('.qty-input')?.value || 0);
@@ -502,6 +539,14 @@ const total = taxableAmount + taxAmount;
         priceInput.value = selected.dataset.price;
     }
 
+    function filterProductsByCategory() {
+        const category = productCategoryFilter.value;
+
+        document.querySelectorAll('.product-select option[data-category]').forEach(function (option) {
+            option.hidden = category !== '' && option.dataset.category !== category;
+        });
+    }
+
     recalculateTotals();
 });
            
@@ -526,6 +571,9 @@ const total = taxableAmount + taxAmount;
         bindRowEvents(productRows.lastElementChild);
         recalculateTotals();
     });
+
+    productCategoryFilter.addEventListener('change', filterProductsByCategory);
+    filterProductsByCategory();
 
    pricingRuleSelect.addEventListener('change', function () {
 

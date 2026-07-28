@@ -53,9 +53,10 @@ class PricingRule extends Model
     {
         $today = Carbon::today();
 
-        return $today->between(
-            $this->start_date,
-            $this->end_date
-        );
+        return strtolower((string) $this->status) === 'active'
+            && $today->between(
+                $this->start_date,
+                $this->end_date
+            );
     }
 }

@@ -66,14 +66,69 @@
                 <input type="text" name="contact_no" class="form-control" value="{{ old('contact_no', $customer->contact_no) }}">
             </div>
 
+            <div class="col-md-6">
+                <label class="form-label">Gender</label>
+                <select name="gender" class="form-select">
+                    <option value="">Select gender</option>
+                    @foreach (['Male', 'Female', 'Other', 'Prefer not to say'] as $gender)
+                        <option value="{{ $gender }}" @selected(old('gender', $customer->profile?->gender) === $gender)>{{ $gender }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Birth Date</label>
+                <input type="date" name="birth_date" class="form-control" value="{{ old('birth_date', $customer->profile?->birth_date?->format('Y-m-d')) }}" max="{{ now()->toDateString() }}">
+            </div>
+
             <div class="col-12">
                 <label class="form-label">Address</label>
                 <textarea name="address" class="form-control" rows="3">{{ old('address', $customer->address) }}</textarea>
             </div>
 
+            <div class="col-md-6">
+                <label class="form-label">Sales Region</label>
+                <select name="region_id" class="form-select">
+                    <option value="">Select region</option>
+                    @foreach ($regions as $region)
+                        <option value="{{ $region->region_id }}" @selected(old('region_id', $customer->region_id) == $region->region_id)>{{ $region->region_name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Customer Status <span class="text-danger">*</span></label>
+                <select name="customer_status" class="form-select" required>
+                    <option value="Active" @selected(old('customer_status', $customer->customer_status) === 'Active')>Active</option>
+                    <option value="Inactive" @selected(old('customer_status', $customer->customer_status) === 'Inactive')>Inactive</option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Preferred Contact Method</label>
+                <select name="preferred_contact" class="form-select">
+                    <option value="">No preference</option>
+                    @foreach (['Email', 'Phone', 'SMS'] as $method)
+                        <option value="{{ $method }}" @selected(old('preferred_contact', $customer->profile?->preferred_contact) === $method)>{{ $method }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Preferred Product Category</label>
+                <input type="text" name="preferred_product_category" class="form-control" value="{{ old('preferred_product_category', $customer->profile?->preferred_product_category) }}" placeholder="e.g. Office equipment">
+            </div>
+
             <div class="col-12">
                 <label class="form-label">Preferences</label>
                 <textarea name="preferences" class="form-control" rows="3">{{ old('preferences', $customer->preferences) }}</textarea>
+            </div>
+
+            <div class="col-12">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="marketing_consent" value="1" id="marketingConsent" @checked(old('marketing_consent', $customer->profile?->marketing_consent))>
+                    <label class="form-check-label" for="marketingConsent">Customer agrees to receive marketing communications.</label>
+                </div>
             </div>
         </div>
 

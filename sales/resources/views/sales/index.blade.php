@@ -756,6 +756,23 @@ body.sales-delete-modal-open{
             }
         }
 
+        .sales-dashboard-hero{
+            display:flex; align-items:center; justify-content:space-between; gap:28px;
+            padding:24px 26px; margin-bottom:20px; border:1px solid #e8e7f0; border-radius:18px;
+            background:#fff; color:#1f2937; box-shadow:0 8px 24px rgba(31,41,55,.05);
+        }
+        .sales-dashboard-hero__eyebrow{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#7068c7;}
+        .sales-dashboard-hero h2{margin:5px 0 0;color:#1f2937;font-size:28px;font-weight:750;}
+        .sales-dashboard-hero p{max-width:390px;margin:7px 0 0;color:#6b7280;font-size:14px;}
+        .sales-dashboard-kpis{display:grid;grid-template-columns:repeat(4,minmax(106px,1fr));gap:10px;}
+        .sales-dashboard-kpi{position:relative;min-width:106px;padding:12px 12px 12px 39px;border:1px solid #ebeaf2;border-radius:12px;background:#fafafe;overflow:hidden;}
+        .sales-dashboard-kpi>i{position:absolute;left:13px;top:14px;font-size:16px;color:#5347ce;}
+        .sales-dashboard-kpi:nth-child(2){background:#fffaf0}.sales-dashboard-kpi:nth-child(2)>i{color:#b7791f}.sales-dashboard-kpi:nth-child(3){background:#f4f8ff}.sales-dashboard-kpi:nth-child(3)>i{color:#3976c5}.sales-dashboard-kpi:nth-child(4){background:#f1fbf7}.sales-dashboard-kpi:nth-child(4)>i{color:#13855c}
+        .sales-dashboard-kpi span{display:block;font-size:11px;color:#6b7280;white-space:nowrap;}.sales-dashboard-kpi strong{display:block;margin-top:2px;font-size:21px;color:#1f2937;}
+        .order-card{border:1px solid #e8e7f0;border-top:0;box-shadow:0 8px 24px rgba(31,41,55,.05);}
+        .order-header{background:linear-gradient(180deg,#fff 0%,#fcfcff 100%);}
+        @media(max-width:980px){.sales-dashboard-hero{align-items:flex-start;flex-direction:column}.sales-dashboard-kpis{width:100%;grid-template-columns:repeat(4,minmax(0,1fr));}}
+        @media(max-width:600px){.sales-dashboard-kpis{grid-template-columns:repeat(2,minmax(0,1fr));}.sales-dashboard-kpi{min-width:0;}}
     </style>
 </head>
 
@@ -766,12 +783,29 @@ body.sales-delete-modal-open{
 
     <div class="page-container">
 
+        <section class="sales-dashboard-hero">
+            <div>
+                <span class="sales-dashboard-hero__eyebrow"><i class="bi bi-cart-check me-1"></i> Sales operations</span>
+                <h2>Sales Orders</h2>
+                <p>Monitor order progress and keep every customer transaction moving.</p>
+            </div>
+            <div class="sales-dashboard-kpis">
+                <div class="sales-dashboard-kpi"><i class="bi bi-receipt"></i><span>All orders</span><strong>{{ $statusCounts['all'] ?? 0 }}</strong></div>
+                <div class="sales-dashboard-kpi"><i class="bi bi-hourglass-split"></i><span>Pending</span><strong>{{ $statusCounts['pending'] ?? 0 }}</strong></div>
+                <div class="sales-dashboard-kpi"><i class="bi bi-truck"></i><span>In fulfillment</span><strong>{{ ($statusCounts['processed'] ?? 0) + ($statusCounts['shipped'] ?? 0) }}</strong></div>
+                <div class="sales-dashboard-kpi"><i class="bi bi-check2-circle"></i><span>Delivered</span><strong>{{ $statusCounts['delivered'] ?? 0 }}</strong></div>
+            </div>
+        </section>
+
 
         <!-- PAGE TITLE -->
 
         <div class="page-header">
 
-            <h2>Sales Orders</h2>
+            <div>
+                <span class="text-muted small">Order workspace</span>
+                <h2>Manage sales orders</h2>
+            </div>
 
             <div class="page-header-actions">
                 <button type="button" class="bulk-action-btn select-all-orders-btn" id="select-all-orders">

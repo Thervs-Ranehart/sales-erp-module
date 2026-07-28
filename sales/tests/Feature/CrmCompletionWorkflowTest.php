@@ -122,6 +122,26 @@ test('customers can be archived and restored without losing history', function (
     expect($this->customer->fresh()->customer_status)->toBe('Active');
 });
 
+test('customer status is consistent across the directory and profile', function (): void {
+    $this->customer->update(['customer_status' => 'Inactive']);
+    $this->customer->loyaltyProgram()->create([
+        'membership_level' => 'Bronze',
+        'points_earned' => 0,
+        'points_redeemed' => 0,
+        'available_points' => 0,
+        'enrollment_date' => now(),
+    ]);
+
+    $this->get(route('crm.directory'))
+        ->assertOk()
+        ->assertSee('Inactive');
+
+    $this->get(route('crm.profiles', ['customer_id' => $this->customer->customer_id]))
+        ->assertOk()
+        ->assertSee('Inactive Customer')
+        ->assertDontSee('Active Customer');
+});
+
 test('behavior predictions and retention automation are explainable and deduplicated', function (): void {
     $order = SalesOrder::query()->create([
         'order_number' => 'SO-CRM-OLD',

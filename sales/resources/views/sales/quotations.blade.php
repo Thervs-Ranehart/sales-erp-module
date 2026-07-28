@@ -302,10 +302,28 @@
     color:#EF4444;
 }
 
-.delete-btn:hover{
+        .delete-btn:hover{
     background:#EF4444;
     color:#fff;
-}
+        }
+
+        .quotation-dashboard-hero{
+            display:flex; align-items:center; justify-content:space-between; gap:20px;
+            margin-bottom:22px; padding:26px 28px; border-radius:18px;
+            background:linear-gradient(120deg,#5347CE,#7469e8 58%,#4896FE); color:#fff;
+            box-shadow:0 14px 30px rgba(83,71,206,.2);
+        }
+        .quotation-dashboard-hero h2{ margin:5px 0 0; font-size:30px; font-weight:750; }
+        .quotation-dashboard-hero p{ margin:7px 0 0; color:#edeaff; }
+        .quotation-dashboard-eyebrow{ font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#dedbff; }
+        .quotation-dashboard-hero .new-btn{ background:#fff; color:#5347CE; box-shadow:0 6px 14px rgba(31,41,55,.15); white-space:nowrap; }
+        .quotation-dashboard-hero .new-btn:hover{ background:#f2f0ff; }
+        .quotation-kpis{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin-bottom:22px; }
+        .quotation-kpi{ padding:16px; border:1px solid #ebe9f5; border-radius:14px; background:#fff; box-shadow:0 4px 14px rgba(31,41,55,.04); }
+        .quotation-kpi span{ display:block; color:var(--text2); font-size:12px; font-weight:600; }
+        .quotation-kpi strong{ display:block; margin-top:4px; color:var(--primary); font-size:26px; }
+        .table-card::before{ content:''; display:block; height:4px; background:linear-gradient(90deg,#5347CE,#4896FE); }
+        @media (max-width:767px){ .quotation-dashboard-hero{align-items:flex-start;flex-direction:column}.quotation-kpis{grid-template-columns:repeat(2,minmax(0,1fr));}.quotation-dashboard-hero .new-btn{width:100%;text-align:center;} }
 
 /* Responsive */
 
@@ -329,16 +347,23 @@
 
     <div class="page-content">
 
-        <div class="page-header">
-
-            <h2 class="page-title">
-                Quotations
-            </h2>
-<a href="{{ route('quotations.create') }}" class="new-btn text-decoration-none">
+        <div class="quotation-dashboard-hero">
+            <div>
+                <span class="quotation-dashboard-eyebrow"><i class="bi bi-receipt-cutoff me-1"></i> Sales quotation workspace</span>
+                <h2>Quotations</h2>
+                <p>Build offers, track approvals, and convert accepted quotes into sales orders.</p>
+            </div>
+            <a href="{{ route('quotations.create') }}" class="new-btn text-decoration-none">
     <i class="bi bi-plus-circle me-1"></i>
     New Quotation
 </a>
+        </div>
 
+        <div class="quotation-kpis">
+            <div class="quotation-kpi"><span>All quotations</span><strong>{{ $statusCounts['all'] }}</strong></div>
+            <div class="quotation-kpi"><span>Drafts</span><strong>{{ $statusCounts['draft'] }}</strong></div>
+            <div class="quotation-kpi"><span>Awaiting response</span><strong>{{ $statusCounts['sent'] }}</strong></div>
+            <div class="quotation-kpi"><span>Accepted</span><strong>{{ $statusCounts['accepted'] }}</strong></div>
         </div>
 
 

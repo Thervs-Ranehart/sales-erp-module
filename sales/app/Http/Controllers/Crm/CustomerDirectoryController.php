@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Crm;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\CustomerBehaviorAnalysis;
+use App\Models\SalesRegion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -29,25 +30,8 @@ class CustomerDirectoryController extends Controller
             });
         }
 
-        if ($status === 'Active') {
-            $query->where(function ($q) {
-                $q->whereHas('communicationLogs', function ($logQuery) {
-                    $logQuery->where('communication_status', '!=', 'Inactive');
-                })->orWhereHas('salesOrders')
-                    ->orWhereHas('loyaltyProgram', function ($loyaltyQuery) {
-                        $loyaltyQuery->whereNotNull('enrollment_date');
-                    });
-            });
-        } elseif ($status === 'Inactive') {
-            $query->whereDoesntHave('communicationLogs', function ($logQuery) {
-                $logQuery->where('communication_status', '!=', 'Inactive');
-            })->whereDoesntHave('salesOrders')
-                ->where(function ($q) {
-                    $q->whereDoesntHave('loyaltyProgram')
-                        ->orWhereHas('loyaltyProgram', function ($loyaltyQuery) {
-                            $loyaltyQuery->whereNull('enrollment_date');
-                        });
-                });
+        if (in_array($status, ['Active', 'Inactive'], true)) {
+            $query->where('customer_status', $status);
         }
 
         if ($customerType === 'VIP') {
@@ -76,17 +60,10 @@ class CustomerDirectoryController extends Controller
             ->withQueryString();
 
         $totalCustomers = Customer::count();
-        $activeCustomers = Customer::where(function ($q) {
-            $q->whereHas('communicationLogs', function ($logQuery) {
-                $logQuery->where('communication_status', '!=', 'Inactive');
-            })->orWhereHas('salesOrders')
-                ->orWhereHas('loyaltyProgram', function ($loyaltyQuery) {
-                    $loyaltyQuery->whereNotNull('enrollment_date');
-                });
-        })->count();
+        $activeCustomers = Customer::where('customer_status', 'Active')->count();
 
         $newCustomers = Customer::whereDate('created_at', '>=', now()->subDays(30))->count();
-        $inactiveAccounts = max(0, $totalCustomers - $activeCustomers);
+        $inactiveAccounts = Customer::where('customer_status', 'Inactive')->count();
 
         $regularCount = Customer::where(function ($q) {
             $q->whereDoesntHave('loyaltyProgram')
@@ -123,7 +100,9 @@ class CustomerDirectoryController extends Controller
 
     public function create()
     {
-        return view('crm.customer-create');
+        return view('crm.customer-create', [
+            'regions' => SalesRegion::query()->where('status', 'Active')->orderBy('region_name')->get(),
+        ]);
     }
 
     public function store(Request $request)
@@ -135,10 +114,26 @@ class CustomerDirectoryController extends Controller
             'contact_no' => ['nullable', 'string', 'max:50'],
             'address' => ['nullable', 'string'],
             'preferences' => ['nullable', 'string'],
+            'customer_status' => ['required', 'in:Active,Inactive'],
+            'region_id' => ['nullable', 'exists:sales_regions,region_id'],
+            'gender' => ['nullable', 'in:Male,Female,Other,Prefer not to say'],
+            'birth_date' => ['nullable', 'date', 'before_or_equal:today'],
+            'preferred_contact' => ['nullable', 'in:Email,Phone,SMS'],
+            'preferred_product_category' => ['nullable', 'string', 'max:255'],
+            'marketing_consent' => ['nullable', 'boolean'],
         ]);
 
-        $customer = Customer::create($data);
-        $customer->profile()->create(['preferences' => $data['preferences'] ?? null, 'marketing_consent' => false]);
+        $customer = Customer::create(collect($data)->only([
+            'first_name', 'last_name', 'email', 'contact_no', 'address', 'preferences', 'customer_status', 'region_id',
+        ])->all());
+        $customer->profile()->create([
+            'gender' => $data['gender'] ?? null,
+            'birth_date' => $data['birth_date'] ?? null,
+            'preferred_contact' => $data['preferred_contact'] ?? null,
+            'preferred_product_category' => $data['preferred_product_category'] ?? null,
+            'preferences' => $data['preferences'] ?? null,
+            'marketing_consent' => $request->boolean('marketing_consent'),
+        ]);
 
         return redirect()->route('crm.directory')->with('success', 'Customer created successfully.');
     }
@@ -161,7 +156,12 @@ class CustomerDirectoryController extends Controller
 
     public function edit(Customer $customer)
     {
-        return view('crm.customer-edit', compact('customer'));
+        $customer->load('profile');
+
+        return view('crm.customer-edit', [
+            'customer' => $customer,
+            'regions' => SalesRegion::query()->where('status', 'Active')->orderBy('region_name')->get(),
+        ]);
     }
 
     public function update(Request $request, Customer $customer)
@@ -173,12 +173,28 @@ class CustomerDirectoryController extends Controller
             'contact_no' => ['nullable', 'string', 'max:50'],
             'address' => ['nullable', 'string'],
             'preferences' => ['nullable', 'string'],
+            'customer_status' => ['required', 'in:Active,Inactive'],
+            'region_id' => ['nullable', 'exists:sales_regions,region_id'],
+            'gender' => ['nullable', 'in:Male,Female,Other,Prefer not to say'],
+            'birth_date' => ['nullable', 'date', 'before_or_equal:today'],
+            'preferred_contact' => ['nullable', 'in:Email,Phone,SMS'],
+            'preferred_product_category' => ['nullable', 'string', 'max:255'],
+            'marketing_consent' => ['nullable', 'boolean'],
         ]);
 
-        $customer->update($data);
+        $customer->update(collect($data)->only([
+            'first_name', 'last_name', 'email', 'contact_no', 'address', 'preferences', 'customer_status', 'region_id',
+        ])->all());
         $customer->profile()->updateOrCreate(
             ['customer_id' => $customer->customer_id],
-            ['preferences' => $data['preferences'] ?? null]
+            [
+                'gender' => $data['gender'] ?? null,
+                'birth_date' => $data['birth_date'] ?? null,
+                'preferred_contact' => $data['preferred_contact'] ?? null,
+                'preferred_product_category' => $data['preferred_product_category'] ?? null,
+                'preferences' => $data['preferences'] ?? null,
+                'marketing_consent' => $request->boolean('marketing_consent'),
+            ]
         );
 
         return redirect()->route('crm.directory')->with('success', 'Customer updated successfully.');
@@ -219,7 +235,7 @@ class CustomerDirectoryController extends Controller
                 $selectedCustomer->last_name ? strtoupper(substr($selectedCustomer->last_name, 0, 1)) : '',
             ])->implode(''),
             'name' => $selectedCustomer->display_name,
-            'status' => $selectedCustomer->loyaltyProgram?->enrollment_date ? 'Active Customer' : 'Inactive Customer',
+            'status' => ($selectedCustomer->customer_status ?? 'Active').' Customer',
             'orders' => $selectedCustomer->salesOrders->count(),
             'spending' => number_format($selectedCustomer->salesOrders->sum('total_amount')),
             'loyalty' => (int) ($selectedCustomer->loyaltyProgram?->available_points ?? 0),

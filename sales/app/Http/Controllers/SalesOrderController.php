@@ -216,6 +216,12 @@ class SalesOrderController extends Controller
             'products' => Product::query()
                 ->orderBy('product_name')
                 ->get(),
+            'productCategories' => Product::query()
+                ->whereNotNull('category')
+                ->where('category', '!=', '')
+                ->distinct()
+                ->orderBy('category')
+                ->pluck('category'),
             'pricingRules' => PricingRule::query()
                 ->orderBy('rule_name')
                 ->get(),

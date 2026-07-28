@@ -193,7 +193,7 @@ class CustomerProfilesController extends Controller
                 $selectedCustomer->last_name ? strtoupper(substr($selectedCustomer->last_name, 0, 1)) : '',
             ])->implode(''),
             'name' => $selectedCustomer->display_name,
-            'status' => $selectedCustomer->loyaltyProgram?->enrollment_date ? 'Active Customer' : 'Inactive Customer',
+            'status' => ($selectedCustomer->customer_status ?? 'Active').' Customer',
             'orders' => $selectedCustomer->salesOrders->count(),
             'spending' => number_format($selectedCustomer->salesOrders->sum('total_amount')),
             'loyalty' => (int) ($selectedCustomer->loyaltyProgram?->available_points ?? 0),

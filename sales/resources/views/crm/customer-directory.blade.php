@@ -726,20 +726,22 @@ Regular
 <td>
 
 
-@php
-$latestStatus = optional($customer->communicationLogs()->orderByDesc('communication_date')->first())->communication_status;
-@endphp
-
-@if($latestStatus && $latestStatus !== 'Inactive')
+@if(($customer->customer_status ?? 'Active') === 'Active')
 
 <span class="badge bg-success">
 Active
 </span>
 
-@else
+@elseif(($customer->customer_status ?? 'Active') === 'Inactive')
 
 <span class="badge bg-secondary">
 Inactive
+</span>
+
+@else
+
+<span class="badge bg-dark">
+{{ $customer->customer_status }}
 </span>
 
 @endif

@@ -163,13 +163,107 @@ body{
     cursor:not-allowed;
 }
 
+.quotation-hero{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:24px;
+    padding:28px 30px;
+    margin-bottom:24px;
+    border-radius:18px;
+    background:linear-gradient(120deg,#5347CE 0%,#7469e8 58%,#4896FE 100%);
+    color:#fff;
+    box-shadow:0 14px 32px rgba(83,71,206,.2);
+}
+
+.quotation-eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    margin-bottom:8px;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:#e9e7ff;
+}
+
+.quotation-hero .page-title{ color:#fff; margin:0; }
+.quotation-hero .page-subtitle{ color:#f0efff; margin:7px 0 0; }
+.quotation-hero .back-btn{ border-color:rgba(255,255,255,.45); background:rgba(255,255,255,.14); color:#fff; }
+.quotation-hero .back-btn:hover{ background:#fff; color:var(--primary); }
+
+.quotation-reference{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 14px;
+    background:#f7f6ff;
+    border:1px solid #e2defc;
+    border-radius:10px;
+    color:var(--primary);
+}
+
+.quotation-reference__icon{
+    width:34px;
+    height:34px;
+    display:grid;
+    place-items:center;
+    border-radius:9px;
+    background:#e4e0ff;
+}
+
+.quotation-reference small{ display:block; color:var(--text2); }
+.quotation-reference strong{ font-size:14px; }
+.quotation-help{ margin-top:7px; color:var(--text2); font-size:12px; }
+.quotation-items-meta{ color:var(--text2); font-size:13px; }
+
+.quote-summary{
+    border:1px solid #e6e3ff;
+    border-radius:14px;
+    padding:16px 18px;
+    background:linear-gradient(150deg,#fbfaff,#f3f1ff);
+}
+
+.quote-summary .table{ margin-bottom:0; }
+.quote-summary .grand-total-row th,
+.quote-summary .grand-total-row td{ border-top:1px solid #dcd8ff; padding-top:16px; }
+.quote-validity-note{
+    display:flex;
+    gap:8px;
+    margin-top:14px;
+    padding-top:14px;
+    border-top:1px solid #e6e3ff;
+    color:var(--text2);
+    font-size:12px;
+}
+
+.quotation-form-actions{
+    position:sticky;
+    bottom:12px;
+    z-index:5;
+    padding:14px;
+    border:1px solid #e5e7eb;
+    border-radius:12px;
+    background:rgba(255,255,255,.95);
+    box-shadow:0 8px 24px rgba(31,41,55,.1);
+}
+
+@media (max-width:767px){
+    .page-content{ padding:18px; }
+    .quotation-hero{ align-items:flex-start; flex-direction:column; padding:23px; }
+    .quotation-hero .back-btn{ width:100%; justify-content:center; }
+}
+
 </style>
 
 <div class="page-content">
 
-    <div class="page-header">
+    <div class="quotation-hero">
 
         <div>
+
+            <span class="quotation-eyebrow"><i class="bi bi-receipt-cutoff"></i> Sales quotation workspace</span>
 
             <h2 class="page-title">
 
@@ -179,7 +273,7 @@ body{
 
             <p class="page-subtitle">
 
-                Create a quotation for your customer
+                {{ $isEdit ? 'Review pricing, items, and validity before saving changes.' : 'Prepare a customer-ready offer with clear pricing and validity.' }}
 
             </p>
 
@@ -205,6 +299,17 @@ body{
 
     @csrf
 
+    @if ($errors->any())
+        <div class="alert alert-danger" role="alert">
+            <strong>Quotation could not be saved.</strong>
+            <ul class="mb-0 mt-2">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     @if($isEdit)
         @method('PUT')
     @endif
@@ -220,7 +325,17 @@ body{
         </h5>
 
         <div class="row g-4">
-                        <div class="col-md-6">
+            <div class="col-12">
+                <div class="quotation-reference">
+                    <span class="quotation-reference__icon"><i class="bi bi-hash"></i></span>
+                    <div>
+                        <small>Quotation reference</small>
+                        <strong>{{ $isEdit ? $quotation->quotation_number : 'Generated automatically when saved' }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
 
                 <label class="form-label">
                     Customer
@@ -229,6 +344,7 @@ body{
                 <select
                     class="form-select"
                     name="customer_id"
+                    id="quotationCustomer"
                     required
                 >
 
@@ -251,6 +367,8 @@ body{
 
                 </select>
 
+                <div class="quotation-help">Choose the customer receiving this quotation.</div>
+
             </div>
 
             <div class="col-md-3">
@@ -263,9 +381,12 @@ body{
                     type="date"
                     class="form-control"
                     name="quotation_date"
+                    id="quotationDate"
                     value="{{ old('quotation_date', optional($quotation)->quotation_date?->format('Y-m-d') ?? now()->format('Y-m-d')) }}"
                     required
                 >
+
+                <div class="quotation-help">The price offer stays valid through this date.</div>
 
             </div>
 
@@ -279,6 +400,8 @@ body{
                     type="date"
                     class="form-control"
                     name="valid_until"
+                    id="validUntil"
+                    onchange="updateQuotationMeta()"
                     value="{{ old('valid_until', optional($quotation)->valid_until?->format('Y-m-d') ?? now()->addDays(30)->format('Y-m-d')) }}"
                     required
                 >
@@ -308,6 +431,7 @@ body{
                             value="{{ $rule->pricing_rule_id }}"
                             data-discount-type="{{ $rule->discount_type }}"
                             data-discount-value="{{ $rule->discount_value }}"
+                            data-tax-rate="{{ $rule->tax_rate ?? 12 }}"
                             @selected(old('pricing_rule_id', optional($quotation)->pricing_rule_id) == $rule->pricing_rule_id)
                         >
 
@@ -375,13 +499,23 @@ body{
 
         <div class="d-flex justify-content-between align-items-center mb-4">
 
-            <h5 class="section-title mb-0">
+            <div>
+                <h5 class="section-title mb-1">
 
                 <i class="bi bi-box-seam"></i>
 
                 Products / Items
 
-            </h5>
+                </h5>
+                <div class="quotation-items-meta"><span id="itemCount">0</span> item(s) included in this quotation</div>
+            </div>
+
+            <select class="form-select w-auto" id="productCategoryFilter" aria-label="Filter products by category">
+                <option value="">All categories</option>
+                @foreach($productCategories as $category)
+                    <option value="{{ $category }}">{{ $category }}</option>
+                @endforeach
+            </select>
 
             <button
                 type="button"
@@ -448,6 +582,7 @@ body{
                 <option
                     value="{{ $product->product_id }}"
                     data-price="{{ $product->unit_price }}"
+                    data-category="{{ $product->category }}"
                 >
 
                     {{ $product->product_name }}
@@ -542,6 +677,7 @@ body{
                 <option
                     value="{{ $product->product_id }}"
                     data-price="{{ $product->unit_price }}"
+                    data-category="{{ $product->category }}"
                     @selected($item->product_id == $product->product_id)
                 >
 
@@ -645,6 +781,8 @@ body{
 
         <div class="col-lg-6">
 
+            <div class="quote-summary">
+
             <table class="table table-borderless">
 
                 <tr>
@@ -724,7 +862,7 @@ body{
 
                 </tr>
 
-                <tr>
+                <tr class="grand-total-row">
 
                     <th class="fs-5">
 
@@ -744,13 +882,24 @@ body{
 
             </table>
 
+            <div class="quote-validity-note">
+                <i class="bi bi-clock-history"></i>
+                <span id="validityMessage">Set a valid-until date to show the quotation validity period.</span>
+            </div>
+
+            </div>
+
         </div>
 
     </div>
 
 </div>
 
-<div class="d-flex justify-content-end gap-2">
+<div class="quotation-form-actions d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+    <span class="small text-muted"><i class="bi bi-shield-check me-1"></i>Totals are calculated from the quoted items.</span>
+
+    <div class="d-flex gap-2">
 
     <a
         href="{{ route('quotations.index') }}"
@@ -771,6 +920,8 @@ body{
         {{ $isEdit ? 'Update Quotation' : 'Save Quotation' }}
 
     </button>
+
+    </div>
 
 </div>
 
@@ -796,7 +947,8 @@ required>
 
 <option
 value="{{ $product->product_id }}"
-data-price="{{ $product->unit_price }}">
+data-price="{{ $product->unit_price }}"
+data-category="{{ $product->category }}">
 
 {{ $product->product_name }}
 
@@ -868,6 +1020,7 @@ document
 .insertAdjacentHTML('beforeend',row);
 
 updateRemoveButtons();
+updateQuotationMeta();
 }
 
 function removeProduct(button)
@@ -878,6 +1031,7 @@ function removeProduct(button)
     {
         button.closest('tr').remove();
         calculateTotals();
+        updateQuotationMeta();
     }
 
     updateRemoveButtons();
@@ -914,18 +1068,19 @@ function applyPricingRule(select)
     let selectedRule=select.options[select.selectedIndex];
     let discountInput=document.getElementById('discount');
     let discountLabel=document.getElementById('discountLabel');
-    let discountType=selectedRule.dataset.discountType;
+    let discountType=(selectedRule.dataset.discountType || '').trim().toLowerCase();
     let discountValue=parseFloat(selectedRule.dataset.discountValue)||0;
+    let taxRate=parseFloat(selectedRule.dataset.taxRate);
     let helpText=document.getElementById('pricingRuleDiscountHelp');
 
     discountInput.readOnly=discountType !== '';
 
-    if (discountType === 'Percentage') {
+    if (discountType === 'percentage') {
         discountInput.value=discountValue;
         discountInput.max=100;
         discountLabel.textContent='Discount %';
         helpText.textContent='This rule applies a '+discountValue+'% discount.';
-    } else if (discountType === 'Fixed') {
+    } else if (discountType === 'fixed') {
         discountInput.value=discountValue.toFixed(2);
         discountInput.removeAttribute('max');
         discountLabel.textContent='Discount (₱)';
@@ -935,6 +1090,10 @@ function applyPricingRule(select)
         discountInput.max=100;
         discountLabel.textContent='Discount %';
         helpText.textContent='Select a pricing rule to apply its discount.';
+    }
+
+    if (discountType && !Number.isNaN(taxRate)) {
+        document.getElementById('tax').value=taxRate;
     }
 
     calculateTotals();
@@ -978,7 +1137,7 @@ function calculateTotals()
     let pricingRule=document.getElementById('pricingRule');
     let selectedRule=pricingRule.options[pricingRule.selectedIndex];
 
-    if (selectedRule.dataset.discountType === 'Fixed') {
+    if ((selectedRule.dataset.discountType || '').trim().toLowerCase() === 'fixed') {
         discountAmount=Math.min(subtotal,parseFloat(discountInput.value)||0);
     }
 
@@ -1005,7 +1164,39 @@ function calculateTotals()
         });
 }
 
+function updateQuotationMeta()
+{
+    const itemCount=document.getElementById('itemCount');
+    const itemRows=document.querySelectorAll('#productRows tr').length;
+    itemCount.textContent=itemRows;
+
+    const quotationDate=document.getElementById('quotationDate');
+    const validUntil=document.getElementById('validUntil');
+    const validityMessage=document.getElementById('validityMessage');
+
+    if (!quotationDate.value || !validUntil.value) {
+        validityMessage.textContent='Set a valid-until date to show the quotation validity period.';
+        return;
+    }
+
+    const start=new Date(quotationDate.value+'T00:00:00');
+    const end=new Date(validUntil.value+'T00:00:00');
+    const days=Math.round((end-start)/86400000);
+
+    validityMessage.textContent=days >= 0
+        ? `This quotation is valid for ${days === 0 ? 'today only' : days+' day'+(days === 1 ? '' : 's')+'.'}`
+        : 'The valid-until date must be on or after the quotation date.';
+}
+
 document.addEventListener('DOMContentLoaded',function(){
+
+    const productCategoryFilter=document.getElementById('productCategoryFilter');
+    const filterProductsByCategory=function(){
+        const category=productCategoryFilter.value;
+        document.querySelectorAll('.product-select option[data-category]').forEach(function(option){
+            option.hidden=category !== '' && option.dataset.category !== category;
+        });
+    };
 
     updateRemoveButtons();
 
@@ -1021,6 +1212,11 @@ document.addEventListener('DOMContentLoaded',function(){
     applyPricingRule(document.getElementById('pricingRule'));
 
     calculateTotals();
+    updateQuotationMeta();
+
+    document.getElementById('quotationDate').addEventListener('change',updateQuotationMeta);
+    productCategoryFilter.addEventListener('change',filterProductsByCategory);
+    filterProductsByCategory();
 
 });
 
