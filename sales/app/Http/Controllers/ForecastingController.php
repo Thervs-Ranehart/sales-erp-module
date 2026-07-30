@@ -28,6 +28,13 @@ class ForecastingController extends Controller
         $target = (float) array_sum($snapshot['monthlyTargets']);
         $achievement = $target > 0 ? ($snapshot['totalRevenue'] / $target) * 100 : 0;
         $recommendations = $this->recommendationsFrom($snapshot, $forecast);
+        $performanceRows = collect($this->performanceRows($snapshot));
+        $bestPerformer = $performanceRows->sortByDesc('achievement')->first();
+        $lowestPerformer = $performanceRows->sortBy('achievement')->first();
+        $topProducts = $this->ranked($snapshot['productSales'], 3);
+        $topRegions = $this->ranked($snapshot['regionalSales'], 3);
+        $topRepresentatives = $this->ranked($snapshot['representativeSales'], 3);
+        $recommendationCollection = collect($recommendations);
 
         return view('forecasting.index', [
             'dashboardKpis' => [
@@ -56,9 +63,20 @@ class ForecastingController extends Controller
                 'direction' => $this->direction($forecast['growthRate']),
                 'confidence' => $forecast['confidence'],
             ],
-            'topProducts' => $this->ranked($snapshot['productSales'], 3),
-            'topRegions' => $this->ranked($snapshot['regionalSales'], 3),
-            'topRepresentatives' => $this->ranked($snapshot['representativeSales'], 3),
+            'topProducts' => $topProducts,
+            'topRegions' => $topRegions,
+            'topRepresentatives' => $topRepresentatives,
+            'performanceSummary' => [
+                'bestPerformer' => $bestPerformer['employee_name'] ?? 'No target data',
+                'lowestPerformer' => $lowestPerformer['employee_name'] ?? 'No target data',
+            ],
+            'recommendationSummary' => [
+                'total' => $recommendationCollection->count(),
+                'highPriority' => $recommendationCollection->where('priority', 'High')->count(),
+                'opportunity' => $recommendationCollection->firstWhere('type', 'opportunity')['title'] ?? 'No opportunity identified',
+                'risk' => $recommendationCollection->firstWhere('type', 'risk')['title'] ?? 'No risk identified',
+            ],
+            'reportingPeriod' => $snapshot['start']->format('M Y').' – '.$snapshot['end']->format('M Y'),
             'priorityRecommendations' => collect($recommendations)->take(3)->all(),
             'recentInsights' => $this->salesInsights($snapshot, $forecast),
         ]);

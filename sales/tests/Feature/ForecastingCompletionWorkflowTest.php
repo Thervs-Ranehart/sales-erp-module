@@ -77,6 +77,20 @@ test('forecasting uses an explainable ensemble with statistical error measures',
         ->and($forecast)->toHaveKeys(['mae', 'mape', 'rmse']);
 });
 
+test('forecasting dashboard module summaries come from backend sales data', function (): void {
+    $response = $this->get(route('forecasting.index', ['year' => now()->year]));
+
+    $response
+        ->assertOk()
+        ->assertViewHas('topProducts', fn (array $products): bool => ($products[0]['name'] ?? null) === 'Forecast Product')
+        ->assertViewHas('reportingPeriod')
+        ->assertViewHas('recommendationSummary')
+        ->assertSee('Forecast Product')
+        ->assertDontSee('₱980,000')
+        ->assertDontSee('Peter Parker')
+        ->assertDontSee('safe sample values');
+});
+
 test('sales reports use customer regions separately from warehouses and exports are real', function (): void {
     $snapshot = app(SalesAnalyticsService::class)->snapshot(now()->year);
     expect($snapshot['regionalSales']->keys()->first())->toBe('National Capital Region')
@@ -117,4 +131,34 @@ test('saved forecasts accept actual outcomes and calculate accuracy', function (
     expect($forecast->fresh()->forecast_status)->toBe('Evaluated')
         ->and($forecast->fresh()->mae)->not->toBeNull()
         ->and($forecast->fresh()->mape)->not->toBeNull();
+});
+
+test('sales targets can be created from the target versus actual page', function (): void {
+    $response = $this->post(route('forecasting.targets.store'), [
+        'employee_id' => $this->employee->employee_id,
+        'target_month' => 7,
+        'target_year' => 2026,
+        'sales_target' => 25,
+        'revenue_target' => 125000,
+    ]);
+
+    $response
+        ->assertSessionHasNoErrors()
+        ->assertRedirect(route('forecasting.performance', ['year' => 2026]));
+
+    $this->assertDatabaseHas('sales_targets', [
+        'employee_id' => $this->employee->employee_id,
+        'target_month' => 7,
+        'target_year' => 2026,
+        'sales_target' => 25,
+        'revenue_target' => 125000,
+        'created_by' => $this->employee->employee_id,
+    ]);
+});
+
+test('target management redirects users without an employee session to login', function (): void {
+    $this->flushSession();
+
+    $this->get(route('forecasting.performance'))->assertRedirect('/');
+    $this->post(route('forecasting.targets.store'), [])->assertRedirect('/');
 });
